@@ -1,0 +1,484 @@
+\chapter{Descripción General}
+
+\section{Telefonía y redes IP}
+
+\subsection{Generalidades}
+\label{sec:generalidades}
+
+
+En el presente capitulo se presenta una introducción de conceptos fundamentales para entender el funcionamiento de la telefonía IP.
+
+
+La telefonía existe desde hace ya más de 100 años, las necesidades de comunicación y las nociones de distancia han cambiado con ella y a causa de ésta. Desde la aparición y sobre todo la popularización de Internet, otros medios más ligados a la informática como el e-mail o la mensajería instantánea parecen haber sustituido a la telefonía en determinadas circunstancias.
+
+
+Sin embargo, hay organizaciones o circunstancias que nos hacen depender del teléfono. A pesar de la irrupción de microportatiles y PDAs, no es común encontrarse a mano un ordenador con conexión a Internet y hay comunicaciones que necesitan más interactividad que la que proporciona cruzar un par de mensajes de texto.
+
+Así nos encontramos que es habitual mantener los dos sistemas no relacionados sin conectarlos aunque, sin embargo, comparten la misma finalidad: la necesidad de transporte e intercambio de información.
+
+
+\subsection{Caracterización de la voz humana}
+
+La voz humana es una señal analógica no periódica cuyo rango de operación en frecuencias está entre los 20 y los 20000 Hz. Sin embargo, su ancho de banda útil, donde se concentra la mayor información, se encuentra entre los 300 y los 4000 Hz.
+
+La rápida implantación de terminales hizo necesaria la creación de centrales (primero operadas por humanos y luego automáticas) y la creación de protocolos de telefonía.
+
+Sin entrar en detalles de cada uno de los protocolos hay ciertas señales (el número que marcamos, el colgado, el descolgado, u otras más complejas) que deben ser enviadas a la central para su tratamiento. Para esto existen dos alternativas:
+
+\begin{list}{-}{}
+  \label{lst:tipos-de-sel}
+\item Señalización \emph{in-band} (dentro de banda), donde las señales viajan junto a la voz. Esto permite que el usuario pueda llegar a conocerlas e incluso a emularlas (los inicios del phreaking están muy relacionados con esto,una caja de cereales y un silbato capaz de emular los tonos de la central, veasé \cite{wikipedia-crunch}).
+
+  \begin{figure}[!b]
+    \centering
+    \includegraphics[scale=0.5]{images/silbato_crunch}
+    \caption{Silbato capaz de emular un tono para manipular las antiguas centrales telefónicas.}
+  \end{figure}
+
+
+ También se puede enviar la señalización junto a la voz de manera oculta al usuario, utilizando cabeceras que se generan en el terminal, que posteriormente son captadas por la central y eliminadas cuando se reenvía para el terminal de destino (encapsulación). En telefonía digital, puede hacerse un proceso similar generando bits de guarda que marcan el inicio de una señal que son recibidos en la central telefónica, procesados y eliminados antes de su reenvío al destinatario. (Veasé \cite{wikipedia-inband})
+
+\item Señalización \emph{out-band} (fuera de banda), se define un canal separado donde viaja la señalización. En las lineas RDSI por ejemplo, en un acceso básico existen dos canales de datos cada uno de 64 Kib  y uno de señalización de 16 Kib (2B+D), la voz viaja por uno de los canales B y toda la señalización por el canal D.
+
+ \end{list}
+
+La señalización es relevante para la central o agente intermedio, ya que determina qué está ocurriendo realmente entre usuarios. Veasé la figura \ref{fig:modelo-funcional}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/modelo_telefonia}
+  \caption{Modelo funcional de Telefonía}
+  \label{fig:modelo-funcional}
+\end{figure}
+
+\subsection{Codecs}
+\label{sec:codecs-1}
+
+Para poder enviar la voz mediante medios digitales, debemos \emph{discretizarla}. Para este proceso de \emph{discretización o cuantificación} se utiliza un codec\footnote{\emph{cod}ificador-\emph{dec}odificador}. Un codec es una \emph{caja negra} física o lógica, que en la entrada recibe una señal de audio y a la salida devuelve una cadena de bits, o viceversa.
+
+Los parámetros habituales para comprobar las características de un codec son:
+
+\begin{description}
+\item[Frecuencia de muestreo], según el Teorema de Nyquist\footnote{o Nyquist-Shannon} para poder reproducir fielmente una señal con frecuencia máxima $f$ es necesario tomar muestras con una frecuencia $2f$. En telefonía tradicional y en VoIP la frecuencia de muestreo suele estar en los 8000 Hz, pues se considera que la mayor parte de los tonos de voz se concentran hasta los 4000 Hz. No obstante hay codecs que utilizan frecuencias más altas siendo 44100 Hz la máxima (pues el oído humano no escucha frecuencias superiores de 22,5 KHz).
+\item[Número de bits por muestra]. al tomar muestras para discretizar una señal continua, utilizar más bits hace que la señal reconstruida ajuste mejor a la original.
+\item[Perdida] la codificación desprecia armónicos no audibles o no importantes en la señal de audio original, generando una señal que una vez reproducida no es \emph{completamente} fiel a la de la entrada pero si \emph{suficientemente} fiel.
+\item[Número de canales] un sólo canal (mono), dos (estéreo) o más. En telefonía suelen utilizarse codecs que utilicen un único canal, debido a que más canales requeriría más ancho de banda para su transmisión.
+\end{description}
+
+
+
+\subsection{Redes IP}
+\label{sec:redes-ip}
+
+IP (\emph{Internet Protocol}) es un protocolo de entrega de paquetes de máximo esfuerzo no confiable. Las redes conmutadas de paquetes, como las que utilizan el protocolo IP, difieren de otras redes como las conmutadas por circuitos o por tramas. La telefonía tradicional ha venido utilizando conmutación por circuitos, cuando se utiliza este tipo de red de comunicación entre llamador y llamante se establece un circuito físico o lógico que se puede seguir directamente desde el origen al destino de la llamada.
+
+En el caso de las redes conmutadas de paquetes la información que se desea transmitir se trocea en paquetes, los paquetes se envían desde origen a destino. Pero hay que hacer algunas matizaciones: dos paquetes de una misma \"conversación\" no tienen porque seguir la misma ruta y el orden en que lleguen los paquetes al destino depende del estado de la red, y la latencia de la ruta escogida por cada uno.
+
+IP es un protocolo que está dentro de la pila TCP/IP, que es un conjunto de protocolos que cubren \footnote{Entre ellos HTTP , DNS , ARP , ICMP \ldots} todos los servicios de red en una red de paquetes. Si el lector no tiene una solida formación en redes o en TCP/IP, una buena referencia es \cite{Stallings07}.
+
+Los protocolos de señalización y transporte a tiempo real del siguiente capitulo utilizan la pila TCP/IP, eso quiere decir que todos los protocolos acabarán utilizando un protocolo de transporte como TCP o UDP en combinación con un protocolo de entrega de paquetes como IP.
+
+
+
+\subsection{Protocolos abiertos para la señalización}
+
+Un protocolo abierto es un protocolo del cual podemos leer su especificación. Esto es importante porque nos permite crear nuestros propios clientes y servidores, lo que nos libera de una implementación concreta de un fabricante u proveedor.
+
+Una de las primeras cosas que hay que tener en cuenta al tratar un protocolo es que la especificación debe de materializarse en una implementación, y comprobar que una implementación dada responda adecuadamente a lo estipulado en la especificación.
+
+Sin embargo, \emph{podemos} (si lo necesitamos) comprobar como de fiel es a la especificación una implementación dada por los mensajes que esta devuelve. Esto no es posible con protocolos cerrados o propietarios donde debemos confiar en la palabra del fabricante u proveedor.
+
+
+
+
+\section{Protocolos abiertos de VoIP}
+\label{sec:prot-abiert-de}
+
+
+\subsection{H323}
+
+H323 fue el primer protocolo abierto de telefonía IP. Surge como una evolución \" natural \" de otros protocolos de videoconferencia y telecomunicaciones por parte de la ITU-T\footnote{The Telecommunication Standardization Sector (ITU-T)}.Es parte de la serie de protocolos H.32x que es un conjunto de estándares que definen los elementos necesarios para la Telefonía a través de IP.
+
+En la familia H.32X hay una serie de figuras definidas, cada figura cumple con una serie de atribuciones:  
+\begin{description}
+
+\item[Terminal] dispositivo para iniciar o recibir la comunicación.
+\item[Gatekeeper] (\emph{controlador de dominio}) dispositivo que proporciona:
+  \begin{enumerate}
+  \item Traducción de direcciones
+  \item Control de admisiones
+  \item Control de Ancho de banda
+  \item Administración de Zonas
+  \item Control de señalización de llamada
+  \item Autorización de llamadas
+  \item Administración de ancho de banda
+  \item Administración de llamadas
+  \end{enumerate}
+
+\item[Gateway] (\emph{convertidor de medios}) dispositivo que permite la conversión de redes H323 a otras redes como PSTN (RTC), ISDN (RDSI), etc 
+\end{description}
+
+A continuación, se muestra un listado de los principales protocolos de la familia H.32X:
+
+\begin{list}{-}{}
+\label{lst:h32x}
+\item H.225.0 Registro, Admisión y eStatus (RAS), utilizado entre un terminal H.323 y un Gatekeeper para proporcionar resolución de direcciones y servicios de control de admisión. 
+
+\item H.225.0 Señalización de llamada, utilizado entre dos entidades H323 para establecer la comunicación (terminal $\leftrightarrow $ terminal , Gatekeeper $\leftrightarrow $ terminal , \ldots ).
+\item H.245 protocolo de control para comunicaciones multimedia. Estas describen los mensajes y procedimientos usados para el intercambio de capacidades, apertura y cierre de canales lógicos para audio, vídeo y datos, controles e indicaciones.
+
+\item Real-time Transport Protocol (RTP), el cual es usado para enviar y recibir información multimedia (voz , vídeo , o texto) entre dos entidades.
+\item H.235 describe la seguridad en H.323, para señalización y multimedia.
+
+\item H.239 describe el canal dual usado en videoconferencia, usualmente una para vídeo en tiempo real y otro para imágenes fijas.
+
+\item H.450 describe varios servicios suplementarios.
+
+\item H.460 define extensiones opcional que pueden ser implementados en un terminal o Gatekeeper, especialmente para soslayar las NAT/Firewall.
+
+\end{list}
+
+El anterior listado nos da una idea de la complejidad del protocolo H323, pues involucra a varios protocolos que cooperan para ofrecer un servicio. 
+
+
+El acceso a la especificación de los protocolos H32X no es gratuito, el estándar se ha de comprar, siguiendo la política de distribución de estandarización ISO. Aún así, el ITU-T ha publicado algunos estándares de manera libre que pueden verse en \cite{H323}.
+
+El proceso de llamada es bastante complejo en H323, y la petición de servicios no es ortogonal, es cambiante según las figuras que estén presentes. El siguiente es un ejemplo de llamada entre dos terminales H323 (Figura \ref{fig:llamada-H323}).
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/H323}
+  \caption{Llamada entre dos terminales H323}
+  \label{fig:llamada-H323}
+  \footnote{Imagen reproducida con permiso del autor , \emph{Fuente : http://www.voipforo.com/images/H323-comunicacion.gif}}
+\end{figure}
+
+\subsection{SIP}
+
+
+SIP es un protocolo que define cómo establecer sesiones multimedia entre dos usuarios. En él no se explica ni se define como pasar la voz, sólo se define como señalizarlo. SIP es un protocolo completo, por lo que al hablar de él en realidad nos estamos refiriendo a una familia de protocolos que SIP utiliza o que extienden a éste.
+
+En concreto en el propio RFC\cite{rfc3261}, se define: 
+\begin{quotation}
+  
+
+\emph{"SIP es un protocolo de control de la capa de aplicación que puede establecer, modificar, y terminar sesiones multimedia como llamadas telefónicas por Internet. SIP puede también invitar participantes a sesiones existentes, como conferencias."
+}
+\end{quotation}
+
+SIP soporta cinco funciones de las comunicaciones multimedia:
+\begin{list}{$\bullet$}{}
+\item Localización del usuario: determina el lugar del usuario final para la comunicación.
+\item Disponibilidad del usuario: determina la voluntad del llamado de unirse a una comunicación.
+\item Capacidades del usuario: determina los medios que se usarán.
+\item Sesión de configuración: "llamar" , establecimiento de los parámetros de sesión para llamante y llamado.
+\item Gestión de la sesión: incluyendo transferencia y terminación de las sesiones, modificación e invocación de servicios.
+\end{list}
+
+
+A diferencia de H323, SIP  esta disponible de manera publica y gratuita en la web de los RFC. (\cite{rfc3261})
+
+SIP esta basado en el protocolo HTTP \cite{rfc2616}, del cual toma el modelo general y algunos códigos de respuesta. Cualquier paquete SIP se escribe en texto plano, y puede observarse mediante cualquier analizador de red (Veasé sección \vref{sec:herr-de-anal}).
+
+\subsubsection{Ejemplo de conversación con SIP}
+\label{sec:ejemplo}
+
+El ejemplo más básico es el que involucra dos proxys y dos terminales, que forman el denominado trapezoide SIP (Figura \ref{fig:trapezo-sip}). Ésta es la topología de red más usual y sencilla, en la que intervienen dos terminales conectados cada uno de ellos a un servidor proxy SIP.
+
+\begin{figure}[b]
+  \centering
+  \includegraphics[width=0.6\textwidth]{images/trapezoide}
+  \caption{Trapezoide SIP}
+\label{fig:trapezo-sip}
+\end{figure}
+
+Si \emph{tlf1} quisiese llamar a \emph{tlf2}, el diagrama \ref{fig:conv-sip} nos muestra la secuencia de mensajes que se daría. Para cada mensaje se indica el orden en que se emite, el tipo de mensaje y la direccionalidad del mismo. Hay que tener en cuenta que en principio \emph{tlf1} no puede llegar directamente ni a \emph{tlf2} ni a \emph{proxy2.com}, así que deja esa responsabilidad a su servidor SIP, que si lo conoce (en caso contrario le respondería con un mensaje 404 de no encontrado\footnote{¿Le suena?}).
+
+\begin{figure}[!h]
+  \centering
+ \label{fig:conv-sip} 
+ \includegraphics[width=0.8\textwidth]{images/conversacionSIP}
+  \caption{Conversación SIP usual de \emph{tlf1} a \emph{tlf2}}
+
+\end{figure}
+
+Dentro de este pequeño ejemplo podemos concretar los elementos de cualquier conversación SIP, los pasos del 1 al 12 y del 13 al 14, son mensajes de señalización que no involucran audio, los mensajes de 1 a 3 realizan la invitación, los mensajes del 6 al 8 muestran al llamante que se ha realizado la llamada, y los mensajes del 9 al 11 son la aceptación de la llamada por el llamado. Una vez realizado todo esto, es cuando realmente se procede a la comunicación entre terminales.
+
+Nótese que la comunicación entre terminales se produce en el mensaje 12, hasta entonces la comunicación es a través de servidores SIP. Pero una vez que se acepta la llamada la comunicación es ya directa entre terminales, no se notifican a los servidores los mensajes.
+
+\subsubsection{Transacciones y diálogos, el modelo de señalización SIP}
+\label{sec:trans-y-dial}
+
+En el ejemplo anterior, veíamos algunos actores de una comunicación entre dos terminales SIP y dos servidores proxy. SIP es un modelo de petición/respuesta, a una petición pueden seguirle una o más respuestas. Definimos así:
+
+\begin{quotation}
+\emph{Una \textbf{transacción} se compone de una petición inicial seguida de una o varios mensajes de respuesta. E.j.: Un mensaje INVITE comienza una transacción que acaba tras varias respuestas con un código 200.}
+\end{quotation}
+
+En cambio, un diálogo es la comunicación que se produce entre dos mismos agentes de usuario, i.e. entre dos clientes o entre un cliente y un servidor. 
+
+\begin{quotation}
+\emph{Un \textbf{diálogo} es una o más transacciones que se producen entre dos mismos agentes de usuario.Para identificar el diálogo se miran las cabeceras} \verb|From:| \emph{,} \verb|To:| \emph{y } \verb|Call-ID:|. \emph{el orden de mensajes de un diálogo se determina con la cabecera} \verb|Cseq:|
+\end{quotation}
+
+\label{sec:agente-de-usuario}
+
+Por su parte un \textbf{agente de usuario}, puede dividirse en dos partes, un \textbf{servidor de agente de usuario} que recibe las peticiones de otros agentes de usuario clientes, y un \textbf{agente de usuario cliente} que realiza las peticiones a otros agentes de usuario servidores. Un terminal se compone de un agente de usuario servidor y un agente de usuario cliente, un servidor SIP se compone de uno o varios agentes de usuario servidor y cliente.
+
+\subsubsection{Peticiones y respuestas}
+\label{sec:peticiones-sip}
+
+Una petición SIP indica el usuario o servicio al que se quiere acceder. Una petición tiene la siguiente estructura:
+
+\begin{verbatim}
+Metodo dirección-adonde-la-peticion Version-SIP CRLF
+\end{verbatim}
+
+Donde método, puede ser uno de los seis siguientes, definidos en el estándar, o algún otro, definido en las extensiones para SIP\footnote{como PUBLISH para notificar un cambio de evento\cite{rfc3903}, o MESSAGE\cite{rfc3428} para mensajeria instantanea.}:
+
+\begin{description}
+\item[INVITE], para comenzar una sesión con otro usuario.
+
+\item[REGISTER], para registrar la localización actual del usuario y poder comenzar a utilizar los servicios SIP.
+\item[ACK], para confirmar los mensajes que se produzcan en una sesión.
+\item[CANCEL] , para denegar el establecimiento de una sesión. (para colgar, por ejemplo)
+\item[BYE], para acabar una sesión establecida.
+\item[OPTIONS], para preguntar al servidor sobre las capacidades del mismo.
+
+\end{description}
+
+Cada una de estas peticiones genera respuestas, las respuestas generadas siguen el siguiente formato:
+
+\begin{verbatim}
+VERSION SIP Codigo-estado razon-de-respuesta CRLF
+\end{verbatim}
+
+Donde código de estado es un código numerico que indica el tipo de respuesta, y la razón de respuesta es una razón textual que explica más detalladamente la respuesta. El primer dígito del código numerico marca el significado de la respuesta, pudiendo ser:
+
+\begin{list}{$\bullet$}{}
+\item 1xx: Provisional, petición recibida, continua el procesamiento de la petición. E.j. el 100 significa \"intentando\".
+\item 2xx: Éxito, la petición fue recibida,entendida y aceptada.
+\item 3xx: Redirección, se necesitan más acciones para completar la petición, o el servidor proxy no puede acabar la petición y se reencamina a otro que si pueda.
+
+\item 4xx: Error del cliente, la petición esta mal formada o no puede ser procesada en ese servidor.
+
+\item 5xx: Error del servidor, el servidor fallo al procesar una petición aparentemente valida.
+\item 6xx: Fallo global, la petición no puede ser procesada en ningún servidor.
+\end{list}
+
+\subsubsection{Tipos de servidores SIP}
+\label{sec:tipos-de-servidores}
+
+El RFC (\cite{rfc3261}) define una serie de entidades lógicas que tienen funciones muy concretas: son las encargadas de cumplir las funciones del protocolo.
+
+\begin{itemize}
+
+
+\item \parrafo{Servidor registrar}
+
+\begin{figure}[!h]
+\label{fig:sip-registrar}  
+\centering
+  \includegraphics[width=0.6\textwidth]{images/registrar}
+  \caption{Servidor registrar}
+\end{figure}
+
+\emph{Un servidor registrar es el} servidor que recibe los mensajes \verb|REGISTER| , es el encargado de pedir la autenticación al usuario y de almacenar su localización actual (ip,nombre de usuario y puerto) en una \emph{base de datos de localizaciones}. Cuando otros servidores (como un servidor proxy) busquen , por ejemplo, al usuario sip:tlf@proxy1.com , la base de datos de localizaciones le devolverá \\ \emph{sip:tlf1@a.b.c.d:puerto}. Es un servidor lógico que generalmente se utiliza un servidor proxy. 
+
+
+\item \parrafo{Servidor redirect}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/redirect}
+  \caption{Servidor redirect}
+  \label{fig:sip-redirect}
+\end{figure}
+
+\emph{Un servidor redirect} indica al cliente la localización actual de la persona a la que llama, pero no inicia la comunicación. En el ejemplo del trapezoide \ref{sec:ejemplo} , tras el mensaje 1, le seguiría una respuesta del servidor redirect con un mensaje de respuesta 3XX, donde se le indica la localización del usuario que se buscaba. Entonces, el llamante debe generar un nuevo INVITE al usuario encontrado. 
+
+
+
+\item \parrafo{Servidor proxy o SIP router}
+
+\emph{Un servidor proxy es} el encargado de \textbf{\emph{encaminar}} una petición de sesión de un usuario al proxy más cercano que pueda dar curso a esa petición. Es también el encargado de la autenticación y de el \emph{accounting\footnote{No existe una buena traducción sin ambiguedades, el accounting es la gestión de usuarios en el sentido de permisos, servicios que puede acceder y para facturación.}.}Un ejemplo de servidor proxy funcionando se ha mostrado ya mediante el trapezoide SIP (figura \ref{fig:trapezo-sip}).
+
+\end{itemize}
+\subsubsection{Nivel de implantación de SIP}
+\label{sec:implantacion-de-sip}
+
+SIP es un protocolo estándar aprobado por el IETF, que tiene muchos dispositivos compatibles en el mercado. Es con diferencia el protocolo que más se implementa en los dispositivos de telefonía IP.
+
+
+\subsubsection{XMPP}
+\label{sec:xmpp}
+
+XMPP (\emph{e\textbf{X}tensible \textbf{M}essaging and \textbf{P}resence \textbf{P}rotocol},Protocolo extensible de mensajería y comunicación de presencia) es un protocolo abierto , estandarizado por el IETF (\cite{rfc3920} \cite{rfc3921} y \cite{rfc3922}) pero con muchas extensiones en proceso de estandarización. XMPP es un protocolo que fue diseñado para mensajería instantánea, para este propósito intercambia entre clientes ficheros XML. Actualmente se está desarrollando una extensión para XMPP(Jingle \cite{jingle-overview}), que permita el flujo de audio mediante RTP de modo que Jingle se encargue de la señalización. Además el protocolo se ha diseñado intentando mantener cierta compatibilidad con SIP.
+
+Pero además de su posible inclusión como nuevo protocolo de VoIP, XMPP tiene su propio peso en el mundo de la VoIP como protocolo de presencia. Aunque SIP tiene SIMPLE, hay pocas implementaciones del protocolo, en cambio XMPP lleva siendo implantado de manera masiva (GTalk, el cliente de mensajería instantánea de Google utiliza XMPP). 
+
+\subsection{Transporte en tiempo real y redes IP}
+\label{sec:transporte-en-tiempo}
+
+Al transmitir datos que no necesitan llegar en tiempo real, la latencia no nos afecta demasiado, siempre y cuando los paquetes lleguen al destino. Al transmitir audio,vídeo o cualquier sesión multimedia esta situación no puede producirse, pues en este tipo de datos la temporización es muy importante para poder comprender el contenido del mismo. Así que no nos basta con cerciorarnos de que los paquetes lleguen sino que además necesitamos que lleguen en el tiempo necesario y se ordenen de la manera adecuada.
+
+El protocolo encargado de la temporización y del reordenado de este tipo de paquetes es RTP, éste sin embargo, confía en que los paquetes llegarán en un tiempo \emph{adecuado} para que el destino este pueda reordenarlos. 
+
+Los paquetes UDP son más pequeños que los TCP, y aunque no sean confiables, se suele utilizar este transporte para los servicios de telefonía IP. Esto unido a la creación de un \emph{jitter-buffer} (Veasé \ref{def:jitter-buffer})  y a la utilización de equipos con QoS \footnote{Calidad de servicio. Capacidad de los equipos de red de priorizar los paquetes según su relevancia}, permiten mantener controlada la latencia de red y hacer que la transmisión de datos multimedia sea lo suficientemente \emph{fluida} para humanos, sin los cortes producidos por paquetes que llegan fuera de tiempo. 
+
+\subsection{RTP y RCTP}
+\label{sec:rtp}
+
+RTP (\emph{Realtime Transport Protocol }) y RTCP (\emph{Realtime Transport Control Protocol}), son protocolos destinados al transporte de flujos multimedia. Mientras RTP se encarga del transporte propiamente dicho, RTCP utiliza RTP para ofrecer calidad de servicio y otras funciones relacionadas con conferencias y sesiones multimedia.
+
+\subsection{RTP y  NAT}
+\label{sec:rtp-y-las}
+
+Como ya hemos comentado, H323 y SIP son protocolos de señalización, que utilizan para el transporte multimedia RTP. Esto introduce un problema. Por ejemplo, en SIP, la señalización utiliza un único puerto, generalmente el 5060, para la administración de la red solo es necesario dejar paso a ese puerto.
+
+Sin embargo una conversación puede tener varios flujos RTP, varios canales de audio y vídeo, y un único cliente puede utilizar varios flujos RTP (con otra cuenta de VoIP, o para streaming). RTP funciona en cualquier puerto UDP disponible por encima de 5000\footnote{Los puertos por debajo de 1024 inclusive, son los denominados puertos privilegiados. En algunos sistemas Unix además los puertos entre el 1024 y el 5000 son asignados por el sistema operativo y no por las aplicaciones de usuario.} (\cite{rfc3551}, \cite{rfc3550}). El puerto seleccionado ha de ser par, puesto que el puerto siguiente impar sera el número de puerto utilizado por el protocolo RTCP. \cite{rfc4961} . 
+
+\subsubsection{El problema RTP-NAT}
+\label{sec:el-problema}
+
+El problema proviene cuando existe entre los dos terminales, un dispositivo que está dentro de la ruta de transporte de la red que hace NAT  o es un firewall.
+
+Más arriba se ha comentado que RTP utiliza puertos aleatorios por encima del 5000. Al no tener un rango de puertos definido es difícil darles cabida en las reglas de filtrado de firewall o en las reglas de enrutamiento NAT para los dispositivos NAT:
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/NAT-problema}
+  \caption{El problema}
+  \label{fig:NAT-Problema}
+\end{figure}
+Por si esto fuera poco, la implementación de la función de NAT depende del fabricante y del dispositivo. Se pueden identificar varios tipos de NAT.
+
+\begin{description}
+\item[Full Cone NAT] 
+
+Una NAT de tipo \emph{Full Cone} es una donde todas las peticiones de las misma IP interna y puerto son redirigidas a una dirección IP y puerto. Además cualquier equipo externo puede enviar un paquete a la dirección interna utilizando la IP redirigida y el puerto. Si no se escoge ninguna redirección cada paquete proveniente de una dirección interna utiliza una redirección común con cualquier puerto. Veasé figura 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/Full_Cone_NAT}
+  \caption{\emph{NAT Full Cone} , Fuente : \emph{Wikipedia}}
+\label{fig:fnat}
+\end{figure}
+
+\item[Restricted Cone NAT] 
+
+Todas las peticiones de una IP interna son redirigidas a una IP pública y puerto. Cualquier equipo externo sólo podrá enviar un paquete a la IP interna si ésta le envío anteriormente un paquete al equipo externo sin importar el numero de puerto. 
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/Restricted_Cone_NAT}
+  \caption{\emph{Restricted Cone} , Fuente : \emph{Wikipedia}}
+  \label{fig:rnat}
+\end{figure}
+
+
+\item[Port Restricted Cone NAT] 
+
+La \emph{Port Restricted Cone NAT} es similar a la \emph{Restricted Cone NAT} excepto que un equipo externo sólo podrá enviar un paquete a un equipo interno, si el equipo interno envío un paquete anteriormente a la dirección IP $X$ del equipo externo en el puerto $P$ y esté responde a la dirección interna utilizando \textbf{el mismo puerto}. Es decir, sólo se aceptara un paquete externo dirigido hacia una dirección interna y puerto si ésta envió a la dirección externa un paquete.
+
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/Port_Restricted_Cone_NAT}
+  \caption{\emph{Port Restricted Cone} , Fuente : \emph{Wikipedia}}
+  \label{fig:rpnat}
+\end{figure}
+
+\item[Symmetric NAT] 
+\end{description}
+
+En la \emph{Symmetric NAT} una IP interna es redirigida a una dirección IP externa y un puerto. Si el mismo equipo interno envía un paquete desde la misma dirección y puerto pero a otro destino, se utiliza una redirección diferente. Es decir, para elegir una nueva redirección se utiliza un trío \emph{(dirección origen, puerto, dirección destino)} si alguno de los valores del trío cambia se utiliza una nueva redirección.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{images/Symmetric_NAT}
+  \caption{\emph{Symmetric NAT} , Fuente : \emph{Wikipedia}}
+  \label{fig:snat}
+\end{figure}
+
+\subsection{Soluciones al problema}
+\label{sec:soluc-al-probl}
+
+Para afrontar este problema hay algunas soluciones. Todas estas soluciones han sido concebidas para SIP o RTP, aunque pueden utilizarse para otras aplicaciones que adolezcan de los mismos problemas.
+
+\subsubsection{Evitarlas}
+\label{sec:evitarlas}
+
+Lo más directo, aunque no es en realidad una solución, consiste en confinar las comunicaciones VoIP dentro de la LAN, y para aquellos casos en que se necesite sortear un dispositivo con NAT utilizar un túnel VPN\footnote{\emph{Virtual Private Network}, red privada virtual}.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/NAT-vpn}
+  \caption{Utilizar túneles VPN}
+  \label{fig:NAT-vpn}
+\end{figure}
+
+\subsubsection{STUN}
+\label{sec:servidor-stun}
+
+STUN\footnote{\emph{Simple Traversal of UDP over NAT}} es un protocolo que sirve para que el cliente conozca qué tipo de NAT está utilizando y su IP pública de modo que pueda intentar modificar las cabeceras para paliar este comportamiento.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/NAT-STUN}
+  \caption{Funcionamiento de STUN}
+  \label{fig:STUN-funcionamiento}
+\end{figure}
+
+Para lograr determinar el tipo de NAT, STUN utiliza el siguiente algoritmo expuesto en la figura \ref{fig:STUN-Algoritmo} :
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/ALGORITMO-STUN}
+  \caption{Algoritmo del protocolo STUN, \emph{Fuente: Wikipedia}}
+  \label{fig:STUN-Algoritmo}
+\end{figure}
+
+STUN esta limitado para protocolos que utilicen UDP y tengan una determinada configuración NAT. Por lo tanto es una parte de la resolución del problema pero no lo resuelve en todos los casos.
+
+\subsubsection{TURN}
+\label{sec:servidor-turn}
+
+TURN\footnote{\emph{Traversal using Relay NAT}} es una extensión de STUN, se encarga de retransmitir los paquetes desde el cliente al servidor y viceversa.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=1\textwidth]{images/NAT-TURN}
+  \caption{Funcionamiento de TURN}
+  \label{fig:TURN-funcionamiento}
+\end{figure}
+
+Además de los problemas de seguridad inherentes a esta solución (deben utilizarse mecanismos de autentificación y protección) el reenvío introduce una redundancia y un coste para la red y el ancho de banda importante, al tratarse de datos multimedia.
+
+
+\section{PBX para telefonía IP}
+\label{sec:pbx}
+
+\subsection{Perspectiva}
+\label{sec:perspectiva}
+
+Las PBX (\ref{def:PBX}) han tenido una importancia crucial en los sistemas de telefonía tradicionales en empresas y otras organizaciones. La funcionalidad mínima que se espera de ellas es la de comunicar dos telefonos internos y conectar estos telefonos internos con una línea exterior. 
+
+Sin embargo, existen otras funciones que con el tiempo se han implementado como un \emph{núcleo} de funciones básicas para una PBX. Generalmente una PBX utiliza un protocolo de comunicación con sus extensiones y con sus lineas externas, es posible que una misma PBX tenga varias interfaces distintas para poder ser multiprotocolo.
+
+Una PBX es más una entidad lógica que un dispositivo fisico, pueden encontrarse PBX en hardware especifico, o PBX desarrolladas en software que se instalan en un PC generico, a estas ultimás se les denomina \emph{soft PBX}.
+
+\subsection{¿Soft PBX?}
+\label{sec:centralita-basada-en}
+
+Historicamente las PBX han pasado de ser operadoras humanas que hacian la interconexión del cableado mediante latiguillos a circuitería analógica mediante relés, posteriormente pasando a circuitos digitales de aplicación a especifica, hasta adoptar microcontroladores y microprocesadores con sistemás operativos y software especifico a sistemás operativos "generalistas".
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "memoria"
+%%% End: 
+
+
+

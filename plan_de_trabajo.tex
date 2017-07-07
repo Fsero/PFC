@@ -1,0 +1,80 @@
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+
+\title{Plan de trabajo}
+\author{Fabian Selles Rosa \\ \emph{fabian.sellesrosa@alum.uca.es}}
+\date{}
+\begin{document}
+\maketitle
+
+\section{Lineas Generales:}
+\begin{enumerate}
+\item Integración de SER como SIP router con una PBX por debajo sea cual sea la utilizada.
+\item Implantación de click2dial con dos posibilidades
+  \begin{enumerate}
+  \item Con un softphone integrado, se puede hablar desde el ordenador directamente.
+  \item Con un teléfono fijo, se conecta la llamada desde la extensión a la que se quiere llamar con un numero introducido por el usuario.
+  \end{enumerate}
+
+\item Implantación de servidores Jabber(XMPP)
+
+\item Implantación de IVR.
+\end{enumerate}
+
+\section{Lineas concretas de trabajo.}
+\label{sec:lineas-concretas-de}
+
+\begin{itemize}
+\item Instalación de un sistema Asterisk que haga de \emph{gateway\footnote{pasarela o convertidor de medios.}} entre la centralita \emph{SipX} y la centralita PBX de telefonía tradicional. Permitiendo integrar la centralita de pruebas \emph{SipX} con la telefonía tradicional. Pasos necesarios
+  \begin{enumerate}
+  \item Elaboración de un presupuesto.
+  \item Instalación del \emph{Gateway}
+  \item Pruebas y depuración.
+  \end{enumerate}
+\end{itemize}
+
+\section{Posibilidades a trabajar}
+\label{sec:posib-trab}
+
+\begin{itemize}
+\item Para el epigrafe 1:
+  \begin{itemize}
+  \item Tener servidores redundantes, si un servidor cae, la reserva se levanta mediante heartbeat.
+  \item Tener servidores redundantes con balanceo de carga.
+  \item Implementar una solución de facturación, bien de desarrollo propio o mediante herramientas externas como CDRtool.
+  \end{itemize}
+\item Para el epigrafe 2:
+  \begin{itemize}
+  \item Click2dial en web corporativas a servicios corporativos, profesores, etc.
+  \item Servicios corporativos a través de la mensajería instantanea.
+  \end{itemize}
+\item Para el epigrafe 3:
+  \begin{itemize}
+  \item Mensajeria instantanea interna.
+  \item Utilizar la mensajeria instantanea para comentar en foros de Moodle por ejemplo.
+  \item O para comentar en una página web de la UCA.
+
+  \item Integración con VoIP para la presencia y la mensajería desde el cliente VoIP.
+
+  \item Salas de charla, por ejemplo, por curso de Moodle o por titulación, produciendo un espacio de intercambio común de opinión.
+
+  \item Posibilidad de "transportar" mensajes XMPP a una página web, un ejemplo, profesor se reune con alumno y se deja constancia en una página web que otros pueden consultar.
+
+  \item PAS que recibe preguntas mediante mensajeria instantanea, se guardan las conversaciones para poder mejorar.
+
+  \end{itemize}
+
+\item Para el epigrafe 4:
+  \begin{itemize}
+  \item Mediante Asterisk se pueden crear y gestionar IVR con bastantes capacidades, un ejemplo, gestión de notas de selectividad.
+
+  
+  \end{itemize}
+\end{itemize}
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

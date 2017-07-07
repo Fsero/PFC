@@ -1,0 +1,33 @@
+
+\chapter{Conclusiones y trabajo futuro}
+\label{cha:concl-y-trab}
+
+\section*{Sobre los objetivos propuestos}
+
+Tras el trabajo realizado, podemos evaluar si se han cumplido los objetivos propuestos inicialmente. Creemos que estos han sido satisfechos, debido a que el capitulo 2 de este documento, es un punto de partida para cualquier instalador de telefonía IP para comprender los aspectos al menos más básicos de la tecnología. No existía documentación que relacionase anteriormente todos los aspectos que el neófito debe abordar (protocolos de señalización, transporte, aplicaciones disponibles, \ldots)
+
+Así mismo se ha generado una \textbf{ documentación libre y de calidad} que no existia. Explicando, de manera detallada, la instalación y configuración de una centralita \emph{Asterisk}. Se han proporcionado ejemplos de uso (pasando desde una pequeña PYME a una organización grande como es la propia Universidad) que aunque básicos, cubren las necesidades que mediante otras tecnologías tienen implantadas muchas organizaciones.
+
+\section*{Sobre telefonía IP y las aplicaciones de software libre}
+
+
+\begin{itemize}
+\item Las aplicaciones de software libre son lo suficientemente maduras como para implantar un sistema de telefonía a cualquier nivel. Desde pequeñas organizaciones a proveedores telefónicos. La flexibilidad, potencia de estas aplicaciones marcan un cambio radical con respecto al desarrollo de sistemas telefónicos clásicos.
+\item SIP ha sido y va a ser por el momento el protocolo de señalización imperante. No obstante, la evolución de XMPP, y las otras aplicaciones del protocolo para mensajería instantánea y presencia, hacen que sea un protocolo a tener en cuenta a medio plazo.
+\item Es necesario la creación de interfaces gráficos o mejorar los existentes para que el operador pueda gestionar su instalación. Actualmente las aplicaciones de gestión o estos interfaces están orientados al instalador, permitiendo el control de todo el sistema.
+\item Debido a la aparición de terminales móviles con mejores recursos, y a la aparición de terminales con un sistema operativo propio libre (como \emph{Android}),es muy necesaria la creación de un softphone libre para móviles.
+\end{itemize}
+
+
+\section*{Trabajo futuro}
+
+\begin{itemize}
+\item Mejorar o crear interfaces gráficas de usuario y/o aplicaciones para \emph{Asterisk} y \emph{openSER} orientadas al operador que explote el sistema. Por ejemplo, ayudando a la creación de IVR de manera gráfica mediante \emph{Asterisk} o integrando estas herramientas en herramientas de monitorización como \emph{Nagios}.
+\item Desarrollar nuevos softphones para móviles y softphones libres con interfaces gráficas más pulidas que las existentes, utilizando para ello librerias libres como \emph{PJSIP} \cite{devel-pjsip} y Sofia \cite{devel-sofia}.
+\item Explorar las posibilidades como centro de domótica de \emph{Asterisk} utilizando pequeñas placas como \emph{Arduino}.
+\end{itemize}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "memoria"
+%%% End: 

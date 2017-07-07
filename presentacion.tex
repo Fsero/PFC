@@ -1,0 +1,712 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[greek,spanish]{babel}
+\usepackage{subfigure}
+\usepackage{hyperref}
+\usepackage{multicol}
+
+\mode<presentation>
+{
+  \usetheme{Copenhagen}
+  \setbeamertemplate{navigation symbols}{}
+}
+\author{Fabián Sellés Rosa}
+\institute[UCA]{Universidad de Cádiz}
+\logo{\includegraphics[scale=0.05]{images/logouca}}
+\title[Análisis de VoIP con software libre.]{Análisis de implantación de telefonía IP mediante Software Libre}
+\subtitle{Proyecto Fin de Carrera: curso 2008-2009}
+\date{\today}
+
+\makeindex
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+\tableofcontents[hideallsubsections]
+\end{frame}
+\section{Introducción}
+
+\begin{frame}
+  \begin{block}{Objetivo}
+    \begin{itemize}
+    \item Hacer un estudio de la viabilidad de implantación de telefonía IP mediante software libre.
+    \item Este estudio nace por un interés del CITI para su aplicación a la Universidad de Cádiz. Por ello se me concede una beca de tres meses (inicialmente) en la OSLUCA.
+    \end{itemize}
+  \end{block}
+  
+
+\end{frame}
+\subsection{Motivación del proyecto}
+\label{sec:motiv-del-proy}
+
+\begin{frame}{Motivación del proyecto}
+\begin{block}<only@1>{Planteamiento}
+   El Area de Informática (CITI), tiene una red telefonica (tradicional y IP) basada en centralitas Nortel (para la parte IP) y centralitas Avaya - Bosch (para telefonía analógica). Se plantea un cambio en la infraestructura debido a:
+  \end{block}
+  \onslide<2->
+  \begin{block}{Mótivos}
+    \begin{itemize}
+    \item<2-> Un alto coste de mantenimiento que hay que pagar a Nortel.
+    \item<3-> Un marco de crecimiento limitado por las propias herramientas Nortel.
+    \item<4-> Cualquier cambio requiere una fuerte inversión en equipamiento.
+    \item<5- |alert@5> Se solicita un análisis previo de viabilidad utilizando otras tecnologías (el PFC).
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+\subsection{Situación inicial}
+
+\begin{frame}{Situación inicial}
+  \begin{block}{Nos encontramos con:}
+    \begin{itemize}
+    \item Mucha variedad de protocolos y aplicaciones: H323,SIP,XMPP,Asterisk\ldots
+    \item La documentación existente muchas veces está desactualizada, dispersa o no es concreta.
+    \item Hay que irse a muy bajo nivel forzosamente para entender las aplicaciones de alto nivel.
+    \item Al emular o complementar servicios telefónicos hay que conocerlos previamente.
+    \item Planificación inicial para 3 meses.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Partes del proyecto}
+    \begin{itemize}
+    \item Formación en telefonía y telefonía IP.
+    \item Análisis y prueba de los sistemas software disponibles
+    \item Elaboración de una propuesta para la UCA.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\subsection{Breve historia de la telefonía}
+
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Breve introducción a la telefonía}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Historia de la telefonía}
+  \begin{description}
+  \item[Etimología]la telefonía (del griego  
+    \begin{otherlanguage}{greek}
+      thles
+    \end{otherlanguage}, lejos y 
+    \begin{otherlanguage}{greek}
+      fonos
+    \end{otherlanguage}, sonido) nace a finales del siglo XIX con la invención del teléfono.
+\item[De finales de XIX a 1950]nacen las centralitas, operadas por humanos.
+\item[De 1950 a 1960]primeras centralitas analógicas automáticas basadas en relés.
+\item[De 1960 a 1970]primeras centralitas digitales basadas en transistores. Nace la telefonía digital.
+\item[De 1970 a 1990]aparece Internet, informatización sucesiva de las centralitas. Explosión de las redes de datos.
+\item[De 1990 a la actualidad]se abandonan las redes analógicas, nace la telefonía IP, ADSL, modems \ldots
+  \end{description}
+%   \begin{figure}[b]
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{images/tlfanalogico}
+%      \includegraphics[width=0.3\textwidth]{images/pbxmanual}
+%   \end{figure}
+\end{frame}
+
+% \begin{frame}{Historia de la telefonía: las operadoras, telefonía analógica y digital.}
+  
+%   \begin{block}{De finales del XIX a 1950}
+%     \begin{itemize}
+%     \item Nacen las centralitas, operadas por humanos: se crean centros de \emph{conmutación} dónde un operador humano conectaba emisor con receptor de la llamada.
+%     \item Desarrollo del teléfono por parte de las operadoras: creación del circuito marcador, timbre de llamada, mayor distancia \ldots
+%     \end{itemize}
+%   \end{block}
+
+%   \begin{figure}[b]
+%     \centering
+   
+%   \end{figure}
+
+% \end{frame}  
+
+% \begin{frame}{Historia de la telefonía: expansión de la telefonía}
+%   \begin{block}{Década de 1950}
+%     \begin{itemize}
+%     \item aparecen las primeras centralitas automáticas electronicas basadas en relés.
+%     \item expansión de las redes de telefonía nacionales e internacionales.
+%     \end{itemize}
+%   \end{block}
+  
+%   \pause
+%   \begin{block}{Década de 1960}
+%     \begin{itemize}
+%     \item se instalan en las empresas centralitas privadas(PBX), no son más que paneles de conmutación manuales para uso interno de la empresa.
+%     \item con los nuevos avances electrónicos, en especial el transistor, comienza la telefonía digital para las centralitas.
+%     \end{itemize}  
+%   \end{block}
+
+% \end{frame}
+
+% \begin{frame}{Historia de la telefonía: aparece Internet, se popularizan los ordenadores}
+%   \begin{block}{de 1970 a 1990}
+    
+%     \begin{itemize}
+%     \item Aparece Internet, se popularizan los ordenadores, se desarrollan y crecen exponencialmente las redes de ordenadores: protocolo TCP/IP , WWW \ldots
+%     \item Aparecen las centrales telefónicas que adoptan los ordenadores, pasan de centralitas electrónicas a informáticas: el software es barato y flexible.
+%     \item La red telefónica sigue siendo en su mayor parte analógica. El acceso a Internet se realiza mediante modems. No se puede utilizar a la vez un módem y el telefono, el modem ocupa todo el ancho de banda.
+%     \end{itemize}
+%   \end{block}
+% \end{frame}
+
+% \begin{frame}{Historia de la telefonía: aparece la VoIP, la telefonía digital se expande}
+
+%   \begin{block}{de 1990 a la actualidad}
+%     \begin{itemize}
+%     \item Las redes telefónicas comienzan a digitalizarse, en parte por la necesidad de accesos más rápidos a Internet.
+%     \item Aparece la RDSI(ISDN), el ADSL y las operadoras de cable que permiten tener acceso a Internet y al servicio telefonico a la vez.
+%     \item El número de internautas y de ordenadores por domicilio no para de crecer.
+%     \item En 1997 aparecen los protocolos H323 y SIP, protocolos abiertos de telefonía IP.
+%     \end{itemize}
+%   \end{block}
+
+% \end{frame}
+
+\subsection{Modelo funcional de la telefonía}
+\label{sec:modelo-funcional-de}
+
+\begin{frame}{Módelo funcional de la telefonía}
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=.7\textwidth]{images/modelo_telefonia}
+  \end{figure}
+  
+\end{frame}
+\subsection{Telefonía IP: ventajas e inconvenientes}
+\label{sec:telefonia-ip}
+\begin{frame}{Telefonía IP: Definición,ventajas e inconvenientes}
+
+  \begin{block}{Definición}
+    Conjunto de tecnologías y protocolos para construir una red telefónica sobre infraestructura TCP/IP. 
+  \end{block}
+  \begin{block}{Ventajas}
+    \begin{itemize}
+    \item Es flexible.
+    \item Es económica.
+    \item Es geográficamente ilimitada.
+    \item Es necesaria: para mejorar el ancho de banda.
+    \item Es segura: proporciona autenticación y cifrado.
+   \end{itemize}
+ \end{block}
+ 
+%    \begin{figure}[b]
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{images/silbato_crunch}
+%   \end{figure}
+
+\end{frame}
+
+% \begin{frame}{Telefonía IP: Definición,ventajas e inconvenientes}
+%   \label{sec:amenazas-voip}
+%    % \begin{block}{Ventajas (II)}
+% %      \begin{itemize} 
+% %      \item Es necesaria: para mejorar el acceso a Internet por vía telefónica, se aprovecha el ancho de banda.
+% %      \item Es segura: proporciona autenticación y cifrado.
+% %      \end{itemize}
+% %    \end{block}
+
+% \end{frame}
+
+\begin{frame}{Telefonía IP: Definición,ventajas e inconvenientes}
+  \begin{block}{Inconvenientes}
+    \begin{itemize}
+    \item Las redes IP son más expuestas a ataques.
+    \item Actualmente, es difícil llegar a servicios básicos (emergencias, policía\ldots).
+    \item Actualmente, es necesario conectar con la telefonía tradicional (PSTN o RTC).
+    \item El problema con las NAT.
+      \begin{figure}[!h]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/NAT-problema}
+      \end{figure}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\section{Desarrollo del proyecto}
+\label{sec:desarr-del-proy}
+
+
+\section{Eligiendo alternativas para la implantación}
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Elegir el protocolo de señalización}}
+  \end{center}
+\end{frame}
+
+\subsection{Eligiendo el protocolo}
+\label{sec:elig-el-prot}
+
+\begin{frame}
+  \begin{block}{Protocolos estándares en telefonía IP}
+    \begin{itemize}
+    \item Permiten la interoperabilidad de dispositivos.
+    \item Son fáciles de depurar, mantener y extender.
+    \item No nos atan a un fabricante u organismo.
+    \end{itemize}
+  \end{block}
+\pause
+  \begin{block}{Decisión final}
+    \begin{itemize}
+    \item Protocolos abiertos de señalización: SIP, H323, XMPP\ldots
+    \item Protocolos abiertos para el transporte: RTP y RTCP.
+    \end{itemize}
+    
+  \end{block}
+  % \begin{figure}
+%     \centering
+%     \includegraphics[width=0.3\textwidth]{images/tlfanalogico}
+%   \end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \begin{block}{¿Qué protocolo elegir?}
+    \begin{itemize}[<+->]
+    \item No existen estadísticas de uso ni implantación.
+    \item Más que por ventajas técnicas, la supremacía de un protocolo viene por la relevancia. ¿Cómo medirla?
+    \item Utilizando \emph{Google Trends}, herramienta que muestra la evolución en número de veces que se busca un término en el buscador Google.
+  \end{itemize}
+  \end{block}
+\end{frame}
+ 
+
+\begin{frame}{Gráfica comparativa de protocolos}
+\begin{figure}
+  \centering
+  \label{fig:absoluta}
+  \includegraphics[width=0.8\linewidth]{images/trends/conjunta_absoluta}
+  \caption{Grafica de datos absolutos de busqueda, \emph{Fuente: Elaboración propia con datos de Google Trends. Realizado el 25 de Enero de 2009}}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Gráfica de \emph{Google Trends} comparando protocolos}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/trends/SvsIvsHvsX}
+    \caption{Grafica de datos de Google Trends \emph{Azul:SIP, verde:XMPP, naranja: IAX , rojo: H323} , Fecha: 25 de Enero de 2009}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Elegir una implementación}}
+  \end{center}
+\end{frame}
+
+\subsection{Eligiendo con que implementar VoIP}
+\label{sec:propietarias}
+
+\subsubsection{propietarias}
+\label{sec:propietarias-1}
+
+
+\begin{frame}{Alternativas: ¿Por qué no Skype?}
+  \begin{columns}
+    
+\column{.25\textwidth}  
+  \begin{figure}[bt]
+      \centering
+      \includegraphics[width=\textwidth]{images/logo_skype}
+    \end{figure}
+\column{.75\textwidth}  
+  \begin{block}{Skype}
+    
+    \begin{itemize}[<+-| alert@+>]
+    \item Es difícil de confinar \emph{Skype} en una red corporativa.
+    \item Todas las transferencias de archivos son cifradas. Los antivirus no pueden escanearlos: punto de entrada a la red.
+    \item Por la licencia de \emph{Skype}.
+    \item La ausencia de documentación sobre el protocolo y el cifrado.
+    \end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Alternativas propietarias: basadas en hardware de fabricante.}
+  \begin{columns}
+    
+\column{.25\textwidth}  
+  \begin{figure}[bt]
+      \centering
+      \includegraphics[width=\textwidth]{images/uca-centralita-pabx}
+    \end{figure}
+\column{.75\textwidth}  
+  \begin{block}{Alternativas: hardware especifico y software propietario}
+    
+    \begin{itemize}[<+-| alert@+>]
+    \item Modelo poco flexible y caro.
+    \item Se ata la instalación a un fabricante.
+    \item ¿Qué ocurre si el fabricante quiebra? 
+    \end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+
+\subsubsection{utilizando software libre}
+
+\begin{frame}
+  \begin{columns}
+    
+  \column{.25\textwidth}
+  \onslide<1->
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=\textwidth]{images/logognu}
+  \end{figure}
+  \column{.75\textwidth}
+  \onslide<1>
+  \begin{block}<only@1>{Alternativas: hardware genérico y software libre}
+    \begin{itemize}
+    \item Diversidad de aplicaciones con el mismo propósito: centralitas PBX, Router\ldots
+    \item A veces se duplican esfuerzos y se abandonan proyectos.
+    \item Aplicaciones flexibles que pueden ser adaptadas fácilmente a la realidad organizativa.
+    \item No dependen ni de ningún fabricante ni necesitan un hardware especifico.
+    \item Dependen de una comunidad fuerte de usuarios.
+    \end{itemize}
+    
+
+  \end{block}
+  
+\end{columns}
+\end{frame}
+
+\subsection{Eligiendo con qué implementar VoIP: resultado final}
+
+\begin{frame}
+  \begin{block}<+- |alert@+> {\textbf{Mejor utilizar software libre:}}
+    \begin{itemize}
+    \item En un entorno corporativo la flexibilidad es la clave.
+    \item El software libre está sometido a mucha más revisión (revisión de pares) que el propietario.
+    \item Comunidad de expertos e interesados: innovación, soporte técnico \ldots
+    \end{itemize}   
+     
+    \begin{quotation}
+      Dados los suficientes ojos, todos los errores aparecen. \emph{Eric S. Raymond}
+    \end{quotation}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Tipos de aplicaciones VoIP en software libre}
+  \begin{figure}
+    \centering
+    \parbox{0.8\textwidth}{
+      \begin{multicols}{2}
+        \includegraphics[width=.35\textwidth]{images/red_tipica}
+        \includegraphics[width=.35\textwidth]{images/red_SIP_tipica}  
+      \end{multicols}
+    }
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Elegir aplicaciones de software libre}}
+  \end{center}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Eligiendo PBX IP}
+    \begin{itemize}
+    \item Existen varias alternativas: \emph{Asterisk}, \emph{FreeSwitch}, \emph{SipX} \ldots
+    \item Aplicaciones con la misma finalidad pero desde perspectivas diferentes.
+    \item Misma problemática que con los protocolos: medir la relevancia.
+    \item Misma solución: utilizar \emph{Google Trends}.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Gráfica de \emph{Google Trends} comparando PBX IP}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/trends/SIPXvsASTvsFREE}
+    \caption{Grafico comparativo de Soft PBX libres,  \emph{Fuente: Google Trends; Azul = \emph{Asterisk} , Rojo = FreeSwitch , Naranja = SipX}. Fecha: 25 de Enero de 2009}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Elección de PBX IP: \emph{Asterisk}}
+    \begin{itemize}[<+- |alert@+>]
+    \item Es una aplicación estable, con una comunidad fuerte de usuarios.
+    \item Es el estandar \emph{de facto}, las otras aplicaciones de PBX tienen a \emph{Asterisk} como referencia.
+    \item Centralita programable y muy extensible, con muchas aplicaciones de terceros.
+    \item Variedad de hardware de telefonía compatible.
+    \item Pero \emph{Asterisk} no es escalable, se pone en medio de los datos y entre terminales.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Replanteo del PFC}
+    \begin{itemize}
+    \item En septiembre de 2008 nos planteamos el futuro del PFC y la beca:
+      \begin{itemize}
+      \item Con el trabajo realizado se podía presentar una solución limitada con \emph{Asterisk}.
+      \item Pero no se cumpliría el objetivo de la beca: presentar una solución implementable en la UCA.
+      \item Se decidió ampliar la beca y el PFC seis meses más.
+      \end{itemize}
+    \end{itemize}
+    
+  \end{block}
+\end{frame}
+  \begin{frame}
+  \begin{block}{Nuevos objetivos}
+    \begin{itemize}
+    \item Se estudiaron otras alternativas que pudieran complementar a \emph{asterisk}: \emph{OpenSER}.
+    \item Se analizaron otras funcionalidades adicionales a la telefonía IP como la integración con mensajería instantánea (XMPP) y la presencia (para conocer el estado del telefono) y los protocolos para implantarlo (SIMPLE, XMPP).
+    \item Asistencia al Voip2day (la principal conferencia de VoIP española).
+    \item Recopilación y redacción de documentación para las aplicaciones utilizadas (Anexo A de la memoria).
+    \item Elaboración de dos ejemplos: uno para una PYME y otro para la UCA.
+    \end{itemize}
+  \end{block}
+\end{frame}
+\begin{frame}
+  \begin{block}{Redefiniendo \emph{Asterisk}}
+    \begin{itemize}
+    
+    
+  \item \emph{Asterisk} es capaz de procesar unas 80 llamadas concurrentes/Ghz. Un ordenador típico: 300 llamadas.
+  \item Necesitamos una aplicación más eficiente y escalable: un router SIP.
+  \item \emph{OpenSER},por ejemplo, es capaz de gestionar miles de llamadas concurrentes.
+  \item Pero un router SIP está fuera de el flujo de audio: no proporciona buzón de voz, conferencias, conexión a otras redes \ldots
+  \item Se puede combinar muy bien ambas: el router SIP señaliza y \emph{Asterisk} da \emph{servicios}.
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Elección de SIP Router: proyectos \emph{X-SER}}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/X-SER}
+  \caption{Evolución de los proyectos de Routers SIP}
+  \end{figure}
+\end{frame}
+
+\section{Ejemplos de implantación}
+\label{sec:ejemplo-de-impl}
+
+\subsection{InstanRepara}
+\label{sec:instanrepara}
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Ejemplos de implantación}}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Diagrama de instalación de VoIP para InstanRepara}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/empresa_pepe}
+  \caption{Diagrama de telefonía de \emph{InstanRepara}}
+  \label{fig:Diagrama-instanrepara}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Demostración práctica.}}
+  \end{center}
+\end{frame}
+
+\subsection{Red UCA}
+
+\begin{frame}{Diagrama de red de telefonía actual}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/red_uca}
+    \caption{Diagrama actual de la red de telefonía de la UCA}
+    \label{fig:uca-inicial}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Diagrama de red de telefonía propuesta}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/red_integracion}
+    \caption{Red de la UCA utilizando openSER y Asterisk}
+    \label{fig:uca-integrada}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Sobre la red actual de telefonía de la UCA}
+  \begin{itemize}
+  \item Basada en un protocolo en declive: H323.
+  \item Actualmente sólo hay unas 250 extensiones IP.
+  \item En el futuro más de 2500 extensiones, solución no escalable.
+  \item Configuración por centralita Nortel: descentralizada.
+  \end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Comentarios sobre la propuesta a la UCA}
+    \begin{itemize} 
+  \item Se integra la infraestructura existente y se centraliza la facturación en el CITI.
+\item Mantenible y flexible al mantenerse la instalación bajo \textbf{total} control de la UCA.
+\item Solución escalable: basta añadir nuevas maquinas \emph{openSER} que actúen como proxys por campus con balanceo de carga mediante el módulo \emph{dispatcher} de \emph{openSER}.
+\item Los registros de usuarios SIP se realizan de manera centralizada.
+\end{itemize}
+\end{block}
+
+\end{frame}
+\begin{frame}
+  \begin{block}{Instalación adaptable}
+    
+  
+
+  \begin{itemize}
+  \item Se descarga a los \emph{Asterisk} de la lógica actuando como \emph{gateways} o \emph{servidores de aplicaciones}.
+  \item Nos quedamos con las \emph{cool features} de \emph{Asterisk} pero con la estabilidad y robustez de \emph{OpenSER}.
+  \item Cuando se quiera dejar de utilizar la red tradicional, nos movemos a proveedores SIP.
+  \item Se pueden implementar una solucion TURN para resolver el problema NAT de cara a llamadas externas.
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Posibilidades factibles de ampliación}
+    \begin{itemize}
+    \item Integrar un servidor de mensajería instantanea XMPP.
+    \item Configuración automática de teléfonos con XCAP.
+    \item Calcular ruta de menor coste para destino con módulo \emph{lcr}: derivar a los \emph{Asterisk}.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+
+\section{Conclusiones y trabajo futuro}
+\label{sec:concl-y-trab}
+
+\subsection{Conclusiones}
+\label{sec:conclusiones}
+
+\begin{frame}
+\begin{block}{Sobre el trabajo realizado}
+  \begin{itemize}
+  \item El capitulo 1 y 2 de la memoria es un documento iniciatico en VoIP y en aplicaciones de VoIP para software libre que no existia.
+  \item Actividad en la comunidad: asistencia al VoIP2Day, participando en listas de correo, charla en Semana de la Ciencia.
+  \item El anexo A sobre \emph{Asterisk}, cubre dos carencias existentes: la existencia de documentación sobre \emph{Asterisk} en castellano y un manual \textbf{concreto} y \textbf{explícito} de instalación.
+  \item Los ejemplos presentados aunque básicos, cubren la mayor parte de instalaciones telefónicas.
+  \end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{block}{Sobre las aplicaciones de software libre para VoIP}
+    \begin{itemize}
+    \item Las aplicaciones de software libre son lo suficientemente maduras como para implantar un sistema de telefonía a cualquier nivel.
+    \item Es necesario la creación de interfaces gráficos o mejorar los existentes para que el operador pueda gestionar su instalación. 
+    \item Es necesario la creación de un softphone libre para móviles y mejorar la interfaz de los existentes.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \begin{block}{Sobre telefonía IP}
+    \begin{itemize}
+    \item SIP es el protocolo de señalización imperante. XMPP, debido a sus capacidades mensajería instantánea y presencia, hacen que sea a tener en cuenta a medio plazo.
+    \item El concepto de presencia utilizado en telefonía IP (disponible, ausente, \ldots) debe ponerse en común con otros servicios que la utilizan (redes sociales, mensajería instantánea) para ello probablemente el camino sea: adopción masiva de XMPP.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\subsection{Trabajo futuro}
+
+\begin{frame}
+  \begin{block}{Trabajo Futuro}
+    \begin{itemize}
+    \item Mejorar o crear interfaces gráficas de usuario y/o aplicaciones para \emph{Asterisk} y \emph{openSER} orientadas al operador que exploten el sistema.
+    \item Desarrollar nuevos softphones para móviles y softphones libres de sobremesa con interfaces gráficas más pulidas que las existentes, utilizando para ello librerias libres como \emph{PJSIP}  y \emph{Sofia}.
+    \item Explorar las posibilidades como centro de domótica de \emph{Asterisk} utilizando microordenadores como \emph{Arduino}.
+    \item Instalar un \emph{gateway} de SIP a PSTN en el CITI utilizando \emph{Asterisk}.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}
+  \begin{center}
+    \huge{\textbf{Gracias por su atención\\¿Preguntas?}}
+  \end{center}
+\end{frame}
+
+
+\appendix
+
+
+
+
+
+\section*{Protocolo SIP}
+
+
+\begin{frame}
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{images/trapezoide}
+  \caption{Trapezoide SIP}
+
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[!h]
+  \centering
+ \label{fig:conv-sip} 
+ \includegraphics[width=0.8\textwidth]{images/conversacionSIP}
+  \caption{Conversación SIP usual de \emph{tlf1} a \emph{tlf2}}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Tipos de servidores SIP}
+ 
+  \begin{figure}[!h]
+    \label{fig:sip-registrar}  
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/registrar}
+    \caption{Servidor registrar}
+  \end{figure}
+\end{frame}
+\begin{frame}{Tipos de servidores SIP (II)}
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/redirect}
+    \caption{Servidor redirect}
+    \label{fig:sip-redirect}
+  \end{figure}
+\end{frame}
+\begin{frame}{Tipos de servidores SIP (III)}
+   \begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/companies}
+    \caption{Servidor Proxy}
+    \label{fig:sip-redirect}
+  \end{figure}
+\end{frame}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

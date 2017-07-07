@@ -1,0 +1,113 @@
+
+\documentclass{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\title{\huge{Informe de trabajo realizado}}
+\author{Fabián Sellés Rosa}
+\date{}
+\begin{document}
+
+\maketitle{}
+
+El objetivo principal de la beca es hacer un análisis independiente de implantación sobre telefonía IP mediante software libre, he intentado abordar el problema no solo desde la perspectiva del servidor sino del cliente, analizar software de servidor, interconexión entre servidores, softphones y terminales.
+
+\section{Planteamiento y situación inicial}
+\label{sec:plant-y-situ}
+
+El punto de partida es analizar la situación actual de telefonía de la UCA. Para después  proporcionar una alternativa a soluciones cerradas como la existente, y comprobar la viabilidad y la solvencia de una implementación de software libre.
+
+En lo que respecta a mi situación inicial como analista, era una persona con formación en redes y en sistemas GNU/Linux pero con poca formación en telefonía o telefonía IP, pues no tiene cabida en el temario de ninguna asignatura.
+
+Hay que hacer un inciso para comprender la importancia de lo anterior, cuando se trabaja con otros protocolos de red como \emph{HTTP} o \emph{FTP}, realmente el instalador o implementador no conoce a la perfección dicho protocolo. Tiene a su disposición una capa intermedia abstracta (el servidor) que le ayuda y facilita el trabajo con las complejidades del protocolo.
+
+En telefonía IP esto no existe, la mayor parte de implementaciones de proxys o pbx requieren del instalador un profundo conocimiento del protocolo a niveles muy detallados (diferencia entre diálogos y transacciones, etc).
+
+Además el contenido del transporte es mucho más delicado que el usual en redes de datos, cuando se transportan archivos que tienen representación en un formato digital, siempre que el envío se haga de manera correcta y completa podemos disfrutar de la información tal y como se transmitió. Cuando hablamos de datos multimedia tales como el audio o el vídeo, no es solo importante que la información llegue sino que llegue con \emph{tiempo} aceptable, lo que le enfrenta a complejidades y problemas que otros servicios de red no padecen.
+
+
+\section{Primeros pasos}
+\label{sec:primeros-pasos}
+
+
+Antonio Rodriguez me proporcionó la documentación sobre el sistema de telefonía existente en la UCA, a partir de ella fue fácil trazar una hoja de ruta con las necesidades del sistema.Los meses de Julio y Agosto el principal trabajo fue conocer y aprender sobre SIP y sobre alternativas para la implementación.
+
+Lo más conocido, y una de las referencias que Antonio me dio , fue utilizar \emph{Asterisk}, programa que comencé a estudiar junto a \emph{SIP}. 
+
+Con Asterisk hice multitud de instalaciones probando sus características, entre otras.
+\begin{description}
+  \item[Buzón de voz], Cuando la llamada no es atendida se guarda un mensaje del llamante. Así mismo se envía un correo electrónico con el archivo de voz adjunto.
+
+  \item[Conferencia], probé el sistema de conferencias de audio para mas de dos participantes.
+
+  \item[Multi servidor], Probe a interconectar varios servidores \emph{Asterisk} para explorar la redundancia. 
+
+  \item[Aplicaciones] Menus de voz, integración con bbdd.
+\end{description}
+
+
+La metodología de prueba es muy costosa en tiempo y esfuerzo, puesto que la documentación aunque existe en muchas ocasiones esta es incompleta,desactualizada, o demasiado somera. Parte de mi proyecto consta de documentación especifica de \emph{Asterisk} que aunque a veces existe, estaba dispersa en varios lugares (voip-info,asterisk-guru... etc), la documentación detalla los pasos necesarios para hacer una instalación de \emph{Asterisk} , este tipo de documentación no existía, ya que la existente hablaba de las capacidades de \emph{Asterisk} o era información técnica dispersa según intereses, en mi proyecto se puede seguir el planteamiento inicial de algunos ejemplos hasta su implementación funcional.
+
+
+
+
+\section{Mas alternativas}
+\label{sec:mas-alternativas}
+
+
+En los meses de Agosto a Septiembre, estuve analizando \emph{Asterisk} y otras alternativas a esta como \emph{FreeSwitch} o \emph{Callweaver}. Además hice medidas de rendimiento mediante \emph{sipp}, estuve estudiando durante estos meses la posibilidad de integración con charlas de mensajería instantánea \emph{XMPP} y la presencia.
+
+Eso me llevo a estudiar el protocolo \emph{SIMPLE}, y a observar que no hay demasiadas implementaciones de el, lo que me llevo a su descarte.
+
+La conclusión inevitable era acercarse a \emph{XMPP}, lo que lleva a mas estudio para conocer el protocolo y a implementaciones del lado de servidor como \emph{ejabberd} y \emph{openfire}.
+
+\section{Finalizando}
+\label{sec:finalizando}
+
+Para proponer una posible solución para una posible implementación en la red de la UCA, me tenia que centrar en la escalabilidad, característica que no me proporcionaba \emph{Asterisk}. Podía haber optado por \emph{FreeSwitch} que es mas estable, pero me su falta de soporte a h323 y su falta de recorrido , la descartaba, puesto que la integración con la red existente me parece algo a tener en cuenta.
+
+
+Tras la ultima reunión en Noviembre, se hablo de implantar \emph{SipX} como centralita en la red de la UCA. \emph{SipX} es mucho mas escalable y robusta que \emph{Asterisk}, utiliza \emph{FreeSwitch} por debajo (para algunas cosas), y es muy sencilla de administrar gracias a un portal web.
+
+pero \emph{SipX} no proporciona algunas características avanzadas, es difícil realizar un IVR con \emph{SipX} y extenderlo requiere conocer \emph{SOAP} y utilizar la API de \emph{SipX}. \emph{Asterisk} brinda muchas mas opciones para la extensibilidad, de una manera sencilla, es cierto que como PBX puede que sea descartable, pero como \emph{gateway} o \emph{servidor de aplicaciones} es una buena solución.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/gateway}
+  \caption{Asterisk como gateway}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{images/aplicaciones}
+  \caption{Asterisk como Servidor de aplicaciones}
+\end{figure}
+Esta situación me hizo reenfocar mi proyecto a otras capacidades no PBX acerca de la telefonía IP de como implementar servidores \emph{TURN}, o la programación de aplicaciones mediante \emph{Asterisk}. 
+
+Desde Noviembre hasta la actualidad me he encargado de redactar la memoria de mi PFC, y de enfocarme en \emph{OpenSER} como router SIP que utiliza por debajo una PBX (\emph{Asterisk} o SipX).
+
+Asisti al \textbf{voip2day} (que es la principal conferencia de VoIP española) al dia de la comunidad, como formación propia, realizada en Madrid del 12 al 14 de Noviembre. Donde tome contacto con otros profesionales de la telefonía ip y empresas tanto implantadoras como implantadas.
+
+y he realizado una charla en la Semana de la Ciencia sobre \emph{Asterisk}. 
+
+El accounting y la facturación son asuntos pendientes, debido a que no hay un prototipo en producción con usuarios y llamadas reales sobre el que comprobar la bondad de un sistema de gestión de CDR y facturación. No obstante se han estudiado algunos como \emph{a2billing} para \emph{Asterisk} o \emph{CDRtool} para \emph{openSER} y derivados.
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+entre ellas:
+
+\begin{itemize}
+\item Se han analizado diversas IPBX libres, \emph{Asterisk, Trixbox, Elastix, FreeSwitch, Callweaver}
+\item Se han analizado softphones y se han escogidos aquellos que sean
+  multiplataforma y con licencia libre o no libre: \emph{Ekiga,Yate, Twinkle, openWengo, Xlite}
+\item Se ha estudiado en profundidad el protocolo \emph{SIP},\emph{XMPP} y \emph{RTP}.
+\item Se ha documentado todo el proceso en la memoria del proyecto.
+\item Se esta en disposición de desarrollar un sistema de telefonia IP.
+\end{itemize}
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
