@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/white.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <h1>Honeypotting like a sir! </h1>
+                <h6> a story of lazyness, incompetence and some infosec </h6>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> Goals </h5>
+                <ul>
+                    <li> Build a high interaction honeypot framework using containers, getting information without modifying application code. </li>
+                    <li> Warning!: This is a personal project not a Schibsted one </li>
+
+                </ul>
+                <aside class="notes">
+                    <p> This means i don't have the resources, scale needs or technologies available at Schibsted. </p>
+                    <p> you may leave now the presentation, it's ok :) </p>
+
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> About me </h5>
+                <ul>
+                    <!-- <li> It may surprise you but i wasn't born in Barcelona. </li> -->
+                    <li class="fragment" style="font-size: 28px;"> I moved here 5 years ago, leaving behind awful landscapes for nicer ones </li>
+                    <div class="container">
+                        <span class="fragment col-3" style="margin-right: 25%">
+                            <img data-src="images/mujeresplaya.jpg" width="300px;" data-fragment-index="1" />
+                         
+						</span>
+                        <span class="col-3"></span>
+                        <span class="fragment col-3">
+                            <img data-src="images/barcelona.jpg" width="300px;" data-fragment-index="3" />
+
+						</span>
+
+                    </div>
+                    <li class="fragment" style="font-size: 28px;"> I never completed my degree because a final project is required. When i moved here, i thought i would have done it in 3 months.</li>
+                    <li class="fragment" style="font-size: 28px;"> 5 years later, I finally started to do it.</li>
+                </ul>
+
+
+            </section>
+            <section>
+                <h5 style="text-align:center;" class="fragment"> The search for getting audit info from containers </h5>
+                <p class="fragment"> Use the auditd kernel subsystem, battle-tested tool (since 2.6.x kernels ). </p>
+                <img class="fragment" data-src="images/audit_netlink.png" width="30%" />
+                <p class="fragment"> No cgroups and namespaces support :-( </p>
+                <aside class="notes">
+                    The main idea of the honey pot is pretty simple, we create a Docker container that expose a service to the network, then we should have something capable of getting information from the container. This is where the search begins, traditionally, in Linux
+                    system the audit subsystem is the way of getting trace info from the kernel not related directly to performance, the audit subsystem enables an interface where the client could check which syscalls have been called and information
+                    regarding the processes that called it. Audit kernel interface is stable it was added on 2.6 kernels. My initial tests were using auditd as a method of extracting info, my first question was then how to collect or retrieve info from
+                    auditd, auditd writes in a log file, parsing the log and then sending parsed events elsewhere was an option but it seemed to fragile to auditd versions, and also disk input/output. Happily auditd also exposes audit information through
+                    netlink sockets (Netlink socket family is a Linux kernel interface used for inter-process communication (IPC) between both the kernel and userspace processes, and between different userspace processes, in a way similar to the Unix
+                    domain sockets.) so it should be possible to connect in userland to that socket, process the events and then write them elsewhere. I tried several libraries in several languages that aimed to fulfill this purpose like Slack's go-audit
+                    Mozilla's audit-go, like gnlpy and also atraces project from Roi and Albert Puigsech sitting around here. No matter which project i've tried it seemed that netlink interface was far from stable, when it was working suddenly events
+                    stopped to arrive or the format of the events was different depending of source. Besides all these problems, auditd still doesn't have cgroups and namespaces support which means that getting container info would have been really hard.
+                    These two things made me drop auditd as a tracing tool. Links: https://lwn.net/Articles/699819/ https://github.com/slackhq/go-audit https://github.com/mozilla/audit-go https://github.com/facebook/gnlpy
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;" class="fragment"> The search for getting audit info from containers </h5>
+                <p class="fragment"> Use new eBPF system with bcc. </p>
+                <img data-src="images/bcc_tracing_tools_2016.png" />
+                <aside class="notes">
+                    The main idea of the honey pot is pretty simple, we create a Docker container that expose a service to the network, then we should have something capable of getting information from the container. This is where the search begins, traditionally, in Linux
+                    system the audit subsystem is the way of getting trace info from the kernel not related directly to performance, the audit subsystem enables an interface where the client could check which syscalls have been called and information
+                    regarding the processes that called it. Audit kernel interface is stable it was added on 2.6 kernels. My initial tests were using auditd as a method of extracting info, my first question was then how to collect or retrieve info from
+                    auditd, auditd writes in a log file, parsing the log and then sending parsed events elsewhere was an option but it seemed to fragile to auditd versions, and also disk input/output. Happily auditd also exposes audit information through
+                    netlink sockets (Netlink socket family is a Linux kernel interface used for inter-process communication (IPC) between both the kernel and userspace processes, and between different userspace processes, in a way similar to the Unix
+                    domain sockets.) so it should be possible to connect in userland to that socket, process the events and then write them elsewhere. I tried several libraries in several languages that aimed to fulfill this purpose like Slack's go-audit
+                    Mozilla's audit-go, like gnlpy and also atraces project from Roi and Albert Puigsech sitting around here. No matter which project i've tried it seemed that netlink interface was far from stable, when it was working suddenly events
+                    stopped to arrive or the format of the events was different depending of source. Besides all these problems, auditd still doesn't have cgroups and namespaces support which means that getting container info would have been really hard.
+                    These two things made me drop auditd as a tracing tool. Links: https://lwn.net/Articles/699819/ https://github.com/slackhq/go-audit https://github.com/mozilla/audit-go https://github.com/facebook/gnlpy
+                </aside>
+            </section>
+
+
+            <!-- <p style="position:absolute; bottom:0px; left:1.8em; font-size: 1em !important;">
+                <small><a href="http://twitter.com/fsero">@fsero</a> Honeypotting like a sir</small>
+            </p> -->
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+        // More info about config & dependencies:
+        // - https://github.com/hakimel/reveal.js#configuration
+        // - https://github.com/hakimel/reveal.js#dependencies
+
+        Reveal.initialize({
+            dependencies: [{
+                src: 'plugin/markdown/marked.js'
+            }, {
+                src: 'plugin/markdown/markdown.js'
+            }, {
+                src: 'plugin/notes/notes.js',
+                async: true
+            }, {
+                src: 'plugin/highlight/highlight.js',
+                async: true,
+                callback: function() {
+                    hljs.initHighlightingOnLoad();
+                }
+            }]
+        });
+        Reveal.configure({
+            slideNumber: 'c/t'
+        });
+    </script>
+</body>
+
+</html>
