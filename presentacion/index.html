@@ -33,13 +33,16 @@
             <section>
                 <h5 style="text-align:center;"> Goals </h5>
                 <ul>
-                    <li> Build a high interaction honeypot framework using containers, getting information without modifying application code. </li>
-                    <li> Warning!: This is a personal project not a Schibsted one </li>
+                    <li class="fragment"> Build a high interaction honeypot framework using containers, getting information without modifying application code. </li>
+                    <li class="fragment"> Warning!: This is a personal project not a Schibsted one </li>
+                    <li class="fragment"> This method could be used for any applycation but i thought SSH would be the easier and more attractive to start with. </li>
+
 
                 </ul>
                 <aside class="notes">
                     <p> This means i don't have the resources, scale needs or technologies available at Schibsted. </p>
                     <p> you may leave now the presentation, it's ok :) </p>
+                    <p> And i discovered i was very wrong, parsing SSH is hard </p>
 
                 </aside>
             </section>
@@ -56,15 +59,28 @@
                         <span class="col-3"></span>
                         <span class="fragment col-3">
 							<img data-src="images/barcelona.jpg" width="300px;" data-fragment-index="3" />
-
 						</span>
-
                     </div>
                     <li class="fragment" style="font-size: 28px;"> I never completed my degree because a final project is required. When i moved here, i thought i would have done it in 3 months.</li>
                     <li class="fragment" style="font-size: 28px;"> 5 years later, I finally started to do it.</li>
                 </ul>
-
-
+            </section>
+            <section>
+                <h1 style="text-align:center;"> Enough bullshit, prove it </h1>
+                <img class="stretch" data-src="images/laugh.gif" />
+                <aside class="notes">
+                </aside>
+            </section>
+            <section>
+                <ul>
+                    <li class="fragment"> Drop your ssh keys, ssh-add -D. </li>
+                    <li class="fragment"> and ssh here ssh user@srv01.superprivyhosting.com </li>
+                </ul>
+                <aside class="notes">
+                </aside>
+            </section>
+            <section>
+                <img class="stretch" data-src="images/showtime.gif" />
             </section>
             <section>
                 <h5 style="text-align:center;" class="fragment"> The search for getting audit info from containers </h5>
@@ -72,15 +88,24 @@
                 <a href="images/audit_netlink.png"><img class="fragment" data-src="images/audit_netlink.png" width="30%" /></a>
                 <p class="fragment"> No cgroups and namespaces support :-( </p>
                 <aside class="notes">
-                    The main idea of the honey pot is pretty simple, we create a Docker container that expose a service to the network, then we should have something capable of getting information from the container. This is where the search begins, traditionally, in Linux
-                    system the audit subsystem is the way of getting trace info from the kernel not related directly to performance, the audit subsystem enables an interface where the client could check which syscalls have been called and information
-                    regarding the processes that called it. Audit kernel interface is stable it was added on 2.6 kernels. My initial tests were using auditd as a method of extracting info, my first question was then how to collect or retrieve info from
-                    auditd, auditd writes in a log file, parsing the log and then sending parsed events elsewhere was an option but it seemed to fragile to auditd versions, and also disk input/output. Happily auditd also exposes audit information through
-                    netlink sockets (Netlink socket family is a Linux kernel interface used for inter-process communication (IPC) between both the kernel and userspace processes, and between different userspace processes, in a way similar to the Unix
-                    domain sockets.) so it should be possible to connect in userland to that socket, process the events and then write them elsewhere. I tried several libraries in several languages that aimed to fulfill this purpose like Slack's go-audit
-                    Mozilla's audit-go, like gnlpy and also atraces project from Roi and Albert Puigsech sitting around here. No matter which project i've tried it seemed that netlink interface was far from stable, when it was working suddenly events
-                    stopped to arrive or the format of the events was different depending of source. Besides all these problems, auditd still doesn't have cgroups and namespaces support which means that getting container info would have been really hard.
-                    These two things made me drop auditd as a tracing tool. Links: https://lwn.net/Articles/699819/ https://github.com/slackhq/go-audit https://github.com/mozilla/audit-go https://github.com/facebook/gnlpy
+                    <p>The main idea of the honey pot is pretty simple, we create a Docker container that expose a service to the network, then we should have something capable of getting information from the container.</p>
+                    <p>This is where the search begins, traditionally, in Linux </p>
+                    <p>system the audit subsystem is the way of getting trace info from the kernel not related directly to performance,</p>
+                    <p>the audit subsystem enables an interface where the client could check which syscalls have been called and information </p>
+                    <p>regarding the processes that called it. Audit kernel interface is stable it was added on 2.6 kernels. </p>
+                    <p>My initial tests were using auditd as a method of extracting info, </p>
+                    <p>my first question was then how to collect or retrieve info from </p>
+                    auditd, auditd writes in a log file, parsing the log and then sending parsed events elsewhere was an option but it seemed really fragile. </p>
+                    <p> to auditd versions, and also disk input/output. Happily auditd also exposes audit information through </p>
+                    netlink sockets (Netlink socket family is a Linux kernel interface used for inter-process communication (IPC) between both the kernel and userspace processes, </p>
+                    <p> and between different userspace processes, in a way similar to the Unix </p>
+                    domain sockets.) so it should be possible to connect in userland to that socket, process the events and then write them elsewhere. </p>
+                    <p> I tried several libraries in several languages that aimed to fulfill this purpose like Slack's go-audit </p>
+                    <p> Mozilla's audit-go, like gnlpy and also atraces project from Roi and Albert Puigsech sitting around here. </p>
+                    <p> No matter which project i've tried it seemed that netlink interface was far from stable, when it was working suddenly events </p>
+                    stopped to arrive or the format of the events was different depending of source. </p>
+                    <p> Besides all these problems, auditd still doesn't have cgroups and namespaces support which means that getting container info would have been really hard. </p>
+                    <p> These two things made me drop auditd as a tracing tool. Links: https://lwn.net/Articles/699819/ https://github.com/slackhq/go-audit https://github.com/mozilla/audit-go https://github.com/facebook/gnlpy </p>
                 </aside>
             </section>
             <section>
@@ -91,11 +116,19 @@
                 <p class="fragment"> Promising, but too soon, complex :-( </p>
 
                 <aside class="notes">
-                    eBPF its an extended version of BPF, BPF is an interpreter that runs in kernel and a VM implementation that executes instructions. It has been used in tcpdump for translating high level expression into low level tracings. eBPF expans the filtering beyond
-                    network packets, eBPF does the filtering reading from different sources kprobes: kernel dynamic tracing. uprobes: user level dynamic tracing. tracepoints: kernel static tracing. perf_events: timed sampling and PMCs. The main problem
-                    for using eBPF is the maturity, when i started this project kernel version was 4.5 where eBPF was usable but incomplete, support has been almost completed in 4.10. There is no high level visualization tools that uses eBPF, nowadays
-                    the only way to create a program is to use the bcc framework that using a python library generates eBPF instructions that could be loaded in the eBPF VM. If i were to start again this project, or start to make it "professional" i would
-                    use eBPF
+                    <p> eBPF its an extended version of BPF, BPF is an interpreter that runs in kernel and a VM implementation that executes instructions. </p>
+                    <p> It has been used in tcpdump for translating high level expression into low level tracings. </p>
+                    <p> eBPF expans the filtering beyond network packets, eBPF does the filtering reading from different sources </p>
+                    <p>kprobes: kernel dynamic tracing. </p>
+                    <p>uprobes: user level dynamic tracing. </p>
+                    <p>tracepoints: kernel static tracing. </p>
+                    <p>perf_events: timed sampling and PMCs. </p>
+                    <p>The main problem for using eBPF is the maturity, when i started this project kernel version was 4.5 where eBPF was usable but incomplete, </p>
+                    <p> support has been almost completed in 4.10. There is no high level visualization tools that uses eBPF, nowadays </p>
+                    <p> the only way to create a program is to use the bcc framework that using a python library that </p>
+                    <p> generates eBPF instructions that could be loaded in the eBPF VM. If i were to start again this project, </p>
+                    <p> or start to make it "professional" i would use eBPF </p>
+
                 </aside>
             </section>
             <section>
@@ -113,11 +146,83 @@
             </section>
             <section>
                 <h5 style="text-align:center;"> Probe architecture </h5>
-                <img data-src="images/probe_architecture.svg" width="110%" />
+                <img style="border: 0px" data-src="images/probe_architecture.svg" width="110%" />
+                <aside class="notes">
+                    So this is finally the architecture i ended with, sysdig saves in disk all the events related to the container while falco listen for "changes" when a rule is triggered like when someone launchs a shell inside the SSH. Container recycler is an small Go
+                    application that listens for falco notification and when received an alert it will give some exposure time for the attacker to interact with pot, and after this time it will destroy that container and create a new one.
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> Probe threat model </h5>
+                <ul>
+                    <li class="fragment">I expose vulnerable software to Internet. </li>
+                    <li class="fragment"> but runs in a container, that contains things, right? </li>
+                    <li class="fragment"> Worst case scenario? attacker pown the container through kernel. </li>
+                </ul>
+                <img class="fragment" data-src="images/thisisfine.gif" />
                 <aside class="notes">
 
                 </aside>
             </section>
+            <section>
+                <h5 style="text-align:center;"> <span class="fragment fade-left"> The sad :-(</span> state of linux security </h5>
+                <ul>
+                    <li class="fragment">grsecurity/PaX</li>
+                    <li class="fragment">KSPP</li>
+                    <li class="fragment">AppArmor</li>
+                    <li class="fragment">SELinux</li>
+                    <li class="fragment">seccomp</li>
+                    <a class="fragment" href="https://www.delve-labs.com/articles/docker-security-production-2/"> more details here </a>
+                </ul>
+                <img class="fragment stretch" data-src="images/idontcare.gif" />
+                <aside class="notes">
+                    grsecurity/PaX is a set of patches for linux kernel that aims to fix or harden some vulnerabilities of the linux kernel and provides mandatory access control mechanisms through roles. I've used this in the past and offers some tooling patches not available
+                    through other methods at the cost of performance or compatibility issues, due to licensing / commercial issues grsecurity does not publish patches anymore. when i started the project grsecurity still published patches for testing kernels,
+                    that is not the case anymore, and at that time patching the kernel and make it work in a VPS was a non trivial task. KSPP is a movement to integrate grsecurity/PaX patches in a more palatable way for kernel maintainers so they are
+                    merged in upstream kernel. At the time of this demo they have not merged almost anything yet. So it's promising but not available. AppArmor is a Linux Security Module coming from SuSE, the main selling point of AppArmor it's that is
+                    not SELinux. SELinux is the traditional way to harden or secure a linux distro, its quite complete but one of the things it doesn't fit well with me is that the support for Debian is almost non-existent. seccomp is a syscall that limits
+                    the subsequent syscalls of the current process could be called, that way a process can drop access to the syscalls it does not require. Docker support seccomp profiles for containers which is convenient to limit the syscalls a container
+                    could access, this in addition of capabilities and/or apparmor profiles could restrict much better the amount of privileges an specific container would need, even that some containers by its application will require a fair amount of
+                    privileges. The plan is to use AppArmor and seccomp profiles to reduce the attack surface, however there always be the case where an exploit could be found, and attacker gains privileges. So my plan for it in addition of this security
+                    measures and also for getting much intel is to renew the probes, from time to time destroy them and create new ones.
+
+
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> Collector architecture </h5>
+                <img style="border: 0px" class="stretch" data-src="images/collector_architecture.svg" />
+                <aside class="notes">
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> Some technical learnings </h5>
+                <ul>
+                    <li class="fragment"> Pinning versions saved <strike>my ass</strike> me several times. Remember when docker renamed to docker-ce and then moby? </li>
+                    <li class="fragment"> Think about your container workload and choose docker storage wisely, using AUFS with several containers maked my docker daemon slow and unstable </li>
+                    <li class="fragment"> make it happen, and then make it pretty (i didn't did the pretty part yet) and barely the happen part</li>
+                </ul>
+                <aside class="notes">
+                </aside>
+            </section>
+            <section>
+                <h5 style="text-align:center;"> Some psychological learnings </h5>
+                <ul>
+                    <li class="fragment"> This whole project was driven through extreme economical efficiency (i'm paying it)... </li>
+                    <li class="fragment"> and extreme timing constraints (hard deadline it's september 2017)... </li>
+                    <li class="fragment"> it changed me, and made me a better engineer here at Schibsted. </li>
+                </ul>
+                <aside class="notes">
+                </aside>
+            </section>
+            <section>
+                <h1 style="text-align:center;"> Questions? </h1>
+                <img style="border: 0px" class="stretch" data-src="images/questions.gif" />
+
+                <aside class="notes">
+                </aside>
+            </section>
+
             <!-- <p style="position:absolute; bottom:0px; left:1.8em; font-size: 1em !important;">
 				<small><a href="http://twitter.com/fsero">@fsero</a> Honeypotting like a sir</small>
 			</p> -->
