@@ -1,112 +1,27 @@
 
 \chapter{Introducción}
 
+La digitalización de la sociedad no es una idea de futuro, hace años que funciones críticas para la sociedad
+desde hospitales, entidades financieras ó centrales nucleares son gestionados mediante sistemas informáticos. 
+La ubicuidad de dispositivos, ordenadores, móviles, dispositivos electronicos del \emph{internet of things}
+( electrodomesticos, montajes con Arduino o Raspberry Pi ... ) unido al afianzamiento de la informatizacion en el ámbito empresarial, ha generado
+que dichos sistemas y dispositivos se consideren activos a proteger de atacantes de indole privado o gobernamental.
 
-La telefonía( del griego  
-\begin{otherlanguage}{greek}
-thles
-\end{otherlanguage}, lejos y 
-\begin{otherlanguage}{greek}
-fonos
-\end{otherlanguage}, sonido) nace a finales del siglo XIX con la invención del telefono. La propia invención del telefono es objeto de controversia, tradicionalmente atribuida a \href{http://en.wikipedia.org/wiki/Alexander_Graham_Bell}{Alexander Graham Bell }por ser el primero en patentarla, se considera a otros como \href{http://en.wikipedia.org/wiki/Antonio_Meucci}{Antonio Meucci} como sus inventores.
+La seguridad informática ha pasado de ser un area de interes para dichas corporaciones a ser considerada de interes general,
+hubiera sido imposible que una noticia sobre un \emph{Ransomware} apareciese en prensa no especializada ó television, sin embargo esto ha ocurrido
+al menos una docena de veces éste 2017.
 
-El despliegue de la red telefónica no fue ordenado. La red telefónica comenzó como una simple agrupación de conexiones entre clientes. El crecimiento de número de clientes y la necesidad de abaratar los costes de cableado, llevan a la creación de centralitas como \emph{puntos de intercambio telefónico}. Poco a poco, el desarrollo y la innovación telefónica dejan de estar a cargo de los científicos o particulares y pasan a las grandes compañias telefónicas como Bell Labs y AT\&T en EEUU, o las compañias telefonicas públicas
+El sector de la seguridad informática es especialmente interesante desde el punto de vista del defensor, puesto que
+los sistemas de detención y prevención han de cotrarrestar con talento y recursos limitados los ataques de adversarios
+que possen mucho más recursos, talento y motivación para triunfar.
 
-Estas primeras centralitas telefónicas no eran automáticas sino que estaban controladas por un operador humano. Para poder llamar a un abonado se descolgaba el teléfono y se solicitaba al operador la llamada, éste pinchaba la clavija de comunicación en su panel si la llamada era local, en caso de que llamada excedíese la demarcación de la centralita. El operador debía contactar a otro operador que continuase con la petición para poder realizar la llamada.
+Es por ello que se debe de asumir que en dicho escenario la derrota, es decir la intrusión, tiene un alto factor de éxito es 
+por ello que la gestión de riesgos no se basa sobre la hipotesis de si el ataque será exitoso o no, sino en que cuando
+éste ataque suceda se aprenda lo maximo posible para evitarlo en otra ocasión y limitar sus efectos.
 
-Comienzan la adopción de PBX en las empresas y organizaciones, una PBX no es más que un panel de conexiones (veasé \ref{fig:pbxmanual}) que se instalaba en la empresa a cargo de un operador humano.
-
-\begin{figure}[!h]
-  \centering
-  \includegraphics[width=0.5\linewidth]{images/pbxmanual}
-  \caption{PBX manual, \emph{Fuente:Wikipedia}}
-  \label{fig:pbxmanual}
-\end{figure}
-
-En 1960 comienzan a aparecer las primeras centralitas automáticas electrónicas analógicas que realizan la conmutación mediante relés. Tras la invención del transistor y el desarrollo de la electrónica digital se comienza a implantar la telefonía digital, sobre todo para \emph{trunking}\footnote{Llamada entre centralitas, canal de señalización compartido.}. Las centralitas se implementan con circuitos digitales y se vuelven más complejas y aparecen los primeros ordenadores comerciales.
-
-La popularización de Internet y de las redes locales dan un nuevo sentido a la red telefónica. Ya no sólo sirve para transmitir voz entre abonados, se desarrollan los modems para transmitir datos digitales tratándolos como señales análogicas. Al hacerlo utilizan todo el ancho de banda asignado por lo que si se utilizan es imposible transmitir la voz a la vez. 
-
-Paralelamente comienza la implantación de una red telefónica completamente digital que permita la conexión simultanea de voz y datos, la RDSI\footnote{Red Digital de Servicios Integrados.} o ISDN\footnote{Integrated Services Digital Network.}. 
-
-La explosion del número de accesos a Internet proporciona a la sociedad nuevos métodos de comunicación: mensajería instantánea, correo electrónico, foros , etc .Aunque, el servicio teléfonico sigue fuertemente implantado en la sociedad para acceso a servicios críticos y comerciales (emergencias, servicio a domicilio, atención al cliente \ldots) pero éste es \emph{paralelo} a estas nuevas formas de comunicación.
-
-Las PBX comienzan a implantarse mediante \emph{software} , especifico, diseñado del fabricante. Empiezan a ofrecer características avanzadas como \emph{buzón de voz, conferencias , llamada en espera, música en espera...}. La PBX se vende como una caja negra, a la que la organización conecta sus teléfonos y una linea externa, y dicha PBX los interconecta y además ofrece algunas de esas características avanzadas. 
-
-Aunque estas PBX se implementen mediante software, no existía antes de la VoIP una manera efectiva de integrar o que utilizara estas PBX. No era posible, por ejemplo, realizar llamadas utilizando un ordenador cuando se tenía al alcance de un click de ratón galerías de fotos, clips de peliculas, \ldots
-
-En éste sentido el software libre (veasé \cite{stallman-sl}) tiene mucho que decir. Al devolver o entregar al usuario por primera vez la capacidad de crear su propia telefonía, de hacerla flexible, de explotarla y llevarla más allá para luego compartirlo con una comunidad de usuarios.
- 
-Los programas son complejos y los errores siempre existen, un programa libre, que nos permite ver el código fuente, es un programa más depurado. Pues citando a Eric S. Raymond en su libro \cite{cathedral-y-bazaar}:
-\begin{quotation}
-  Dados los suficientes ojos, todos los errores aparecen
-\end{quotation}
-
-Lo que explica en parte la calidad del software libre, sometido a la revisión constante por pares.
-
-La telefonía IP nos va a permitir unir dos mundos distintos, el de la telefonía y la informática, a través de un lenguaje común de comunicación: el protocolo IP. La telefonía IP basada en software libre nos va a permitir controlar todos los aspectos de nuestra instalación, haciendo que la centralita se amolde a nuestras necesidades y no nuestras necesidades a lo que puede hacer la centralita.
+Este proyecto se enmarca en el campo de la contrainteligencia, y en el se describe un metodo que permite al defensor conocer como algunos atacantes intentan vulnerar sus sistemas. 
 
 
-
-\section{Definiciones, acrónimos y abreviaturas}
-
-\begin{description}
-
-\item[B2BUA] \label{def:B2BUA} (Back to Back user agent) \emph{Agente de usuario de extremo a extremo}, es una entidad del protocolo SIP, según el RFC de SIP (\cite{rfc3261}), un B2BUA tiene las siguientes funciones:
-
-  \begin{itemize}
-  \item Gestion de llamadas (facturación, desconexión automatica \ldots)
-  \item Interconexión de red(adaptación de protocolos)
-  \item Ocultar la estructura de la red (direcciones privadas, topologias de red)
-  \item Transcodificación entre las dos partes de una llamada.
-  \end{itemize}
-
-
-\item[BBDD] Bases de datos.
-
-\item[CDR]  \label{def:CDR} (Call Detail Record) \emph{registro en detalle de llamadas}, que almacena datos pertenecientes al origen, destino, duración y otros de una llamada para la tarificación o el control en la PBX.
-
-\item[Dialplan] \label{def:dialplan} , \emph{plan de marcado}. Conjunto de reglas que determinan las extensiones y servicios a las que se pueden acceder desde una PBX.
-
-\item[IVR] (Interactive Voice Response), \emph{respuesta de voz interactiva} sistemas que permiten
-realizar gestiones informándonos a través de la voz. Como en los buzones de voz de los móviles y fijos o la reserva de entradas.
-
-
-\item[Jitter] pequeño retraso o latencia producida entre paquetes.
-
-\item[Jitter-buffer] \label{def:jitter-buffer} \emph{buffer de compensación} que almacena los paquetes entrantes para corregir el \emph{jitter}.
-
-
-
-
-\item[NAT] \label{def:NAT} (Network Address Translation) \emph{Traducción de direcciones de red}. Práctica utilizada para evitar el agotamiento de direcciones IP públicas. En las que una o varias IP públicas son utilizadas por varios dispositivos con una IP privada. 
-
-
-\item[PBX] \label{def:PBX} (Private Branch Exchange) literalmente rama privada de intercambio, dispositivo que permite la interconexión de telefonos (en este contexto extensiones), que interconectan una o varias salidas a la PSTN con estas extensiones.
-\item[POTS]  \label{def:POTS} (Plain Old telephony Service), antiguo servicio de telefonía plano. 
-\item[PSTN]  \label{def:PSTN} (Public Switched Telephone Network), Red telefónica conmutada (RTC), red que surge como evolución de la red POTS o de la RTB
-
-\item[QoS] (Quality of Service) la calidad de servicio son una serie de tecnologías de los equipos de red que garantizan que una cierta cantidad o un tipo de datos llegará en un tiempo dado.
-
-
-\item[RFC] (Request For comments) Serie de documentos normativos y constituyentes de protocolos de red, buenas practicas para administradores de red y otros. Hay diferentes tipos desde estandares aceptados, a borradores o a simples recomendaciones.
-
-\item[Softphone]  \label{def:softphone} Aplicación que implemente un terminal telefónico de uno o varios protocolos de VoIP en un PC.
-
-
-\item[SGBD] Sistema Gestor de bases de datos.
-
-\item[Transcoding] \label{def:Transcoding} , convertir de un codec a otro, generalmente se decodifica para pasarlo a audio sin compresión  y se vuelve a codificar, esto tiene un coste computacional de $\Theta_{transcoding}(f) = \Theta(DESC(f) + COD(f)) $
-
-
-\item[VoIP] (Voice over IP) , voz sobre IP. En el presente documento se considera un término sinónimo a telefonía IP, aunque la VoIP tenga otros usos.
-
-
-
-
-
- 
-\end{description}
 
 
 

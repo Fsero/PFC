@@ -35,7 +35,7 @@
                 <ul>
                     <li class="fragment"> Build a high interaction honeypot framework using containers, getting information without modifying application code. </li>
                     <li class="fragment"> Warning!: This is a personal project not a Schibsted one </li>
-                    <li class="fragment"> This method could be used for any applycation but i thought SSH would be the easier and more attractive to start with. </li>
+                    <li class="fragment"> This method could be used for any application but i thought SSH would be the easier and more attractive to start with. </li>
 
 
                 </ul>
@@ -102,8 +102,8 @@
                     domain sockets.) so it should be possible to connect in userland to that socket, process the events and then write them elsewhere. </p>
                     <p> I tried several libraries in several languages that aimed to fulfill this purpose like Slack's go-audit </p>
                     <p> Mozilla's audit-go, like gnlpy and also atraces project from Roi and Albert Puigsech sitting around here. </p>
-                    <p> No matter which project i've tried it seemed that netlink interface was far from stable, when it was working suddenly events </p>
-                    stopped to arrive or the format of the events was different depending of source. </p>
+                    <p> No matter which project I've tried it seemed that netlink interface was far from stable, when it was working suddenly events </p>
+                    stopped to arrive or the format of the events was different depending on source. </p>
                     <p> Besides all these problems, auditd still doesn't have cgroups and namespaces support which means that getting container info would have been really hard. </p>
                     <p> These two things made me drop auditd as a tracing tool. Links: https://lwn.net/Articles/699819/ https://github.com/slackhq/go-audit https://github.com/mozilla/audit-go https://github.com/facebook/gnlpy </p>
                 </aside>
@@ -155,7 +155,7 @@
             <section>
                 <h5 style="text-align:center;"> Probe threat model </h5>
                 <ul>
-                    <li class="fragment">I expose vulnerable software to Internet. </li>
+                    <li class="fragment">I expose vulnerable software to the Internet. </li>7
                     <li class="fragment"> but runs in a container, that contains things, right? </li>
                     <li class="fragment"> Worst case scenario? attacker pown the container through kernel. </li>
                 </ul>
@@ -199,8 +199,8 @@
                 <h5 style="text-align:center;"> Some technical learnings </h5>
                 <ul>
                     <li class="fragment"> Pinning versions saved <strike>my ass</strike> me several times. Remember when docker renamed to docker-ce and then moby? </li>
-                    <li class="fragment"> Think about your container workload and choose docker storage wisely, using AUFS with several containers maked my docker daemon slow and unstable </li>
-                    <li class="fragment"> make it happen, and then make it pretty (i didn't did the pretty part yet) and barely the happen part</li>
+                    <li class="fragment"> Think about your container workload and choose docker storage wisely, using AUFS with several containers made my docker daemon slow and unstable </li>
+                    <li class="fragment"> make it happen, and then make it pretty.</li>
                 </ul>
                 <aside class="notes">
                 </aside>
@@ -254,7 +254,8 @@
             }]
         });
         Reveal.configure({
-            slideNumber: 'c/t'
+            slideNumber: 'c/t',
+            showNotes: false,
         });
     </script>
 </body>
