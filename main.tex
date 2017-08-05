@@ -4,7 +4,7 @@
 \usepackage[spanish]{varioref}
 \usepackage{fancyref}
 \usepackage{fancybox}%recuadros
-\usepackage[pdftex, breaklinks=false, colorlinks=true, linkcolor=black, anchorcolor=black, urlcolor=blue, citecolor=red, pagebackref=true]{hyperref}
+\usepackage[pdftex, breaklinks=false, colorlinks=true, linkcolor=black, anchorcolor=black, urlcolor=blue, citecolor=red]{hyperref}
 \usepackage{graphicx}%graficos
 \usepackage{multicol}
 \usepackage{color} %color
@@ -14,9 +14,13 @@
 \usepackage{cmap} % buscar en el PDF
 \usepackage{listings} %para nada, al principio para listados
 \usepackage{textcomp}
-\usepackage{ucs} 
+\usepackage[spanish]{minitoc}
+\usepackage{etoolbox}
+\usepackage[backend=biber,style=ieee,sorting=ynt]{biblatex}
 \usepackage{hyphenat}
 \usepackage{fancyvrb} %inclusion de ficheros externo en modo verbatim
+\addbibresource{bibliografia.bib}
+\patchcmd{\bibsetup}{\interlinepenalty=5000}{\interlinepenalty=10000}{}{}
 
 \definecolor{gris}{gray}{0.75}
 \definecolor{azul}{rgb}{0,0,0.30}
@@ -76,6 +80,7 @@
 \maketitle
 \input{./2portada.tex}
 \input{./dedicatoria.tex}
+\dominitoc{}
 \tableofcontents{}
 \listoffigures{}
 \input{./introduccion.tex}
@@ -83,14 +88,9 @@
 \input{./memoria.tex}
 \input{./anexos.tex}
 \input{./presupuestos.tex}
-\appendix
-\input{./fdl.tex}
 
 
 
-
-\bibliographystyle{is-alpha}
-\bibliography{bibliografia}
 
 
 

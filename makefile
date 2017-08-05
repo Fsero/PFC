@@ -12,7 +12,7 @@ pfc: main.tex
 	@./pasaraepsypdf.py images/pan/
 	@./pasaraepsypdf.py images/trends
 	@pdflatex -interaction batchmode $< 2> /dev/null
-	@bibtex $(basename $<) 2> /dev/null
+	@biber $(basename $<) 2> /dev/null
 	@pdflatex -interaction batchmode $< 2> /dev/null
 	@pdflatex -interaction batchmode $< 2> /dev/null
 	@$(VISOR) $(basename $<).pdf

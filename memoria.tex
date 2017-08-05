@@ -1,3 +1,138 @@
+\chapter{Memoria}
+\minitoc{}
+\section{Objeto}
+El objeto de éste proyecto es la implementación de un sistema de \emph{Honeypots} utilizando \emph{containers}. 
+Las Honeypots han existido desde hace bastante tiempo, quizá el software más conocido es honeyd, publicado en 2007.
+
+\emph{honeyd} (veasé \cite{honeynet-lowinteraction}) y otros casos son aplicaciones de las llamadas honeypots de baja interacción, puesto que sólo exponian al atacante un entorno limitado
+no real y limitado frente a las honeypots de alta interacción que permiten al atacante interactuar con la aplicación a investigar, el sistema operativo
+y todo aquello que pueda ser relevante para la diagnosis como el trafico de red.
+
+Habitualmente las honeypots de alta interacción eran servidores fisicos o virtualizados creados exclusivamente para ésta tarea, lo que implica
+una utilización de recursos en terminos de CPU, RAM (en definitiva en coste economico), considerando ademas que una honeypot por sus caracteristicas
+y seguridad seguramente no se despliegue exactamente en el mismo entorno que el resto de aplicaciones de negocio de una organización, o en caso de hacerlo
+la gestión del riesgo y medidas de seguridad aumentarian.
+
+Por ello, desplegar y mantener honeypots de alta interacción es dificil. Desde la introducción de LXC (Linux Containers) en el kernel de Linux que los hizo posible, y
+especialmente desde la aparición de Docker, que le dio popularidad y facilito su adopción y explotación.
+
+Un \emph{container} es un metodo de virtualización para ejecutar multiples sistemas linux aislados (containers) en un servidor que comparte un mismo kernel de Linux. Tecnicamente se basa en la utilización
+de cgroups para limitar y priorizar recursos del sistema (CPU, memoria, I/O...) y de \emph{namespaces} que limitan la visualización del sistema de los procesos que se ejecutan en el container, y es la tecnica que produce el aislamiento. Es importante notar que
+frente a otras tecnologias de contanerización como \emph{Jails}, \emph{Zones} o incluso las maquinas virtuales, los containers no tienen entidad propia para el kernel, asi que un container se compone
+de una definición de cgroup y namespace. 
+
+Se puede considerar un container como un \emph{chroot} mejorado o como una maquina virtual ligera (que comparte el mismo kernel con el hipervisor), en éste sentido
+mi interés en containers para éste proyecto es debido a su eficiente utilización de recursos frente a una maquina virtual y a la facilidad
+de crear, mantener y mejorar imagenes de sistema gracias al tooling alrededor de imagenes de Docker.
+
+En resumen, el objeto de éste proyecto es el de construir una honeypot de alta interacción utilizando containers.
+
+\section{Alcance}
+
+El presente proyecto, tendrá como alcance:
+\begin{itemize}
+    \item La creación de una sonda que exponga al mundo el servicio que se quiere investigar que se ejecutará en un container.
+    \item Las medidas de seguridad que se apliquen en dicha sonda.
+    \item El uso de un sistema que guarde las trazas para poder identificar las acciones realizadas en la honeypot.
+    \item El diseño de un sistema de colección, que recopile las trazas de las sondas y las almacene.
+    \item el diseño de un sistema de explotación de datos de dicha colección, en particular la extracción, transformación y visualización de los mismos.
+\end{itemize}
+
+\section{Antecedentes}
+
+% honeypots existentes...
+% Kippo, honeyd, honeynet, dionaea 
+
+El objetivo de una honeypot es el de aprender y conocer tecnicas de los atacantes para poder defenderse aplicando medidas de seguridad.
+Debido al coste y complejidad de las honeypots de alta interacción, la mayoria de ellas son de baja interacción. Examinaré algunas de ellas:
+
+\begin{enumerate}
+    \item[\emph{Kippo}] (\cite{honeynet-kippo}) una honeypot de SSH de baja interacción, implementa el protocolo SSH en un servidor en Python
+    lo que le permite extraer información del atacante (contraseña, IP, ordenes ejecutadas...), aunque intenta simular un servidor de SSH real
+    se puede diagnosticar que el servidor es una honeypot simplemente ejecutando ordenes de sistema.
+    \item[\emph{Dionaea}] (\cite{honeynet-dionaea}) una honeypot de baja interacción que simula varias aplicaciones como servidores TFTP, MySQL, HTTP, Memcache etc y expone sus puertos.
+    \item[\emph{honeyd}] (\cite{honeynet-lowinteraction}) una de las primeras honeypots open source de baja interacción, puede exponer varios servicios aunque su desarrollo no está activo.
+    \item[\emph{Dockerpot}] (\cite{honeynet-dockpot}) Una honeypot de alta interacción, basada en containers Docker, persigue un objetivo similar al de éste proyecto
+    sin embargo no se expone directamente un container, se expone un proxy (a lo \emph{kippo}) que implementa el protocolo SSH, pero a diferencia de \emph{kippo} se abre otra conexion
+    a un servidor SSH real que se ejecuta en un container. El proxy se encarga de levantar/parar el container, sólo se para el container cuando no hay ninguna conexión activa. Si el container es comprometido, siguiendo éste enfoque no se parará.
+    De manera similar a \emph{Kippo} es fácil descubrir  que se esta atacando una honeypot de éste tipo, ya que la latencia entre que se inicia la comunicación
+    y se pide la contraseña o se deniega el acceso al servidor SSH es sensiblemente elevada.
+\end{enumerate}
+
+Si hay algo en comun a todas ellas que motivó la creación de éste proyecto es que o bien son honeypots de baja interacción que son facilmente reconocibles
+y por tanto carecen de interes para ataques reales o son de alta interacción pero para reciclar gestionar el servicio expuesto siempre hay un proxy delante
+que se encarga de levantar / parar el container.
+
+\nocite{*}
+\nopagebreak
+\printbibheading[title={Normas y referencias},heading=subbibnumbered]
+\subsection{Disposiciones legales y normas aplicadas}
+\subsubsection{Licencia FDL aplicable a ésta memoria}
+\input{./fdl.tex}
+\subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
+Todo el codigo fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Se puede consultar los terminos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
+
+
+\subsection{Bibliografia}
+\printbibliography[title={Referencias},heading=none]
+\nopagebreak
+\section{Definiciones y abreviaturas}
+\section{Requisitos de diseño}
+
+% Requisitos de diseño son, 
+%  * Eficiencia, Facilmente mantenible y economicamente viable.
+%  * Util, Información expuesta via API.
+%  * Seguridad, El modelo de riesgo, separar entorno de atacantes de entorno de procesamiento.
+
+
+\section{Análisis de soluciones}
+
+% % Sonda,
+%  * como instrumentar los containers, via interfaces conocidas.
+%  * LXC vs Docker vs rkt.
+%  * Auditd, netlink, KLM.
+%  * Notificaciones de trazas.
+%  * Modelo de seguridad de la sonda y del servicio expuesto.
+%  * limitacion del ancho de banda de la red para limitar usando TC.
+%  * Securizacion de la sonda.
+
+% % Collector,
+%  * registro de las sondas
+%  * coleccion de alertas de Falco.
+%  * coleccion de trazas del sistema.
+%  * Procesamiento de trazas del sistema
+%  * Almacenamiento de informacion
+
+% API
+%  * exposicion de la información.
+%  * Arquitectura de la API / versionado
+%  * REST vs GRAPHQL
+
+
+
+\section{Resultados finales}
+
+
+% Arquitectura
+%  * Descripcion de la arquitectura.
+%  * Registro de las sondas.
+%  * Notificacion de nuevas trazas.
+
+% Despliegue
+%  * Mantenimiento de la arquitectura usando Ansible.
+
+
+\section{Planificación}
+
+% Commit inicial 15/2/2016
+% Prototipo 21/5/2016
+% Construccion de la sonda 21/5/2016 - 20/5/2016
+% Construccion del collector 20/5/2016 - 21/7/2016
+% Construccion de la API 21/7/2016 - 22/7/2016
+
+
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "main"
