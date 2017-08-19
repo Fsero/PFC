@@ -73,20 +73,273 @@ que se encarga de levantar / parar el container.
 Todo el codigo fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
 Se puede consultar los terminos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
-
 \subsection{Bibliografia}
 \printbibliography[title={Referencias},heading=none]
 \nopagebreak
 \section{Definiciones y abreviaturas}
 \section{Requisitos de diseño}
 
-% Requisitos de diseño son, 
-%  * Eficiencia, Facilmente mantenible y economicamente viable.
-%  * Util, Información expuesta via API.
-%  * Seguridad, El modelo de riesgo, separar entorno de atacantes de entorno de procesamiento.
+Para el diseño de la honeypot basada en containers hay que combinar principalmente funcionalidad, seguridad y viabilidad economica.
+
+\begin{enumerate}
+    \item[Flexible] la honeypot debe ser capaz de exponer cualquier tipo de servicio.
+    \item[Eficiente] las sondas y el \emph{backend} deben minimizar el numero de servidores necesarios para su explotación.
+    \item[Útil] Las honeypots deben exportar información útil.
+    \item[Segura] las honeypots y el \emph{backend} deben proveer medidas de contencion frente atacantes.  
+\end{enumerate}
 
 
 \section{Análisis de soluciones}
+
+Lo más relevante de la sonda es la capacidad de extraer información de ella, a nivel de instrumentación. Cada proceso (y cabe recordar que un container en Linux es un proceso dentro de un \emph{namespace} con un \emph{cgroup} asociado) es gestionado, controlado
+y auditado por el kernel.
+
+Por ello, es interesante explorar si a través de alguna interfaz del kernel es posible instrumentar nuestra \emph{honeypot}. A la hora de exponer nuestro servicio, lo haremos utilizando
+un container. existen diversas tecnologias para utilizar containers en Linux, de más a menos antiguedad se puede utilizar LXC, \emph{Docker}, \emph{LXD} ó \emph{rkt}.
+
+\emph{LXC}, \emph{LXD} y \emph{rkt} comparten que su objetivo es el de proporcionar una \emph{lightweight-VM}, un entorno donde se pueden lanzar varios procesos y aplicaciones a la VM
+pero sin la necesidad de cargar un kernel independiente y los costes extra que una VM supone (y perdiendo las garantias de aislamiento que también provee).
+
+Docker, sin embargo, promueve una filosofia en la que cada container deberia albergar idealmente un sólo proceso o una aplicación.
+
+Hay varias diferencias entre estas alternativas, \emph{LXC} y \emph{LXD} proveen herramientas para crear un container "manualmente" entrando en el container y lanzando los procesos. Mientras que Docker y rkt
+lanzan containers utilizando imagenes. Una imagen no es mas que una descripción en un lenguaje de que contendrá el container, ordenes a lanzar para construir el container y el punto de entrada (la orden que se lanzara al lanzar el container) del mismo.
+
+Los \emph{containers} construidos con \emph{Docker} y rkt son inmutables, cada imágen define varias capas de almacenamiento (veasé \cite{docker-storage}) que se van apilando
+para construir el sistema de archivos, como ultima capa se añade una capa con permisos de lectura/escritura para permitir el almacenamiento temporal necesario para lanzar
+la mayoría de ordenes.
+
+Aunque cualquiera de las tecnologias de containerizacion explicadas previamente podrian ser utilizadas para nuestros fines, Docker tiene una amplia acogida como la herramienta de containerizacion
+y hay muchisimas herramientas disponibles que suponen la utilización de Docker. Por ello, se escoge ésta tecnologia para construir nuestros containers.
+
+\subsection{Instrumentación de los containers}
+
+Cuando se habla de instrumentación de procesos en Linux, generalmente lo que queremos es obtener información de:
+\begin{enumerate}
+    \item[\emph{System calls}] Peticiones que realiza nuestro proceso al kernel (leer un fichero, abrir una conexión \ldots).
+    \item[\emph{Linux kernel function calls}] Que funciones se llamaran en el kernel para satisfacer una \emph{syscall}.
+    \item[\emph{eventos}] eventos que se han definido en \emph{userspace} o dentro del kernel
+\end{enumerate}
+
+Para obtener ésta información hay diversas fuentes dentro del kernel:
+
+\begin{enumerate}
+    \item[\emph{kprobes}] el kernel modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si hablamos
+    de \emph{kprobes} las funciones a instrumentar son parte del kernel. 
+    \item[\emph{uprobes}] Similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
+    \item[\emph{kernel tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el codigo fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
+    \item[\emph{ptrace}] A traves de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
+\end{enumerate}
+
+Lo que se persigue en éste proyecto es intentar obtener la máxima información modificando lo minimo posible la aplicación instrumentada. Sería posible
+reescribir el servicio expuesto implementando tracepoints para obtener información precisa, pero eso provocaria que la aplicación expuesta no fuese exactamente la misma que se utilizac
+en otros entornos productivos (por lo que la información que nos provee podría ser inutil) ó aumentariamos la superficie de ataque, ya que estariamos
+generando una versión nueva del \emph{software} que no está pasando quizá los mismos controles que el software original, y en cualquier caso, la modificación de todas las aplicaciones
+que nos interesa analizar supone una inversión de esfuerzo que no es trivial.
+
+No es interesante para éste proyecto información relativa al rendimiento, lo que sí nos intesa es información relativa al comportamiento de nuestra aplicación. Por lo tanto,
+utilidades como \emph{perf} no nos seran utiles y se expondran alternativas a continuación.
+
+\subsection{Obteniendo información del kernel: Auditd}
+
+\emph{Audit} (veasé \cite{redhat-auditd}) es un subsistema del kernel y un conjunto de utilidades, 
+disponibles desde el kernel 2.6 que nos proporcione información acerca de que \emph{syscalls}
+se llaman desde los procesos del sistema. 
+Es un componente maduro que se utiliza extensivamente (como prueba es parte de las recomendaciones del CIS y NIST para guias de bastionado)
+y en base a un fichero de configuración se pueden definir que syscalls se monitorizaran
+\emph{audit} genera un fichero de log que puede guardarse en disco, enviar eventos a un colector remoto o ser expuesto via una conexión
+\emph{netlink} (veasé \cite{wiki-netlink})
+
+La primera aproximación realizada para la instrumentación de la sonda, fue utilizando \emph{auditd} es tan simple como lanzar un \emph{container} exponiendo un servicio
+y guardar cualquier syscall recibida. 
+
+Este enfoque puede ser costoso a nivel de rendimiento, depende del número de eventos generados (tráfico / operaciones del container) a la hora de la colección de eventos
+y costoso también a la hora de extraer información relevante.
+
+La idea inicial es configurar \emph{audit} para volcar la información en fichero, tras una prueba inicial se encuentran los siguientes problemas:
+
+\begin{enumerate}
+    \item Reducir el numero de \emph{syscalls} a instrumentar en \emph{auditd}. Si sólo se instrumentan unas cuantas syscalls el volumen de eventos es mucho menor que si
+    instrumentamos todas las \emph{syscalls} del servidor, si además solo capturamos \emph{syscalls} proveniente de un sólo proceso el volumen de información se reduce, lo que es 
+    deseable para tener que procesar menos despues y para almacenaje de los eventos.
+    \item Hay que gestionar el fichero de log. El fichero crecerá y hay que rotarlo para que no llene el almacenamiento del servidor. Si el volumen de eventos es alto y es superior 
+    al \emph{buffer} disponible es posible perder eventos antes de escribir a fichero, o recibir eventos con demasiada posterioridad.
+    \item Tendremos que parsear el fichero de log para extraer información, lo que implica leer el fichero de disco/parsearlo y guardar la información. El hecho de tener que escribir a disco puede inducir una latencia además de aumentar la carga de la sonda si parseamos el fichero alli.
+    \item Para mitigar el punto anterior, podemos configurar \emph{auditd} para enviar eventos a un \emph{auditd} central y que este se encargue de volcar en ficheros los eventos de varias sondas. Sin embargo, esto sería aplazar el problema
+    que comentabamos anteriormente.
+    \item Una posible solución para mejorar la latencia es utilizar una conexión \emph{netlink},
+    auditd provee de interfaz \emph{netlink} asi en lugar de leer eventos de un fichero, 
+    recibiremos los eventos a través de una conexión de red. 
+    Al conectarnos por red mejoraremos la latencia de recepción de eventos, 
+    pero necesitaremos desarrollar un cliente netlink capaz de procesar estos eventos, 
+    y procesarlos en un tiempo adecuado, ya que de otro modo, 
+    si nuestro cliente no fuera capaz de procesar el volumen de eventos entregado,
+    dichos eventos se perderian.
+    \item \emph{auditd} no es capaz de reconocer \emph{containers}, por lo tanto seremos capaces de ver la actividad de procesos
+    sin saber si estos se ejecutan dentro de un container o no, esto es una limitación importante, especialmente, si queremos que nuestras sondas
+    ejecuten más de un container por sonda y en cualquier caso complica el procesamiento de eventos ya que no sería fácil, por ejemplo, diferenciar procesos
+    del \emph{host} frente a los que se ejecutan dentro del \emph{container}.
+\end{enumerate}
+
+Trás realizar una implementación inicial como prueba, no queda más que descartar la opción, el buffer de eventos de auditd no esta preparado para grandes volumenes.
+Si una sonda auditd pierde conectividad con un auditd que actua como recolector central, los eventos de éste se pierden.
+
+Para paliar ésta deficiencia, se puede utilizar la interfaz netlink, existen varias librerias en diversos lenguajes para implementar un cliente de netlink, entre ellas
+se han probado (\cite{netlink-glnpy,netlink-audit-go,netlink-go-audit}).
+
+La realidad es que el formato recibido a través de la conexión de netlink es desigual (no todos los eventos tienen el mismo formato), inestable ( en ocasiones si se recarga la configuración de auditd la conexión se rompe y es imposible volver a obtener eventos) y hay una cierta fragilidad al trabajar con ella, pese a que hay historias de éxito
+como la de \emph{Slack} (\cite{netlink-slack-success}), si bien es cierto que dicho articulo se publica despues de realizar ésta prueba y que las condiciones no son identicas, Slack no instrumenta \emph{containers}.
+
+Se descarta la utlización de \emph{Auditd} por éstas razones y se comienza a buscar alternativas.
+
+\subsection{Obteniendo información del kernel: \emph{eBPF}}
+
+\emph{eBPF (extended BPF)} (véase \cite{ebpf-brendan-gregg,ebpf-series}) es una maquina virtual muy eficiente que se ejecuta dentro del kernel. Su función original era la de filtrado de paquetes de red, que ha sido
+extendido para ser un motor de procesado de eventos en general.
+
+BPF \emph{Berkeley packet filter} es una maquina virtual que ha sido utilizada para filtrado de paquetes de red en BSD y Linux desde hace 24 años, la orden
+más conocida que utiliza ésta maquina virtual es \emph{tcpdump}, utilidad frecuentemente utilizada para diagnostico de problemas de red.
+
+Aunque su origen sea el de filtrado de red, a partir del kernel 3.8 y en especial en los ultimos kernels \emph{4.x} se han ido ampliando las capacides de la maquina virtual BPF para poder
+observar eventos de multiples sistemas.
+
+la manera de crear nuevos programas \emph{eBPF} es creando programas con instrucciones \emph{eBPF}, dichos programas se pueden escribir utilizando
+instrucciones o a traves de un compilador en \emph{C}. bcc (véase \cite{bcc-project}) es una herramienta que permite escribir programas \emph{Python} que contienen código C que generan 
+instrucciones eBPF.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[scale=0.3]{images/linux_ebpf_internals}
+  \caption{Detalle de como funciona un programa \emph{eBPF} y su relación con el kernel. \emph{Autor: Brendan Gregg}}
+  \label{fig:ebpf-internals}
+\end{figure}
+
+el proyecto \emph{bcc} incluye pequeñas utilidades que sirven para monitorizar algunas partes del sistema, en la figura \ref{fig:bcc-tracing-tools} puede observarse un diagrama que incluye algunas de ellas
+con referencia al sistema que monitorizan.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[scale=0.65]{images/bcc_tracing_tools}
+  \caption{Relación de utilidades \emph{bcc} y subsistemas monitorizados. \emph{Autor: Brendan Gregg \& iovisor project}}
+  \label{fig:bcc-tracing-tools}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[scale=0.65]{images/linux_ebpf_support}
+  \caption{Relación de versiones del kernel donde se dan soporte a susbsistemas en \emph{eBPF}. \emph{Autor: Brendan Gregg \& iovisor project}}
+  \label{fig:linux_ebpf_support}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\begin{tabular}[!h]{|l|}
+\hline
+Linux 4.12 Released 2 July, 2017 \\
+\hline
+Linux 4.11 Released 30 April, 2017 \\
+\hline
+Linux 4.10 Released 19 February, 2017 \\
+\hline
+Linux 4.9 Released 11 December, 2016 \\
+\hline
+Linux 4.8 Released 2 October, 2016 \\
+\hline
+Linux 4.7 Released 24 July, 2016 \\
+\hline
+Linux 4.6 Released 15 May, 2016 \\
+\hline
+Linux 4.5 Released 13 March, 2016 \\
+\hline
+Linux 4.4 Released 10 January, 2016 \\
+\hline
+Linux 4.3 Released 1 November, 2015 \\
+\hline
+Linux 4.2 Released 30 August, 2015 \\
+\hline
+Linux 4.1 Released 21 June, 2015 \\
+\hline
+Linux 4.0 Released 12 April, 2015 \\
+\hline
+\end{tabular}
+\caption{\label{tab:linux-release-date}Fecha de publicación de versiones de Linux \emph{4.X}}
+\end{table}
+
+Sin embargo el soporte a subsistemas ha sido introducido de manera paulatina, desde la introducción de eBPF, como referencia véase el cuadro \ref{tab:linux-release-date} dónde se incluye la fecha de publicación de algunas versiones de la rama
+\emph{4.x} y la figura \ref{fig:linux_ebpf_support} donde se aprecia en que versión del kernel se incluye.
+
+\clearpage
+
+
+Si se utiliza \emph{eBPF} hay importantes ventajas e incovenientes con respecto a \emph{auditd} y otras opciones:
+\begin{enumerate}
+    \item[Eficiencia] el procesado de eventos y filtrado se hace dentro del kernel, en un entorno aislado, lo que es mucho más
+    rapido y menos costoso que copiar el evento a espacio de usuario y filtrarlo alli.
+    \item[Prometedor] aunque \emph{eBPF} es de incorporación reciente utiliza tecnología existente en el kernel desde hace más de 20 años.
+    \item[Falta de soporte] no hay que perder la vista de que queremos instrumentar una \emph{honeypot} y aunque es viable escribir aplicaciones \emph{eBPF} capaces de instrumentar, no hay demasiada documentación al respecto
+    y quizá ese objetivo sea merecedor de un proyecto por sí sólo.
+    \item[Soporte reciente] si queremos utilizar todas las capacidades de \emph{eBPF} necesitaremos al menos un kernel \emph{4.10} que no está disponible aún en todas las distribuciones, que suelen instalar
+    versiones \emph{LTS} (4.4 actualmente) y que por lo tanto no estará disponible en la mayoría de proveedores de servidores como \emph{AWS, Digital Ocean \ldots}. Aunque no es imposible instalar nuevas versiones del kernel,
+    supone un esfuerzo extra y un coste para el proyecto.
+\end{enumerate}
+
+Por éstas razones se descarta el uso de \emph{eBPF} que aunque prometedor aún no es suficientemente estable para acometer éste proyecto.
+\clearpage
+
+\subsection{Obteniendo información del kernel: crear un módulo}
+
+Dado que por las razones expuestas extraer información vía interfaces externas no parecía factible, hay que explorar otras opciones.
+el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de codigo que extienda las capacidades del kernel, es la manera
+en que habitualmente se cargan nuevos controladores, por ejemplo.
+
+Ya que extraer información a través de interfaces conocidas no es factible, queda la opción de crearnos la nuestra propia. 
+Desarrollar un módulo del kernel para generar eventos y procesarlos no es una tarea sencilla, el módulo debe ser eficiente para procesar el volumen
+de eventos y correcto para no provocar un fallo en el kernel que deje inutilizado el sistema.
+
+El esfuerzo y tiempo a dedicar necesario para crear un módulo de kernel con cierta calidad y caracteristicas necesitaria un tiempo de desarrollo grande, quizás de la talla
+de éste mismo proyecto. Por ello, antes de comenzar esa tarea cabe buscar si hay opciones disponibles que nos eviten ese trabajo extra.
+
+\emph{sysdig} (\cite{sysdig-project}) es un proyecto de \emph{Draios} que consta de una \emph{CLI (Command Line Interface)} que utiliza eventos de un modulo del kernel
+licenciado con GPLv2, lo que supone un encaje perfecto para las necesidades del proyecto.
+
+Ventajas e inconvenientes de éste enfoque:
+
+\begin{enumerate}
+    \item[Coste] Sysdig obtiene los eventos en espacio del kernel pero los copia a espacio de usuario para ser
+    filtrados y procesados. Si el filtro que escogemos es suficientemente amplio se necesitará una importante cantidad de recursos de CPU y memoria para el filtrado y procesado de eventos.
+    \item[Flexibilidad] \emph{sysdig} como cliente del modulo del kernel, proporciona una enorme flexibilidad a la hora de definir filtros y varios formatos de salida (JSON, formato variable \emph{a la printf},\ldots).
+    \item[Almacenaje] \emph{sysdig} guarda a disco las trazas en fichero en un formato binario propio que es posible leer y filtrar con posterioridad. Proporciona además opciones para el rotado automático por tamaño y/o fecha,
+    lo que permite el almacenaje y gestion de ficheros de trazas directamente desde sysdig y la capacidad de reprocesar eventos si los filtros originales son generalistas. 
+\end{enumerate}
+
+Las ventajas superan los incovenientes en éste caso, ya que aunque el consumo de CPU sea más elevado, poder gestionar las trazas directamente, reprocesar ficheros de captura y las opciones flexibles de filtrado y postprocesado hacen de ésta opción la opción finalmente escogida.
+
+\subsection{Notificación de alertas en base a eventos capturados en las trazas}
+
+Una vez que hemos establecido como obtener los eventos, necesitamos que en ciertas condiciones algun componente, ya
+sea el método de instrumentación o un sistema externo nos notifique cuando se vulnera nuestra \emph{honeypot} o hay un
+cambio relevante dentro de ella.
+
+Necesitamos esa notificación para conocer cuando se produce un incidente y sobre todo para ser capaz de limpiar el entorno tras una
+cierta ventana de tiempo de exposición, nuestro objetivo es el de aprender de nuestros atacantes no de convertirnos en una plataforma de soporte
+para ellos.
+
+Desgraciadamente, al comienzo de éste proyecto (Marzo de 2016) no existía ningún tipo de aplicación que realizase ésta tarea.
+Por ello, extender \emph{sysdig} para realizar ésta tarea parece lo más apropiado, la manera de extension puede ser a través de un
+script en Lua que sea ejecutado dentro de \emph{sysdig} o procesando la salida en una aplicación externa.
+
+\emph{Lua} es un lenguaje pequeño, versatil y potente y posiblemente capaz de realizar ésta tarea, pero la poca familiaridad del autor con este lenguaje decanta
+la balanza a favor de desarrollar una aplicación externa que recibiendo los eventos procesados por \emph{sysdig} genere las notificaciones.
+
+Afortunada (o desgraciadamente por el tiempo \emph{invertido}) antes de que el desarrollo de dicha aplicación terminase, \emph{Draios} lanza \emph{Falco} (\cite{falco-project}) en Mayo de 2016, un proyecto cuyo objetivo
+es el analizar el comportamiento anomalo de containers en base a filtros de \emph{sysdig} y generar notificaciones sobre ello.
+
+El encaje con los propositos del proyecto es perfecto, y por ello se descarta el desarrollo propio tras una prueba inicial.
+
+\subsection{Modelo de seguridad de la sonda y del servicio expuesto.}
+
+
+% 18/08/2017
 
 % % Sonda,
 %  * como instrumentar los containers, via interfaces conocidas.
@@ -97,41 +350,46 @@ Se puede consultar los terminos de la licencia en la página de Apache \url{http
 %  * limitacion del ancho de banda de la red para limitar usando TC.
 %  * Securizacion de la sonda.
 
+% 19/08/2017
+
 % % Collector,
 %  * registro de las sondas
 %  * coleccion de alertas de Falco.
 %  * coleccion de trazas del sistema.
-%  * Procesamiento de trazas del sistema
+%  * Procesamiento de trazas del sistema 
 %  * Almacenamiento de informacion
+
+% 20/08/2017
+
 
 % API
 %  * exposicion de la información.
 %  * Arquitectura de la API / versionado
 %  * REST vs GRAPHQL
 
-
-
 \section{Resultados finales}
 
+% 25/08/2017
 
 % Arquitectura
 %  * Descripcion de la arquitectura.
 %  * Registro de las sondas.
 %  * Notificacion de nuevas trazas.
-
 % Despliegue
 %  * Mantenimiento de la arquitectura usando Ansible.
 
-
 \section{Planificación}
+
+% 26/08/2017
 
 % Commit inicial 15/2/2016
 % Prototipo 21/5/2016
-% Construccion de la sonda 21/5/2016 - 20/5/2016
-% Construccion del collector 20/5/2016 - 21/7/2016
+% Construccion de la sonda 21/5/2016 - 20/5/2017
+% Construccion del colector 20/5/2016 - 21/7/2016
 % Construccion de la API 21/7/2016 - 22/7/2016
 
-
+\subsection{Metodologia utilizada: modelo iterativo}
+% 27/08/2017
 
 %%% Local Variables: 
 %%% mode: latex
