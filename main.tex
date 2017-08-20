@@ -26,6 +26,13 @@
 \definecolor{azul}{rgb}{0,0,0.30}
 \definecolor{grisclaro}{gray}{0.85}
 
+\makeatletter
+\def\app@exe{\immediate\write18}
+\def\listDir#1{%
+  \app@exe{ls #1/* | xargs cat >> \jobname.tmp}%
+  \lstinputlisting{\jobname.tmp}
+  \AtEndDocument{\app@exe{rm -f #1/\jobname.tmp}}}
+\makeatother
 
 \newenvironment{ejemplo}% 
   {\VerbatimEnvironment

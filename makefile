@@ -11,10 +11,10 @@ pfc: main.tex
 	@./pasaraepsypdf.py images/
 	@./pasaraepsypdf.py images/pan/
 	@./pasaraepsypdf.py images/trends
-	@pdflatex -interaction batchmode $< 2> /dev/null
+	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
 	@biber $(basename $<) 2> /dev/null
-	@pdflatex -interaction batchmode $< 2> /dev/null
-	@pdflatex -interaction batchmode $< 2> /dev/null
+	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
+	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
 	@$(VISOR) $(basename $<).pdf
 
 clean:

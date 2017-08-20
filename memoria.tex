@@ -4,11 +4,11 @@
 El objeto de éste proyecto es la implementación de un sistema de \emph{Honeypots} utilizando \emph{containers}. 
 Las Honeypots han existido desde hace bastante tiempo, quizá el software más conocido es honeyd, publicado en 2007.
 
-\emph{honeyd} (veasé \cite{honeynet-lowinteraction}) y otros casos son aplicaciones de las llamadas honeypots de baja interacción, puesto que sólo exponian al atacante un entorno limitado
-no real y limitado frente a las honeypots de alta interacción que permiten al atacante interactuar con la aplicación a investigar, el sistema operativo
+\emph{Honeyd} (veasé \cite{honeynet-lowinteraction}) y otros casos son aplicaciones de las llamadas honeypots de baja interacción, puesto que sólo exponian al atacante un entorno limitado
+no real y limitado frente a las \emph{honeypots} de alta interacción que permiten al atacante interactuar con la aplicación a investigar, el sistema operativo
 y todo aquello que pueda ser relevante para la diagnosis como el trafico de red.
 
-Habitualmente las honeypots de alta interacción eran servidores fisicos o virtualizados creados exclusivamente para ésta tarea, lo que implica
+Habitualmente las \emph{honeypots} de alta interacción eran servidores fisicos o virtualizados creados exclusivamente para ésta tarea, lo que implica
 una utilización de recursos en terminos de CPU, RAM (en definitiva en coste economico), considerando ademas que una honeypot por sus caracteristicas
 y seguridad seguramente no se despliegue exactamente en el mismo entorno que el resto de aplicaciones de negocio de una organización, o en caso de hacerlo
 la gestión del riesgo y medidas de seguridad aumentarian.
@@ -16,13 +16,13 @@ la gestión del riesgo y medidas de seguridad aumentarian.
 Por ello, desplegar y mantener honeypots de alta interacción es dificil. Desde la introducción de LXC (Linux Containers) en el kernel de Linux que los hizo posible, y
 especialmente desde la aparición de Docker, que le dio popularidad y facilito su adopción y explotación.
 
-Un \emph{container} es un metodo de virtualización para ejecutar multiples sistemas linux aislados (containers) en un servidor que comparte un mismo kernel de Linux. Tecnicamente se basa en la utilización
-de cgroups para limitar y priorizar recursos del sistema (CPU, memoria, I/O...) y de \emph{namespaces} que limitan la visualización del sistema de los procesos que se ejecutan en el container, y es la tecnica que produce el aislamiento. Es importante notar que
-frente a otras tecnologias de contanerización como \emph{Jails}, \emph{Zones} o incluso las maquinas virtuales, los containers no tienen entidad propia para el kernel, asi que un container se compone
+Un \emph{container} es un metodo de virtualización para ejecutar multiples sistemas linux aislados (\emph{containers}) en un servidor que comparte un mismo kernel de Linux. Tecnicamente se basa en la utilización
+de cgroups para limitar y priorizar recursos del sistema (CPU, memoria, I/O...) y de \emph{namespaces} que limitan la visualización del sistema de los procesos que se ejecutan en el \emph{container}, y es la tecnica que produce el aislamiento. Es importante notar que
+frente a otras tecnologias de contanerización como \emph{Jails}, \emph{Zones} o incluso las maquinas virtuales, los \emph{containers} no tienen entidad propia para el kernel, asi que un \emph{container} se compone
 de una definición de cgroup y namespace. 
 
 Se puede considerar un container como un \emph{chroot} mejorado o como una maquina virtual ligera (que comparte el mismo kernel con el hipervisor), en éste sentido
-mi interés en containers para éste proyecto es debido a su eficiente utilización de recursos frente a una maquina virtual y a la facilidad
+mi interés en \emph{containers} para éste proyecto es debido a su eficiente utilización de recursos frente a una maquina virtual y a la facilidad
 de crear, mantener y mejorar imagenes de sistema gracias al tooling alrededor de imagenes de Docker.
 
 En resumen, el objeto de éste proyecto es el de construir una honeypot de alta interacción utilizando containers.
@@ -117,7 +117,7 @@ y hay muchisimas herramientas disponibles que suponen la utilización de Docker.
 Cuando se habla de instrumentación de procesos en Linux, generalmente lo que queremos es obtener información de:
 \begin{enumerate}
     \item[\emph{System calls}] Peticiones que realiza nuestro proceso al kernel (leer un fichero, abrir una conexión \ldots).
-    \item[\emph{Linux kernel function calls}] Que funciones se llamaran en el kernel para satisfacer una \emph{syscall}.
+    \item[\emph{kernel function calls}] Que funciones se llamaran en el kernel para satisfacer una \emph{syscall}.
     \item[\emph{eventos}] eventos que se han definido en \emph{userspace} o dentro del kernel
 \end{enumerate}
 
@@ -127,7 +127,7 @@ Para obtener ésta información hay diversas fuentes dentro del kernel:
     \item[\emph{kprobes}] el kernel modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si hablamos
     de \emph{kprobes} las funciones a instrumentar son parte del kernel. 
     \item[\emph{uprobes}] Similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
-    \item[\emph{kernel tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el codigo fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
+    \item[\emph{tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el codigo fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
     \item[\emph{ptrace}] A traves de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
 \end{enumerate}
 
@@ -336,8 +336,44 @@ es el analizar el comportamiento anomalo de containers en base a filtros de \emp
 
 El encaje con los propositos del proyecto es perfecto, y por ello se descarta el desarrollo propio tras una prueba inicial.
 
-\subsection{Modelo de seguridad de la sonda y del servicio expuesto.}
+\subsection{Modelo de riesgo de la sonda y del servicio expuesto.}
 
+El objetivo de una  \emph{honeypot} es el de engañar a atacantes para que realicen un ataque como lo harian en un entorno real. Aunque este ataque se produce en un entorno en el que esperamos un ataque
+tendremos que definir el riesgo que asumimos al exponerse y que medidas o politicas se aplicarán para éstos riesgos. En la figura \ref{fig:riesgo_sonda} se describen los posibles riesgos, realizando un diagrama de riesgos siguiendo la metodologia expuesta en \cite{Shostack:2014:TMD:2829295}.
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[scale=0.4]{images/threat_model_probe}
+  \caption{Modelo de riesgo de la sonda}
+  \label{fig:riesgo_sonda}
+\end{figure}
+
+Listado de riesgos analizados sobre la figura \ref{fig:riesgo_sonda}:
+\begin{enumerate}
+    \item[\emph{Naranja 1}] Elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
+    \item[\emph{Naranja 2}] Riesgo de que la \emph{honeypot} sea reconocible o listada, la \emph{honeypot} es conocida por alguna caracteristica (\emph{IP del servidor, versión del servicio,\ldots}) marcandola como \emph{honeypot} permitiendo a los atacantes simplemente ignorarla.
+    \item[\emph{Azul}] El atacante escapa desde el \emph{container}, elevación de privilegios que rompe el aislamiento del kernel y el atacante gana acceso a otros containers o al servidor.
+    \item[\emph{Verde}] \emph{Spoofing} de la información enviada al colector, una vez el atacante gana acceso al servidor puede enviarnos al colector información falseada.
+    \item[\emph{Rojo}] Elevación de privilegios de un atacante que ya ha conseguido acceso al colector. El colector y la sonda mantendran una conexión, si alguien ataca al colector y gana privilegios puede atacar a las sondas. Pese a que es un riesgo, si el colector ha sido vulnerado, que nos ataquen las sondas no es tan grave.
+\end{enumerate}
+
+Listado de mitigaciones para los riesgos analizados:
+\begin{enumerate}
+    \item[\emph{Naranja 1}] Reducir la superficie de ataque, eliminar servicios expuestos que no pertenezcan a la \emph{honeypot} o limitar el acceso a ciertas direcciones ip conocidas.
+    \item[\emph{Naranja 2}] Para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. la mejor alternativa para mitigar éste riesgo es reciclar las sondas, y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automatico, se pueden crear nuevas sondas con frecuencia diaria u horaria.
+    \item[\emph{Azul}] Debemos aceptar el riesgo, que el container siempre tendra acceso al kernel que se comparte con otros containers y el servidor, como mitigación podemos restringir los privilegios del container para que solo pueda utilizar algunas syscalls, pero en cualquier caso el riesgo de compromiso de un servidor a traves de un container siempre estara presente. 
+    \item[\emph{Verde}] La comunicacion entre sonda y colector se realizara a traves de un canal cifrado con clave asimetrica. En el lado del colector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
+    \item[\emph{Rojo}] De todos los riesgos listados, este es el menos grave, si el colector ha sido atacado y vulnerado tendremos problemas mayores que nuestra sonda sea atacada.
+\end{enumerate}
+
+\subsection{Securizacion de la sonda}
+
+% medidas en el host,
+% mover ssh de gestion a otro puerto.
+% actualizacion de paquetes de seguridad.
+% reducir al minimo software.
+% limitacion del ancho de banda de los containers
+% apparmor y seccomp en containers.
 
 % 18/08/2017
 
