@@ -19,6 +19,8 @@
 \usepackage[backend=biber,style=ieee,sorting=ynt]{biblatex}
 \usepackage{hyphenat}
 \usepackage{fancyvrb} %inclusion de ficheros externo en modo verbatim
+\usepackage{makecell}
+\renewcommand\theadfont{\bfseries\sffamily}
 \addbibresource{bibliografia.bib}
 \patchcmd{\bibsetup}{\interlinepenalty=5000}{\interlinepenalty=10000}{}{}
 

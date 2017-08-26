@@ -89,7 +89,7 @@ Para el diseño de la honeypot basada en containers hay que combinar principalme
 \end{enumerate}
 
 
-\section{Análisis de soluciones}
+\section{Análisis de soluciones para la sonda}
 
 Lo más relevante de la sonda es la capacidad de extraer información de ella, a nivel de instrumentación. Cada proceso (y cabe recordar que un container en Linux es un proceso dentro de un \emph{namespace} con un \emph{cgroup} asociado) es gestionado, controlado
 y auditado por el kernel.
@@ -147,7 +147,7 @@ disponibles desde el kernel 2.6 que nos proporcione información acerca de que \
 se llaman desde los procesos del sistema. 
 Es un componente maduro que se utiliza extensivamente (como prueba es parte de las recomendaciones del CIS y NIST para guias de bastionado)
 y en base a un fichero de configuración se pueden definir que syscalls se monitorizaran
-\emph{audit} genera un fichero de log que puede guardarse en disco, enviar eventos a un colector remoto o ser expuesto via una conexión
+\emph{audit} genera un fichero de log que puede guardarse en disco, enviar eventos a un recolector remoto o ser expuesto via una conexión
 \emph{netlink} (veasé \cite{wiki-netlink})
 
 La primera aproximación realizada para la instrumentación de la sonda, fue utilizando \emph{auditd} es tan simple como lanzar un \emph{container} exponiendo un servicio
@@ -353,8 +353,8 @@ Listado de riesgos analizados sobre la figura \ref{fig:riesgo_sonda}:
     \item[\emph{Naranja 1}] Elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
     \item[\emph{Naranja 2}] Riesgo de que la \emph{honeypot} sea reconocible o listada, la \emph{honeypot} es conocida por alguna caracteristica (\emph{IP del servidor, versión del servicio,\ldots}) marcandola como \emph{honeypot} permitiendo a los atacantes simplemente ignorarla.
     \item[\emph{Azul}] El atacante escapa desde el \emph{container}, elevación de privilegios que rompe el aislamiento del kernel y el atacante gana acceso a otros containers o al servidor.
-    \item[\emph{Verde}] \emph{Spoofing} de la información enviada al colector, una vez el atacante gana acceso al servidor puede enviarnos al colector información falseada.
-    \item[\emph{Rojo}] Elevación de privilegios de un atacante que ya ha conseguido acceso al colector. El colector y la sonda mantendran una conexión, si alguien ataca al colector y gana privilegios puede atacar a las sondas. Pese a que es un riesgo, si el colector ha sido vulnerado, que nos ataquen las sondas no es tan grave.
+    \item[\emph{Verde}] \emph{Spoofing} de la información enviada al recolector, una vez el atacante gana acceso al servidor puede enviarnos al recolector información falseada.
+    \item[\emph{Rojo}] Elevación de privilegios de un atacante que ya ha conseguido acceso al recolector. El recolector y la sonda mantendran una conexión, si alguien ataca al recolector y gana privilegios puede atacar a las sondas. Pese a que es un riesgo, si el recolector ha sido vulnerado, que nos ataquen las sondas no es tan grave.
 \end{enumerate}
 
 Listado de mitigaciones para los riesgos analizados:
@@ -362,29 +362,13 @@ Listado de mitigaciones para los riesgos analizados:
     \item[\emph{Naranja 1}] Reducir la superficie de ataque, eliminar servicios expuestos que no pertenezcan a la \emph{honeypot} o limitar el acceso a ciertas direcciones ip conocidas.
     \item[\emph{Naranja 2}] Para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. la mejor alternativa para mitigar éste riesgo es reciclar las sondas, y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automatico, se pueden crear nuevas sondas con frecuencia diaria u horaria.
     \item[\emph{Azul}] Debemos aceptar el riesgo, que el container siempre tendra acceso al kernel que se comparte con otros containers y el servidor, como mitigación podemos restringir los privilegios del container para que solo pueda utilizar algunas syscalls, pero en cualquier caso el riesgo de compromiso de un servidor a traves de un container siempre estara presente. 
-    \item[\emph{Verde}] La comunicacion entre sonda y colector se realizara a traves de un canal cifrado con clave asimetrica. En el lado del colector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
-    \item[\emph{Rojo}] De todos los riesgos listados, este es el menos grave, si el colector ha sido atacado y vulnerado tendremos problemas mayores que nuestra sonda sea atacada.
+    \item[\emph{Verde}] La comunicacion entre sonda y recolector se realizara a traves de un canal cifrado con clave asimetrica. En el lado del recolector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
+    \item[\emph{Rojo}] De todos los riesgos listados, este es el menos grave, si el recolector ha sido atacado y vulnerado tendremos problemas mayores que nuestra sonda sea atacada. La mitigación en este caso es si hemos sido vulnerados cerrar el entorno, apagar los servidores, guardar periodicamente la informacion obtenida en un almacenamiento diferente y externo, hacer una auditoria de seguridad y analisis de que provoco el ataque para repararlo y recrear el entorno desde cero para asegurarnos que el atacante no tiene acceso a el.
 \end{enumerate}
 
-\subsection{Securizacion de la sonda}
+Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura y diseñar las protecciones, en general los riesgos \emph{Naranja 1}, \emph{Naranja 2} y \emph{Azul} son mas prioritarios que los riesgos \emph{Verde} y \emph{Rojo}. Las posibles acciones a tomar estan listadas en las mitigaciones del mismo color y creemos que son suficientes para equilibrar los riesgos.
 
-% medidas en el host,
-% mover ssh de gestion a otro puerto.
-% actualizacion de paquetes de seguridad.
-% reducir al minimo software.
-% limitacion del ancho de banda de los containers
-% apparmor y seccomp en containers.
-
-% 18/08/2017
-
-% % Sonda,
-%  * como instrumentar los containers, via interfaces conocidas.
-%  * LXC vs Docker vs rkt.
-%  * Auditd, netlink, KLM.
-%  * Notificaciones de trazas.
-%  * Modelo de seguridad de la sonda y del servicio expuesto.
-%  * limitacion del ancho de banda de la red para limitar usando TC.
-%  * Securizacion de la sonda.
+\section{Análisis de soluciones para el recolector}
 
 % 19/08/2017
 
@@ -395,13 +379,206 @@ Listado de mitigaciones para los riesgos analizados:
 %  * Procesamiento de trazas del sistema 
 %  * Almacenamiento de informacion
 
+
+\subsection{registro de las sondas}
+
+El recolector debe conocer el número de sondas desplegadas para poder extraer información de ellas o al menos validar
+los eventos que estas envien.
+
+En definitiva debemos preguntarnos como se realizará el registro de sondas y que casos de uso ha de proporcionar. En general, necesitaremos lo siguiente:
+
+\begin{enumerate}
+    \item Necesitamos \emph{metadata} de las sondas para la explotación de datos, al menos la ubicación donde la sonda esta desplegada, el proveedor, servicios expuestos en la \emph{honeypot} y versiones.
+    \item Como se comentaba en el modelo de seguridad de las sondas, consideramos las sondas como entidades efimeras, que aparecen y desaparecen. 
+    Necesitaremos un registro de sondas si queremos realizar analisis historicos, especialmente si queremos permitir el reprocesado de datos.
+    \item Verificación de la sonda para mantener la integridad de la información, la sonda ha de identificarse frente al recolector para asegurarnos que la fuente de información es legitima.
+    \item De cara a la recolección de datos, tendremos que pensar si optaremos por un modelo \emph{pull} frente a uno \emph{push}. En caso de escoger un modelo \emph{pull} el recolector debe conocer
+    cuales son las sondas y su estado para obtener las trazas.
+\end{enumerate}
+
+\subsection{Recolección de notificaciones de la \emph{honeypot}}
+
+Las alertas generadas por la \emph{Honeypot} seran eventos en formato textual o binario de un tamaño pequeño ( $<$ 1MiB). 
+Es importante que dichos eventos no se pierdan y que sean recolectados con la mayor celeridad posible incluso si las trazas disponibles
+y la información de las trazas no está disponible.
+
+Para la recolección de estas notificaciones, tenemos varias opciones, que se listan a continuación.
+
+\subsubsection{Notificaciones a través de HTTP}
+
+La \emph{honeypot} cuando detecta un evento relevante, realiza una petición HTTP a un servicio web de recolección que se ejecuta en el recolector.
+Si dicho servicio no está disponible o esta congestionado, el evento se perdera.
+La sonda no requiere instalación adicional de \emph{software} ya que sólo requiere realizar una petición HTTP. 
+Si la conexión de red de la sonda no funciona al realizar la petición el evento también se perderá.
+
+\subsubsection{Notificaciones usando un sistema de colas}
+
+Tendremos que instalar, configurar y mantener un sistema de colas como \emph{RabbitMQ, ZeroMQ, Kafka} 
+o pagar por el uso de sistemas de colas en el \emph{cloud} como \emph{AWS SQS, AWS Kinesis o Google Cloud PubSub}.
+
+La principal ventaja al seguir este enfoque es que los eventos seran almacenados en el sistema de colas y no en las sondas o en el recolector. Si queremos
+distribuir las tareas de procesamiento y recolección eventos entre varios recolectores, necesitaremos este elemento central de coordinación.
+
+El principal inconveniente es el coste en terminos economicos y de esfuerzo en mantener esta solucion. 
+Si decidimos gestionarlo dentro del proyecto usando algo como \emph{RabbitMQ o Kafka} además del incremento economico en servidores 
+debemos añadir el incremento en la complejidad del proyecto. En cambio, si apostamos por utilizar una solución \emph{cloud} la complejidad
+de instalación y mantenimiento baja a costa de un mayor desembolso economico y a aceptar las capacidades tecnicas y limites que las soluciones 
+\emph{cloud} tienen.
+
+Para este proyecto, el orden estricto de recepción de eventos no es necesario. No nos importará el orden de eventos recibidos siempre y cuando
+ningun evento se entregue con demasiada posterioridad.
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|l|l|r|}
+    \hline
+    \thead{Opcion} & \thead{Comentarios} & \thead{Coste aproximado} \\
+    \hline
+    \emph{AWS SQS} & 10.000.000 de peticiones, 3 GiB de transferencia & 5\$ mes \\
+    \hline
+    \emph{Google PubSub } &  10 GiB de eventos & 0.36\$ mes \\
+    \hline
+    \emph{RabbitMQ} & 3 instancias (512 MiB,1 CPU, 20 GiB de disco) & 15\$ mes \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:colas-coste} coste aproximado minimo de sistemas de colas}
+    \end{table}
+
+
+El cuadro \ref{tab:colas-coste} refleja el coste de sistemas actuales con el precio fijado en la fecha de redacción de esta memoria. En el no se contemplan costes indirectos,
+como el coste de las horas invertidas en configurar y puesta a punto del sistema, que en el caso de las soluciones \emph{cloud} aunque no es cero, es menor que la solucion de hacerlo \emph{in-house}.
+
+Tampoco se tiene en cuenta la escalabilidad de la solucion, que en el caso de las soluciones \emph{cloud} el sistema es escalable a costa de un precio cada vez mayor, mientras que en la solucion in-house los costes son
+fijos hasta que se consuma toda la capacidad. El volumen de eventos a procesar dependera de las condiciones de red de la instalación y el volumen de eventos por lo que no podemos
+proporcionar un numero de referencia de eventos a procesar.
+
+Las soluciones \emph{cloud} tienen un coste indirecto, nos ligan a un proveedor en concreto. Si escogemos que nuestras \emph{honeypots} se desplieguen en otros proveedores diferentes, tendremos que hacer
+pruebas de red para saber si la conectividad entre proveedores es buena, y tendremos costes adicionales en terminos de trafico de red.
+
+Los proveedores de servicios de computación en exclusiva (\emph{VPS}, \emph{Housing}) no suelen cobrar el trafico de red a no ser que superemos ciertos umbrales.
+
+\subsubsection{Notificaciones usando un recolector de \emph{logs}}
+
+Podemos considerar esta opción como una hibrida de las anteriores, instalaremos una aplicación de recolector de logs en la sonda. 
+La sonda escribirá eventos en disco cuando estos se produzcan, el sistema de recoleccion de logs monitorizará los \emph{logs} en disco, y
+se encargará de reenviar estos eventos al recolector, preferentemente utilizando un canal seguro para la transmisión.
+
+Si hay problemas en la conectividad de red entre la sonda y el recolector, los eventos se guardarán en un \emph{buffer} en disco y se reenviaran cuando la parte servidor este disponible.
+
+Como ejemplo de estas aplicaciones de recolección de \emph{logs} podemos citar, \emph{rsyslog,logstash,syslog-ng o fluentd}. \emph{rsyslog} y \emph{syslog-ng} son más veteranas, 
+en cuanto \emph{logstash} y \emph{fluentd} más recientes. 
+
+La diferencia entre las antiguas y recientes radica en que las recientes hacen enfasis en la capacidad de manipulacion de los \emph{logs} antes de su envio, mientras
+que las antiguas estan más probadas y su enfoque es hacia garantizar el envío de \emph{logs} de manera segura.
+
+El coste computacional de estas soluciones aunque no es negligible es muy bajo, es necesario procesar un volumen muy elevado de logs para que tenga impacto.
+El recolector deberá encargarse de ser capaz de albergar todos los logs recibidos, ya sea porque a su vez reenvia los \emph{logs} a otra ubicación o se encarga de la 
+politica de rotado. 
+
+\subsubsection{Opción escogida}
+
+Para este proyecto escogemos la opción de utilizar un recolector de \emph{logs} en nuestras sondas y reenviarlos a nuestro recolector de eventos. 
+
+\begin{enumerate}
+    \item La opción de notificar mediante peticiones HTTP es la más simple desde el punto de vista de la sonda y la deseable, pero no nos otorga garantias de entrega.
+    \item Utilizar sistemas de colas es lo deseable para escalar la solución, desacopla los productores de eventos de los consumidores,
+     y para la sonda la semantica de entrega es igual de simple que en el caso de la opción HTTP. Sin embargo, el coste economico y la complejidad elevada que introduce no justifica su acogida.
+     En un estado posterior del proyecto, siempre se puede pivotar a utilizar un sistema de colas.
+\end{enumerate}
+
+En concreto se utilizará \emph{rsyslog} como recolector de \emph{logs} por sus pocas necesidad de memoria y CPU y su estabilidad. Las capacidades de modificación de \emph{logs}
+antes de su envio no son necesarias para este proyecto y \emph{logstash} y \emph{fluentd} tienen un \emph{footprint} de uso de memoria mucho mas elevado.
+
+\subsection{recoleccion de trazas}
+
+Las trazas generadas por la \emph{honeypot} seran ficheros binarios de un tamaño elevado ($>$ 25 MiB), en el se recogerán todos los eventos del sistema instrumentalizado (\emph{syscalls},datos,\ldots).
+Tendremos que buscar un sistema que nos permita recolectar todas las trazas de todas las sondas. Es importante notar que
+las trazas una vez procesadas no son estrictamente necesarias, aunque es útil mantener un historico de ellas por dos motivos:
+
+\begin{enumerate}
+    \item Permitir el estudio analitico en base a un historico.
+    \item Facilitar el reprocesamiento en caso de errores de procesado (\emph{backfilling}). Idealmente nuestro método de extracción de
+    datos deberia ser correcto y tener los suficientes tests y garantias pero aún asi los errores pueden ocurrir.
+\end{enumerate}
+
+
+\subsection{Envio de trazas a almacenamiento en la nube}
+
+Si decidimos no gestionar las trazas nosotros, podemos optar por almacenar las trazas en la nube en soluciones \emph{cloud}. Para conocer el coste aproximado
+supongamos que queremos almacenar 500GiB de trazas por mes (aprox 18 GiB por dia). En ese caso, el coste en \emph{AWS} y \emph{Google Cloud} para almacenarlos
+en una región europea, teniendo en cuenta los costes de tráfico de salida fuera del proveedor sería:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|c|}
+    \hline
+    \thead{Proveedor} & \thead{Coste en dolares} \\
+    \hline
+    \emph{AWS}, resto de servidores fuera &  57.52 \$ \\
+    \hline
+    \emph{Google Cloud}, resto de servidores fuera &  78.08 \$ \\
+    \hline
+    \emph{AWS}, con servidores en mismo proveedor  &  11.89 \$ \\
+    \hline
+    \emph{Google Cloud}, con servidores en mismo proveedor & 10.44 \$ \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:almacenamiento-coste} coste aproximado de almacenamiento en la nube para 500 GiB}
+    \end{table}
+
+En el cuadro \ref{tab:almacenamiento-coste} se reflejan los costes mensuales de almacenar 500 GiB. En el es sensiblemente más barato si no hay transferencia de datos fuera del proveedor aunque no se incluyen
+el coste de estos servidores inicialmente amortizandose el coste de servidores al comprar mayor volumen.
+
+\subsection{Sistema de archivos distribuido}
+
+% GlusterFS
+
+% Ceph
+% NFS
+
+\subsection{Envio de trazas a un servidor interno de almacenamiento utilizando \emph{rsyslog}}.
+
+% sistema distribuido de ficheros
+% rsyslog 
+
+\subsection{Modelo de datos del recolector}
+
+Almacenamiento infinito (S3 Cloud Storage) vs almacenamiento finito, consecuencias. 
+
+Eleccion de la base de datos, foco en busqueda, modelo time series Fecha -> info, no hay interes a priori de datos historicos
+ejemplo del pescado, interesante cuando es reciente, irrelevante cuando ha pasado.
+
+\section{Análisis de soluciones para la API}
+
 % 20/08/2017
 
+\subsection{Objeto de la API}
 
-% API
-%  * exposicion de la información.
-%  * Arquitectura de la API / versionado
-%  * REST vs GRAPHQL
+% consumible por maquinas
+% integracion con otras herramientas de seguridad como WAFs, SoCs.
+
+\subsection{Contrato de la API}
+
+% API de consulta, no hay creacion.
+% Rate limiting?
+% versionada
+% Rest vs graphql
+% /v1/protocol/incident
+% /v1/protocol/incident?from=Date&To=Date&Size
+% /v1/protocol/feed
+% /v1/protocol/incident.stix
+
+
+
+\subsection{versionado}
+
+% Por que versionar
+
+\subsection{Rest}
+
+\subsection{Formatos de representacion}
+
+% JSON, Stix
+
 
 \section{Resultados finales}
 
@@ -410,6 +587,40 @@ Listado de mitigaciones para los riesgos analizados:
 % Arquitectura
 %  * Descripcion de la arquitectura.
 %  * Registro de las sondas.
+%  * securizacion de las sondas.
+
+\subsection{Securizacion de la sonda}
+
+Hay diversas medidas de seguridad a aplicar en la sonda. Si seguimos el principio de defensa en profundidad \cite{wikipedia-defense-in-depth}, aplicaremos diversas capas de proteccion en diferentes sistemas.
+
+\subsubsection{elección del sistema operativo de la sonda}
+
+La eleccion del sistema operativo tiene una componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securizacion,
+la existencia o no de actualizaciones de seguridad.
+
+Para este proyecto se ha escogido GNU/Linux como sistema operativo por las herramientas que nos provee para gestionar nuestra \emph{honeypot}, 
+tendremos que escoger una distribución del sistema operativo que nos provea de actualizaciones de seguridad. 
+Se ha escogido Debian como distribución por ser la opción de referencia para servidores y mantener software testado, con actualizaciones de seguridad, \emph{builds} reproducibles y por ser la distribución que más conoce y prefiere el autor, la opción podria haber incluido \emph{CentOS, Container Linux, RHEL \ldots} 
+
+En nuestro caso al escoger \emph{Debian} podremos utilizar el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando se publiquen actualizaciones de seguridad. Es recomendable seguir
+los estandares de la industria, como las guias de securización del \emph{CIS} o del \emph{NIST} (véase \cite{ovh-debian-cis} como ejemplo aplicado), que proporcionan guias de securizacion para la mayoria de distribuciones y que son utilizadas para el cumplimiento de legislación para poder gestionar datos sensibles como tarjeta de credito (PCI-DSS). 
+
+\subsection{Reducción de la superficie de ataque}
+
+\subsection{Configuración del SSH de gestión}
+
+
+% reduccion de servicios expuestos excepto ssh.
+% mover ssh de gestion a otro puerto, y limitar las funciones y accesos.
+% configuracion de firewall.
+
+\subsubsection{securizacion del sistema de containers}
+
+% utilizacion de AppArmor
+% utilizacion de seccomp
+% limitacion de ancho de banda usando TC
+
+
 %  * Notificacion de nuevas trazas.
 % Despliegue
 %  * Mantenimiento de la arquitectura usando Ansible.
@@ -421,7 +632,7 @@ Listado de mitigaciones para los riesgos analizados:
 % Commit inicial 15/2/2016
 % Prototipo 21/5/2016
 % Construccion de la sonda 21/5/2016 - 20/5/2017
-% Construccion del colector 20/5/2016 - 21/7/2016
+% Construccion del recolector 20/5/2016 - 21/7/2016
 % Construccion de la API 21/7/2016 - 22/7/2016
 
 \subsection{Metodologia utilizada: modelo iterativo}
