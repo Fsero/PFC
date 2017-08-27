@@ -90,6 +90,8 @@ Para el diseño de la honeypot basada en containers hay que combinar principalme
 
 
 \section{Análisis de soluciones para la sonda}
+\label{sec:analisis-sonda}
+
 
 Lo más relevante de la sonda es la capacidad de extraer información de ella, a nivel de instrumentación. Cada proceso (y cabe recordar que un container en Linux es un proceso dentro de un \emph{namespace} con un \emph{cgroup} asociado) es gestionado, controlado
 y auditado por el kernel.
@@ -113,6 +115,7 @@ Aunque cualquiera de las tecnologias de containerizacion explicadas previamente 
 y hay muchisimas herramientas disponibles que suponen la utilización de Docker. Por ello, se escoge ésta tecnologia para construir nuestros containers.
 
 \subsection{Instrumentación de los containers}
+\label{subsec:instrumentacion-containers}
 
 Cuando se habla de instrumentación de procesos en Linux, generalmente lo que queremos es obtener información de:
 \begin{enumerate}
@@ -140,7 +143,8 @@ que nos interesa analizar supone una inversión de esfuerzo que no es trivial.
 No es interesante para éste proyecto información relativa al rendimiento, lo que sí nos intesa es información relativa al comportamiento de nuestra aplicación. Por lo tanto,
 utilidades como \emph{perf} no nos seran utiles y se expondran alternativas a continuación.
 
-\subsection{Obteniendo información del kernel: Auditd}
+\subsection{Obteniendo información del kernel: \emph{Auditd}}
+\label{subsec:auditd}
 
 \emph{Audit} (veasé \cite{redhat-auditd}) es un subsistema del kernel y un conjunto de utilidades, 
 disponibles desde el kernel 2.6 que nos proporcione información acerca de que \emph{syscalls}
@@ -193,6 +197,7 @@ como la de \emph{Slack} (\cite{netlink-slack-success}), si bien es cierto que di
 Se descarta la utlización de \emph{Auditd} por éstas razones y se comienza a buscar alternativas.
 
 \subsection{Obteniendo información del kernel: \emph{eBPF}}
+\label{subsec:ebpf}
 
 \emph{eBPF (extended BPF)} (véase \cite{ebpf-brendan-gregg,ebpf-series}) es una maquina virtual muy eficiente que se ejecuta dentro del kernel. Su función original era la de filtrado de paquetes de red, que ha sido
 extendido para ser un motor de procesado de eventos en general.
@@ -287,6 +292,7 @@ Por éstas razones se descarta el uso de \emph{eBPF} que aunque prometedor aún 
 \clearpage
 
 \subsection{Obteniendo información del kernel: crear un módulo}
+\label{subsec:kernel-modulo}
 
 Dado que por las razones expuestas extraer información vía interfaces externas no parecía factible, hay que explorar otras opciones.
 el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de codigo que extienda las capacidades del kernel, es la manera
@@ -315,6 +321,7 @@ Ventajas e inconvenientes de éste enfoque:
 Las ventajas superan los incovenientes en éste caso, ya que aunque el consumo de CPU sea más elevado, poder gestionar las trazas directamente, reprocesar ficheros de captura y las opciones flexibles de filtrado y postprocesado hacen de ésta opción la opción finalmente escogida.
 
 \subsection{Notificación de alertas en base a eventos capturados en las trazas}
+\label{subsec:alertas-trazas}
 
 Una vez que hemos establecido como obtener los eventos, necesitamos que en ciertas condiciones algun componente, ya
 sea el método de instrumentación o un sistema externo nos notifique cuando se vulnera nuestra \emph{honeypot} o hay un
@@ -337,6 +344,7 @@ es el analizar el comportamiento anomalo de containers en base a filtros de \emp
 El encaje con los propositos del proyecto es perfecto, y por ello se descarta el desarrollo propio tras una prueba inicial.
 
 \subsection{Modelo de riesgo de la sonda y del servicio expuesto.}
+\label{subsec:riesgos}
 
 El objetivo de una  \emph{honeypot} es el de engañar a atacantes para que realicen un ataque como lo harian en un entorno real. Aunque este ataque se produce en un entorno en el que esperamos un ataque
 tendremos que definir el riesgo que asumimos al exponerse y que medidas o politicas se aplicarán para éstos riesgos. En la figura \ref{fig:riesgo_sonda} se describen los posibles riesgos, realizando un diagrama de riesgos siguiendo la metodologia expuesta en \cite{Shostack:2014:TMD:2829295}.
@@ -369,15 +377,6 @@ Listado de mitigaciones para los riesgos analizados:
 Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura y diseñar las protecciones, en general los riesgos \emph{Naranja 1}, \emph{Naranja 2} y \emph{Azul} son mas prioritarios que los riesgos \emph{Verde} y \emph{Rojo}. Las posibles acciones a tomar estan listadas en las mitigaciones del mismo color y creemos que son suficientes para equilibrar los riesgos.
 
 \section{Análisis de soluciones para el recolector}
-
-% 19/08/2017
-
-% % Collector,
-%  * registro de las sondas
-%  * coleccion de alertas de Falco.
-%  * coleccion de trazas del sistema.
-%  * Procesamiento de trazas del sistema 
-%  * Almacenamiento de informacion
 
 
 \subsection{registro de las sondas}
@@ -500,8 +499,7 @@ las trazas una vez procesadas no son estrictamente necesarias, aunque es útil m
     datos deberia ser correcto y tener los suficientes tests y garantias pero aún asi los errores pueden ocurrir.
 \end{enumerate}
 
-
-\subsection{Envio de trazas a almacenamiento en la nube}
+\subsubsection{Envio de trazas a almacenamiento en la nube}
 
 Si decidimos no gestionar las trazas nosotros, podemos optar por almacenar las trazas en la nube en soluciones \emph{cloud}. Para conocer el coste aproximado
 supongamos que queremos almacenar 500GiB de trazas por mes (aprox 18 GiB por dia). En ese caso, el coste en \emph{AWS} y \emph{Google Cloud} para almacenarlos
@@ -525,69 +523,373 @@ en una región europea, teniendo en cuenta los costes de tráfico de salida fuer
     \caption{\label{tab:almacenamiento-coste} coste aproximado de almacenamiento en la nube para 500 GiB}
     \end{table}
 
-En el cuadro \ref{tab:almacenamiento-coste} se reflejan los costes mensuales de almacenar 500 GiB. En el es sensiblemente más barato si no hay transferencia de datos fuera del proveedor aunque no se incluyen
-el coste de estos servidores inicialmente amortizandose el coste de servidores al comprar mayor volumen.
+En el cuadro \ref{tab:almacenamiento-coste} se reflejan los costes mensuales de almacenar 500 GiB. 
+En el se observa que es sensiblemente más barato si no hay transferencia de datos fuera del proveedor. 
 
-\subsection{Sistema de archivos distribuido}
+Aunque eso obliga a comprar servidores en el mismo proveedor que puede elevar el coste total del proyecto.
 
-% GlusterFS
+\subsubsection{Sistema de archivos distribuido}
 
-% Ceph
-% NFS
+Otra opción es montar un sistema de archivos distribuido dentro del proyecto y no usar sistemas de almacenamiento externos
+en la nube. Como ventajas:
 
-\subsection{Envio de trazas a un servidor interno de almacenamiento utilizando \emph{rsyslog}}.
+\begin{enumerate}
+    \item Para la aplicación el sistema de archivos es infinito e ilimitado en espacio.
+    \item La interfaz de comunicación puede ser como un punto de montaje más en el sistema de archivos o a través de 
+    peticiones HTTP \emph{a la S3}.
+    \item El rotado, eliminación y mantenimiento y ajuste de los archivos dentro del sistema de archivos es responsabilidad de este.
+\end{enumerate}
 
-% sistema distribuido de ficheros
+Como inconvenientes, podemos enumerar:
+
+% se necesita una buena conexion de red.
+% punto critico si cae
+% sistemas complejos no faciles de mantener
+
+\begin{enumerate}
+    \item Se necesita una buena conexión de red entre los servidores que conformaran el sistema de archivos distribuido, y entre estos y las sondas y el recolector como clientes. 
+    Por la naturaleza del proyecto, nos interesa tener las sondas en diferentes proveedores y diferentes regiones. La conectividad entre diferentes proveedores y regiones es muy irregular, por lo que no podemos contar con una conexión de red estable y/o rapida.
+    \item el sistema de archivos distribuido se convierte en un punto critico (\emph{SPOF, Single Point of Failure}). Aunque intentemos que el sistema de archivos sea distribuido y escalable en caso de error del sistema, el sistema dejara de funcionar en su totalidad.
+    Las sondas dejaran de ser capaces de publicar las trazas en el sistema de archivos, y los procesadores de datos seran incapaces de leer nuevas trazas y procesarlas.
+    \item Son sistemas complejos de optimizar, configurar y mantener y que requieren una inversión inicial y sostenida de esfuerzo para ser operados.
+\end{enumerate}
+
+Tradicionalmente se ha utilizado \emph{NFS} para configurar y utilizar sistemas de archivos en red (no distirbuidos) en Linux (véase \cite{wiki-nfs}). 
+Si queremos ofrecer a los clientes nuestro sistema de archivos como un punto de montaje extra en el sistema, podremos utilizar
+\emph{NFS}, \emph{GlusterFS} (\cite{wiki-glusterfs}) y/o \emph{Ceph} \cite{wiki-ceph}.
+
+La diferencia fundamental del primero con los segundos es que el conjunto de discos duros y almacenamiento en \emph{NFS} esta gestionado de manera local
+por cada nodo que forme parte del sistema, en tanto en cuanto en sistemas como \emph{GlusterFS} y \emph{Ceph} los nodos forman parte de un 
+mismo \emph{pool} de discos duros, donde se pueden configurar opciones de replicación para garantizar que los archivos no se pierden si 
+se pierden la conectividad a un nodo.
+
+\emph{Ceph} y otros poyectos como \emph{\href{https://minio.io/}{Minio}} proveen de una interfaz compatible con \emph{AWS S3}, que puede ser una ventaja importante
+si queremos migrar de un sistema a otro, y que, ademas simplifica la configuración en los clientes.
+
+En lugar de tener que montar el sistema de archivos como cliente de nuestro sistema de archivos distribuido basta 
+realizar peticiones HTTP a un servidor. De esta manera la configuración del sistema es menor y mucho más simple.
+
+\subsubsection{Envio de trazas a un servidor interno de almacenamiento}.
+
+Otra opción sera utilizar el almacenamiento local en las sondas y el almacenamiento local en el recolector para guardar las trazas.
+Las sondas escriben las trazas en el disco local, y algun proceso en el recolector se encarga de periodicamente de conectarse a las sondas,
+comprobar si hay nuevas trazas y descargarlas.
+
+las ventajas de este enfoque son:
+\begin{enumerate}
+    \item No incurrimos en costes adicionales, utilizamos el almacenamiento local.
+    \item La estabilidad de la red deja de ser un problema, si la red no esta disponible o es lenta entre las sondas y el recolector se iran almacenando mientras haya espacio.
+    \item es fácil de combinar con uno de los dos enfoques anteriores para almacenamiento de caracter mas permanente.
+\end{enumerate}
+
+Que presenta los siguientes inconvenientes:
+
+\begin{enumerate}
+    \item La latencia de entrega de trazas puede ser mayor y en cualquier caso es variable.
+    \item La posibilidad de perder trazas debido a perdidas de conexión de red entre la sonda y el recolector muy prolongadas.
+    \item El almacenamiento es finito y no facilmente ampliable, se han de eliminar trazas para asegurar que las trazas nuevas puedan
+    ser procesadas.
+\end{enumerate}
+
+Para implementar éste enfoque necesitamos una herramienta para la transimion eficiente y sincronizada de archivos. Para este fin,
+\emph{rsync} es una herramienta clasica ampliamente utilizada (citada por ejemplo en \cite{Ph.D.200301} y \cite{douglis2004web}).
+
+Deberemos limitar el ancho de banda que \emph{rsync} utilizará para evitar la congestión de la red para otros usos.
 % rsyslog 
 
-\subsection{Modelo de datos del recolector}
+\subsubsection{Opción escogida}
 
-Almacenamiento infinito (S3 Cloud Storage) vs almacenamiento finito, consecuencias. 
+La opción escogida será la tercera. Siempre se puede cambiar e incorporar las otras opciones más adelante cuando el proyecto lo requiera y el gasto economico
+y/o la complejidad añadida supera con mucho las ventajas que aportan.
 
-Eleccion de la base de datos, foco en busqueda, modelo time series Fecha -> info, no hay interes a priori de datos historicos
-ejemplo del pescado, interesante cuando es reciente, irrelevante cuando ha pasado.
+Enviar trazas a través de \emph{rsync} tiene sus propios retos, aceptamos así que se podran perder trazas y que no almacenaremos
+demasiadas trazas para analisis historico y/o para poder reprocesar.
 
-\section{Análisis de soluciones para la API}
+Pero su simplicidad y bajo coste junto a su compatibilidad con otras opciones la convierten en la opción escogida.
+
+\subsection{Modelo de datos del sistema}
+
+No se entrará en detalle de que sistema de gestión de bases de datos utilizar, pero si  se ha de analizar cual es el modelo de datos
+adecuado para el proyecto en el contexto del dominio.
+
+La información extraida es muy relevante cuando es reciente y pierde relevancia en muy poco tiempo, información de un ataque realizando
+hace un año es poco relevante, habran surgido nuevas versiones del \emph{software}, el método de atauqe ya habrá sido analizado y el único interes
+que tiene es como aportación para un estudio estadistico.
+
+Por ello nuestro modelo de datos estará modelado como una serie temporal con foco en la busqueda. La inserción de datos se realizará muy poco frecuentemente, idealmente una vez
+y posiblemente nuestro modelo no sea relacional o no evidentemente relacional, ya que la integridad de los datos no es tan relevante.
+
+Si tenemos una alerta sin más información adicional, aunque no tiene tanto valor como una alerta con toda la información es de por si relevante.
+
+\section{Análisis de soluciones para la explotación}
+
+\subsection{Generalidades}
+
+De cara a la explotación de datos, debemos presentar a los potenciales usuarios de una interfaz. Esta interfaz puede estar
+orientada a humanos o a aplicaciones. Es evidente que en algun momento hay que representar visualmente la información para que algún usuario pueda explotarla,
+la cuestión es sí debemos enfocar el esfuerzo del proyecto a crear esta visualización o merece más la pena construir
+una interfaz para aplicaciones y dejar a terceros la construcción de visualizaciones finales.
+
+\begin{enumerate}
+    \item[Informes] Incluyen habitualmente graficas resumen y datos de caracter estadistico, son útiles para reconocer tendencias y patrones, menos útiles para actuar a un ataque en tiempo real.
+    \item[API] una interfaz para aplicaciones que clientes pueden integrar para responder ante incidentes o construir un informe de manera programatica.
+\end{enumerate}
+
+hay diversos ejemplos de \emph{Honeypots} que generan informes como metodo de explotación del usuario (enlace a un \href{http://www.nothink.org/honeypot_ssh.php}{ejemplo}, también disponible en figura \ref{fig:informe-honeypot}).
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/honeypot_informe}
+    \caption{Ejemplo de informe de \emph{Honeypot}}
+    \label{fig:informe-honeypot}
+  \end{figure}
+
+El informe es vistoso y permite observar y analizar tendencias y patrones, pero si queremos responder a un ataque no es sencillo, si ademas estamos interesados en un subconjunto de los ataques
+en un informe no suelen implementarse los filtros necesarios para analizarlos.
+
+Por ello, como herramienta de explotación de datos se ofrecerá una API que terceros pueden utilizar para generar sus informes o procesar los incidentes y responder
+en tiempo real.
 
 % 20/08/2017
-
 \subsection{Objeto de la API}
 
-% consumible por maquinas
-% integracion con otras herramientas de seguridad como WAFs, SoCs.
+El objeto de la API es la de proveer una interfaz de datos que sea consumible por aplicaciones y que puede ser expuesta en diversos formatos.
+Es importante que cuando describamos los actores en un incidente lo hagamos siempre en referencia a un marco temporal, los atacantes
+en un incidente no tienen porque ser los promotores del ataque, a menudo, los promotores utilizan maquinas infectadas de sus victimas para ejecutar el ataque
+y por tanto sería contraproducente marcar estas victimas y responder de manera agresiva con un bloqueo por ejemplo.
 
-\subsection{Contrato de la API}
+El marco temporal ayuda al cliente a determinar si el atacante es recurrente en sus ataques o victima y deja en el cliente la decisión sobre que realizar al respecto en base a 
+las politicas y necesidades de su entorno.
 
-% API de consulta, no hay creacion.
-% Rate limiting?
-% versionada
-% Rest vs graphql
-% /v1/protocol/incident
-% /v1/protocol/incident?from=Date&To=Date&Size
-% /v1/protocol/feed
-% /v1/protocol/incident.stix
+\subsection{API}
+
+La API será de consulta, no sé plantea como objetivo la posibilidad de crear incidentes a través de ella. La API será
+de tipo \emph{REST} (véase \cite{rest}). Arquitecturar las APIs usando rest es un estandar defacto, quizás si nuestra API fuese parte de
+un ecosistema complejo y/o que fuese orientado especialmte a moviles, podriamos plantear el uso de \emph{GraphQL} (\cite{graphql}), aunque su madurez
+a nivel de herramientas y adoptación no es comparable al de APIS REST.
+
+\subsubsection{versionado}
+
+La definición del contrato de la API no está basado en experiencia de uso de nuestros clientes, es por ello que tendremos que establecer 
+un método que permite la evolución o el cambio de la misma. Existen varios métodos de versionado, entre otros:
+
+\begin{enumerate}
+    \item[Parametro] Se pasa la versión de la API como parametro de la petición, algunos \emph{proxies} pueden eliminar el parametro y conducir a errores.
+    \item[URL] la URL contiene la versión de la API a la que se quiere acceder, su ventaja es que es fácil de saber que versión utilizamos y es fácil de depurar, la desventaja es que afea y puede complicar la
+    URL.
+    \item[Cabecera HTTP] Se pasa la versión de la API que queremos usar como una cabecera HTTP. La ventaja es que la URL no cambiará con 
+    cada nueva versión de la API. 
+\end{enumerate}
+
+Según algunas fuentes el versionado por URL es más popular (\cite{3scale-versionado)}, y por ello escogemos este aunque el versionado como cabecera HTTP se adhiera más a \emph{REST}.
+
+\subsubsection{Definición de la API}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|c|}
+    \hline
+    \thead{Verbo HTTP} & \thead{URL} \\
+    \hline
+    GET & /v1/\emph{{aplicacion}}/incidents  \\
+    \hline
+    GET & /v1/\emph{{aplicacion}}/feed  \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:definicion-api} Definicion de la api}
+    \end{table}
+
+    Como puede verse en el cuadro \ref{tab:definicion-api}, solo necesitaremos dos funciones inicialmente para nuestra API, una donde se pidan incidentes. 
+El modelo concreto de que define un incidente y los datos que se han de incluir dependerá de la aplicación, puede ser también interesante ofrecer un 
+\emph{endpoint} de \emph{feed} que devuelva de manera continua los datos encontrados. La diferencia entre ambos endpoints es que
+el de \emph{incidents} devolvera los datos de los incidentes segun unos criterios mientras el endpoint de \emph{feed} devolverá 
+de manera continua e ininterrumpida los datos que se vayan encontrando.
+
+Para el \emph{endpoint} de incidentes podremos parametrizar la consulta segun los parametros que pueden verse en el cuadro \ref{tab:parametros-api}, en el caso
+de no especificar ninguno se estableceran por defecto para devolver algun numero de eventos recientes.
+    \begin{table}[h]
+        \centering
+        \begin{tabular}[!h]{|l|c|}
+        \hline
+        \thead{ Nombre} &  \thead{Contenido} \\
+        \hline
+        from & fecha en formato ISO 8601 \emph{YYYY-MM-DDTHH:MM:SS(Z$|$+-HH:MM)}  \\
+        \hline
+        to & fecha en formato ISO 8601 \emph{YYYY-MM-DDTHH:MM:SS(Z$|$+-HH:MM)}  \\
+        \hline
+        size & entero natural positivo \\
+        \hline
+        \end{tabular}
+        \caption{\label{tab:parametros-api} Definicion de parametros la API}
+        \end{table}
+    
+\subsubsection{Formatos de salida}
+
+El objeto de la API es la de ser utilizada por aplicaciones como formato de salida podremos utilizar \emph{XML} o \emph{JSON}, siendo 
+este último más utilizado en la actualidad.
+
+Como esquema de datos podremos utilizar o basarnos en \emph{STIX} (\cite{oasis-stix}), un lenguaje estructurado para compartir información de seguridad entre organismos
+desarrollado por el grupo OASIS.
+\clearpage
+
+\section{Resultados finales: Arquitectura}
+
+La arquitectura final puede observarse en la figura \ref{fig:arquitectura-general}. En ella se encuentran los siguientes elementos:
+
+\begin{enumerate}
+    \item[Sondas] Desplegadas en varios proveedores y regiones del mundo, instalaremos y configuraremos tantas de ellas como
+    diferentes muestras de datos queramos obtener, es el elemento más dinamico de la arquitectura. El limite del crecimiento lo impone la capacidad
+    del recolector y backend, mientras este sea capaz de absorber y procesar el volumen de datos obtenido en las sondas podremos crear nuevas.
+    \item[PKI y control] Se encarga de las funciones externas como el almacenamiento de secretos (gestiona la \emph{PKI (Public Key Infrastructure)} interna, monitoriza el resto de elementos y lanza el provisionamiento y la configuración).
+    \item[Recolector y Backend] Se encarga de almacenar las trazas de las sondas y de albergar los servicios encargados para el procesado y la explotacion como la API. Este elemento es un \emph{SPOF (Single Point Of Failure)}, si cae el backend y la recoleccion quedan inutilizados.
+    Las razones para éste diseño son puramente economicas y de simplicidad, si queremos un sistema robusto y escalable convendria separar funciones y tener un esuqema que permita el escalado horizontal.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.5]{images/arquitectura_general}
+    \caption{Diagrama de arquitectura general}
+    \label{fig:arquitectura-general}
+  \end{figure}
+
+\subsection{Provisión y configuración de servidores}
+\label{subsec:server-config}
+
+Uno de las mitigaciones explicadas en \ref{subsec:riesgos} es tener la capacidad de crear sondas con frecuencia. La creación de la sonda implica
+los siguientes pasos:
+
+\begin{enumerate}
+    \item[Provisión] Solicitar al proveedor un nuevo servidor de unas caracteristicas (o ponerlo en marcha en nuestros datacenters).
+    \item[Configuración] Instalación de los paquetes de herramientas, software y configuración necesarios para que la sonda pueda funcionar.
+    \item[Operación] Realizar cambios post-configuración tales como actualizacion de paquetes de seguridad.
+\end{enumerate}
+
+Todos estos pasos pueden ser ejecutados por un operador humano y a menudo lo son, pero si queremos un proceso repetible, rapido y automatizado
+no podemos permitirnos que estos procesos sean manuales, ya que imposibilitan crear un nuevo servidor en el orden de minutos.
+
+\subsubsection{Infrastructura como codigo}
+\label{subsec:infra-as-code}
+
+Un enfoque que nos acerca al objetivo de ser capaces de desplegar nuevas maquinas en minutos, necesaria en un entorno dinamico, es adoptar la practica
+de infrastructura como codigo (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
+
+\begin{itemize}
+    \item Definición en ficheros. Toda la configuracion se recoge en ficheros ejecutables, ninguna persona deberia entrar en el servidor
+    y realizar cambios de configuracion manualmente, de hacerlo, estaria creando servidores unicos fragiles (\emph{Snowflake Servers}).
+    \item Autodocumentacion.El codigo documenta el proceso seguido para la configuracion sin necesidad de una documentacion externa orientada a un humano (aunque la documentacion pueda y es aconsejable que exista en algunos casos), esto evita que la documentacion quede anticuada.
+    \item Versionado. El codigo fuente que define la infrastructura se mantiene en un sistema de control de versiones de codigo,lo que permite ser auditado y lanzar ejecuciones reproducibles (lanzar una versión especifica).
+    \item Cambios pequeños. Si se realizan cambios pequeños en codigo es facil diagnosticar cuando se introducen errores.
+\end{itemize}
+ 
+Este enfoque requiere que haya algun proceso de \emph{Continuous Integration} o \emph{Continous Delivery} o la definicion de los ficheros
+de la configuración no se corresponderá con la configuración que se encuentra en los servidores (\emph{Configuration Drift}). Si construimos 
+un proceso de aplicación de la configuración que se lance desde algún cambio del codigo podremos conseguir:
+
+\begin{itemize}
+    \item Cambios \emph{in-place}. Aplicaremos los cambios sobre los servidores que ya se ejecuten, cambiando configuración en caliente de los servicios que corren.
+    Se corre el riesgo de dejar el servidor con una configuración incompleta, pero para servidores que manejan datos y/o estado es normalmente la opción más sencilla. Si la configuración
+    está suficientemente proabada en un entorno identico al de producción y es correcta los servidores convergeran a la configuración descrita. 
+    \item \emph{Phoenix servers}. Cada cambio de configuración involucra crear un servidor de nuevo y configurarlo completamente desde la configuración almacenada.
+    Requiere que exista algun mecanismo de promoción entre servidores, asi la versión antigua se ejecuta a la vez que la nueva. De otra manera, habría caida del servicio. Los costes pueden ser más elevados que si seguimos una estrategia \emph{in-place}
+    puesto que un cambio implica la creación de un nuevo servidor y su configuración completa. Si el proceso de configuración falla a la mitad del proceso, la configuración será inestable y el servidor tendrá malfuncionamiento.
+    \item \emph{Immutable servers}.Es un refinamiento de la estrategia anterior, en lugar de crear servidores nuevos y configurarlos desde la configuración almacenada, nuestro proceso crea una imagén del servidor que será el artefacto que desplegamos en el proveedor.
+    El proveedor tiene que ser capaz de soportar este enfoque, \emph{AWS} soporta \emph{AMIs} imagenes de servidores descritos como maquinas virtuales.  
+\end{itemize}
+
+A no ser que escojamos proveedores que soporten algún tipo de imágenes inmutables de servidores como \emph{AWS o Google Cloud}, tendremos que utilizar \emph{Phoenix Servers} o cambios \emph{in-place}.
+En el contexto de nuestra arquitectura, las sondas seguiran un enfoque \emph{Phoenix Servers} pudiendo ser recreadas completamente desde la configuración almacenada.
+
+El recolector y el servidor de PKI y control serguirán una estrategia \emph{in-place} puesto que ambos guardan estado y/o datos. Seguir una estrategia \emph{Phoenix} en estos
+significaria replicar estados y/o datos previamente al despliegue lo que aumentaria la complejidad del sistema.
+
+\subsubsection{Eleccion de herramienta de gestión de la configuración}
+
+Para implementar infrastructura como codigo se necesita utilizar una herramienta que defina como almacenar la configuración
+como ejecutarla en servidores e idealmente bibliotecas de funciones y modulos que faciliten la descripción de servicios.
+
+Existen varias herramientas de este tipo, aunque la industria utiliza cuatro utilidades de facto para gestión de la configuración, \emph{Ansible},\emph{Puppet},\emph{Chef}
+y  \emph{SaltStack}. Como puede verse en la figura \ref{fig:configmanagement1} cualquiera de esas opciones tiene una comunidad importante, muchos usuarios y pocas diferencias
+fundamentales. \emph{Saltstack} y \emph{Ansible} se desarrollan en \emph{Python} y son más recientes que \emph{Puppet} y \emph{Chef}.
+
+En este proyecto se decide utilizar \emph{Ansible} como herramienta de gestión de la configuración por ser \emph{Python} un lenguaje conocido, tener una barrera de entrada muy baja
+y cumplir de sobra con los requisitos para este proyecto (es capaz de provisionar maquinas en algunos proveedores, configurarlas y lanzar ordenes una sola vez atendiendo a filtros).
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.5]{images/configmanagement_tools1}
+    \caption{Comparativa de herramientas de configuración, extraido de \href{https://www.slideshare.net/DanielKrook/caps-whats-best-for-deploying-and-managing-openstack-chef-vs-ansible-vs-puppet-vs-salt}{una charla de IBM}}
+    \label{fig:configmanagement1}
+  \end{figure}
+
+\section{Resultados finales: Arquitectura de la sonda}
+
+A continuación incluimos la arquitectura final de la sonda, que puede observarse en la figura \ref{fig:arquitectura-sonda}.
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.5]{images/probe_architecture}
+    \caption{Arquitectura de la sonda}
+    \label{fig:arquitectura-sonda}
+  \end{figure}
+
+\subsection{Creacion del servicio expuesto}
+
+Para la creación del servicio expuesto existen varias alternativas, uno de los objetivos de éste proyecto es la de utilizar
+containers para describir nuestro servicio.
+
+Como se explico en \ref{sec:analisis-sonda} hay diversas tecnologias de \emph{containerizacion} siendo Docker la escogida
+por su madurez y conjunto de herramientas. 
+
+\subsubsection{Elección del servicio a exponer}
+
+La \emph{honeypot} puede albergar cualquier aplicación que se ejecute en un sistema Linux, servidores HTTP, aplicaciones
+web, servidores FTP o cualquier otro tipo de servicio.
+
+No todos los servicios tienen el mismo volumen de ataques ni el mismo interés, por ello, se escoge un servicio atractivo como SSH que 
+expone el acceso a un servidor y capacita al atacante a realizar multiples tipos de ataques.
+
+\begin{listing}
+\begin{minted}[fontsize=\footnotesize]{console}
+    FROM debian:latest
+    RUN useradd -ms /bin/bash jeremy
+    RUN apt-get update
+    RUN apt-get install -y rsyslog
+    RUN apt-get install -y sudo
+    RUN apt-get install -y ssh
+    RUN apt-get install -y vim curl wget python perl build-essential
+    RUN export HOSTNAME="$(sort -R /usr/share/dict/words | head -1 | tr -d \' )"
+    RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+    CMD /etc/init.d/ssh start && sleep infinity
+    ENTRYPOINT /etc/init.d/ssh start && sleep infinity
+\end{minted}
+\caption{Dockerfile base para imagen}
+\label{listing:Dockerfile-base}
+\end{listing}
 
 
 
-\subsection{versionado}
-
-% Por que versionar
-
-\subsection{Rest}
-
-\subsection{Formatos de representacion}
-
-% JSON, Stix
 
 
-\section{Resultados finales}
 
-% 25/08/2017
+% eleccion del protocolo.
+% imagen de docker
+% cambio de contrasenya en cada inicio de un listado de contraseñas poco seguras. 
+% prueba con imagenes sin contraseña.
 
-% Arquitectura
-%  * Descripcion de la arquitectura.
-%  * Registro de las sondas.
-%  * securizacion de las sondas.
+\subsection{Obtencion de trazas usando sysdig}
+
+% lanzar daemon systemd que levanta sysdig y guarda todas las trazas en disco local
+% cronjob que limpia disco de trazas si supera porcentaje de disco usado
+
+\subsection{Notificaciones usando falco}
+
+% Reglas de falco.
+% necesidad de crear container_recycler.
+
+\subsection{Gestor de containers en la sonda}
+
+% Por que hace falta, que hace.
+
 
 \subsection{Securizacion de la sonda}
 

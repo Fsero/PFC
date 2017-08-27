@@ -12,7 +12,7 @@
 \usepackage{colortbl} %colorear tablas
 \usepackage{lscape} % hojas apaisadas
 \usepackage{cmap} % buscar en el PDF
-\usepackage{listings} %para nada, al principio para listados
+\usepackage{minted} %para nada, al principio para listados
 \usepackage{textcomp}
 \usepackage[spanish]{minitoc}
 \usepackage{etoolbox}
@@ -20,6 +20,10 @@
 \usepackage{hyphenat}
 \usepackage{fancyvrb} %inclusion de ficheros externo en modo verbatim
 \usepackage{makecell}
+
+\renewcommand\listingscaption{Código}
+\renewcommand\listoflistingscaption{Listado de códigos}
+
 \renewcommand\theadfont{\bfseries\sffamily}
 \addbibresource{bibliografia.bib}
 \patchcmd{\bibsetup}{\interlinepenalty=5000}{\interlinepenalty=10000}{}{}
@@ -75,7 +79,7 @@
   \vfill{} 
   \textit{Ingeniería Informática} 
   \vfill{} 
-  Sistema de deteccion de ataques usando \emph{containers} \\ 
+  Sistema de detección de ataques usando \emph{containers} \\ 
   }
 \date{}
 \makeindex{}
@@ -91,12 +95,13 @@
 \input{./dedicatoria.tex}
 \dominitoc{}
 \tableofcontents{}
-\listoffigures{}
 \input{./introduccion.tex}
 % Memoria
 \input{./memoria.tex}
 \input{./anexos.tex}
 \input{./presupuestos.tex}
+\listoffigures{}
+\listoflistings
 
 
 
