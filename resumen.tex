@@ -1,0 +1,145 @@
+\documentclass{scrartcl}
+\usepackage[greek,spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{varioref}
+\usepackage{fancyref}
+\usepackage{fancybox}%recuadros
+\usepackage[pdftex, breaklinks=false, colorlinks=true, linkcolor=black, anchorcolor=black, urlcolor=blue, citecolor=red, pagebackref=true]{hyperref}
+\usepackage{graphicx}%graficos
+\usepackage{multicol}
+\usepackage{color} %color
+\usepackage{xcolor} %mas opciones de color 
+\usepackage{colortbl} %colorear tablas
+\usepackage{lscape} % hojas apaisadas
+\usepackage{cmap} % buscar en el PDF
+\usepackage{listings} %para nada, al principio para listados
+\usepackage{textcomp}
+\usepackage{ucs} 
+\usepackage{hyphenat}
+\usepackage{fancyvrb} %inclusion de ficheros externo en modo verbatim
+
+\definecolor{gris}{gray}{0.75}
+\definecolor{azul}{rgb}{0,0,0.30}
+\definecolor{grisclaro}{gray}{0.85}
+\title{Análisis de implantación de telefonía IP mediante software libre \\ Resumen}
+\author{Fabián Sellés Rosa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  La telefonía existe desde hace ya más de 100 años, las necesidades de comunicación y las nociones de distancia han cambiado con ella y a causa de ésta. Desde la aparición y sobre todo la popularización de Internet, otros medios más ligados a la informática como el e-mail o la mensajería instantánea parecen haber sustituido a la telefonía en determinadas circunstancias. Sin embargo, hay organizaciones o situaciones que nos hacen depender del teléfono. Además hay comunicaciones que necesitan más interactividad que la que proporciona intercambiar mensajes de texto. Así nos encontramos que es habitual tener que mantener dos sistemas en principio no relacionados aunque, sin embargo, comparten la misma finalidad: la necesidad de comunicar. La telefonía IP viene a rellenar este hueco producido por la evolución de ambas redes. 
+\end{abstract}
+
+\section{Introducción}
+
+La telefonía( del griego  
+\begin{otherlanguage}{greek}
+  thles
+\end{otherlanguage}, lejos y 
+\begin{otherlanguage}{greek}
+  fonos
+\end{otherlanguage}, sonido) nace a finales del siglo XIX con la invención del telefono. La propia invención del telefono es objeto de controversia, tradicionalmente atribuida a Alexander Graham Bell por ser el primero en patentarla, se considera a otros como Antonio Meucci como sus inventores.
+
+El despliegue de la red telefónica no fue ordenado. La red telefónica comenzó como una simple agrupación de conexiones entre clientes. El crecimiento de número de clientes y la necesidad de abaratar los costes de cableado, llevan a la creación de centralitas como \emph{puntos de intercambio telefónico}. Poco a poco, el desarrollo y la innovación telefónica dejan de estar a cargo de los científicos o particulares y pasan a las grandes compañias telefónicas como Bell Labs y AT\&T en EEUU, o las compañias telefonicas públicas
+
+Estas primeras centralitas telefónicas no eran automáticas sino que estaban controladas por un operador humano. Para poder llamar a un abonado se descolgaba el teléfono y se solicitaba al operador la llamada, éste pinchaba la clavija de comunicación en su panel si la llamada era local, en caso de que llamada excedíese la demarcación de la centralita. El operador debía contactar a otro operador que continuase con la petición para poder realizar la llamada.
+
+Comienzan la adopción de PBX en las empresas y organizaciones, una PBX no es más que un panel de conexiones (veasé \ref{fig:pbxmanual}) que se instalaba en la empresa a cargo de un operador humano.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.5\linewidth]{images/pbxmanual}
+  \caption{PBX manual, \emph{Fuente:Wikipedia}}
+  \label{fig:pbxmanual}
+\end{figure}
+
+En 1960 comienzan a aparecer las primeras centralitas automáticas electrónicas analógicas que realizan la conmutación mediante relés. Tras la invención del transistor y el desarrollo de la electrónica digital se comienza a implantar la telefonía digital, sobre todo para \emph{trunking}\footnote{Llamada entre centralitas, canal de señalización compartido.}. Las centralitas se implementan con circuitos digitales y se vuelven más complejas y aparecen los primeros ordenadores comerciales.
+
+La popularización de Internet y de las redes locales dan un nuevo sentido a la red telefónica. Ya no sólo sirve para transmitir voz entre abonados, se desarrollan los modems para transmitir datos digitales tratándolos como señales análogicas. Al hacerlo utilizan todo el ancho de banda asignado por lo que si se utilizan es imposible transmitir la voz a la vez. 
+
+Paralelamente comienza la implantación de una red telefónica completamente digital que permita la conexión simultanea de voz y datos, la RDSI\footnote{Red Digital de Servicios Integrados.} o ISDN\footnote{Integrated Services Digital Network.}. 
+
+La explosion del número de accesos a Internet proporciona a la sociedad nuevos métodos de comunicación: mensajería instantánea, correo electrónico, foros , etc .Aunque, el servicio teléfonico sigue fuertemente implantado en la sociedad para acceso a servicios críticos y comerciales (emergencias, servicio a domicilio, atención al cliente \ldots) pero éste es \emph{paralelo} a estas nuevas formas de comunicación.
+
+Las PBX comienzan a implantarse mediante \emph{software} , especifico, diseñado del fabricante. Empiezan a ofrecer características avanzadas como \emph{buzón de voz, conferencias , llamada en espera, música en espera...}. La PBX se vende como una caja negra, a la que la organización conecta sus teléfonos y una linea externa, y dicha PBX los interconecta y además ofrece algunas de esas características avanzadas. 
+
+Aunque estas PBX se implementen mediante software, no existía antes de la VoIP una manera efectiva de integrar o que utilizara estas PBX. No era posible, por ejemplo, realizar llamadas utilizando un ordenador cuando se tenía al alcance de un click de ratón galerías de fotos, clips de peliculas, \ldots
+
+En éste sentido el software libre (veasé \cite{stallman-sl}) tiene mucho que decir. Al devolver o entregar al usuario por primera vez la capacidad de crear su propia telefonía, de hacerla flexible, de explotarla y llevarla más allá para luego compartirlo con una comunidad de usuarios.
+
+Los programas son complejos y los errores siempre existen, un programa libre, que nos permite ver el código fuente, es un programa más depurado. Pues citando a Eric S. Raymond en su libro \cite{cathedral-y-bazaar}:
+\begin{quotation}
+  Dados los suficientes ojos, todos los errores aparecen
+\end{quotation}
+
+Lo que explica en parte la calidad del software libre, sometido a la revisión constante por pares.
+
+La telefonía IP nos va a permitir unir dos mundos distintos, el de la telefonía y la informática, a través de un lenguaje común de comunicación: el protocolo IP. La telefonía IP basada en software libre nos va a permitir controlar todos los aspectos de nuestra instalación, haciendo que la centralita se amolde a nuestras necesidades y no nuestras necesidades a lo que puede hacer la centralita.
+
+\section{Alcance del proyecto}
+
+El presente proyecto tiene como objetivo el estudio de implantación de telefonía IP mediante software libre. Para ello, se comenzará dando una breve explicación de la tecnología, para después hacer un estudio comparativo cuantitativo y cualitativo de las diferentes alternativas disponibles bajo esta premisa.
+
+\section{Ámbito}
+
+El ámbito del proyecto es el de análisis de implantación de esta tecnología en entornos de organización, para ello se seguirá una metodología de prototipo, se montará un prototipo al que se le someterá a prueba y a validación. 
+
+\section{Objetivos}
+
+Los objetivos del proyecto son:
+
+\begin{list}{-}{}
+
+\item \emph{Ofrecer una idea general de cómo implantar telefonía IP utilizando software libre.}
+\item \emph{Analizar las ventajas e inconvenientes de la tecnología implantada mediante los programas}.
+\item \emph{Proveer de un ejemplo didáctico para ayudar a otra organizaciones o personas a hacerlo}.
+\item \emph{Crear documentación de calidad libre sobre la tecnología y los programas que se utilicen en éste documento.}
+
+\end{list}
+\section{Estructura de la memoria}
+
+\begin{description}
+\item[Capitulo 1]Introducción del documento.  
+\item[Capitulo 2]Introducción teórica a la telefonía IP : protocolos de señalización, codecs, protocolos de transporte, etc.
+\item[Capitulo 3]Planificación del proyecto.
+\item[Capitulo 4]Análisis de alternativas y soluciones disponibles, elección del protocolo de señalización y de las aplicaciones a utilizar.
+\item[Capitulo 5]Desarrollo de dos ejemplos ilustrativos pero funcionales de sistemas de telefonía IP utilizando \emph{Asterisk} y \emph{openSER}: empresa de reparaciones, y red de telefonía de la Universidad de Cádiz. 
+
+\item[Anexos]Manual de instalación y configuración de \emph{Asterisk}, manual de iniciación a \emph{openSER}, y manuales de herramientas de análisis de redes como \emph{tcpdump} o \emph{ngrep}.
+\end{description}
+
+
+\section{Conclusiones y trabajo futuro}
+\label{cha:concl-y-trab}
+
+\subsection*{Sobre los objetivos propuestos}
+
+Tras el trabajo realizado, podemos evaluar si se han cumplido los objetivos propuestos inicialmente. Creemos que estos han sido satisfechos, debido a que el capitulo 2 de este documento, es un punto de partida para cualquier instalador de telefonía IP para comprender los aspectos al menos más básicos de la tecnología. No existía documentación que relacionase anteriormente todos los aspectos que el neófito debe abordar (protocolos de señalización, transporte, aplicaciones disponibles, \ldots)
+
+Así mismo se ha generado una \textbf{ documentación libre y de calidad} que no existia. Explicando, de manera detallada, la instalación y configuración de una centralita \emph{Asterisk}. Se han proporcionado ejemplos de uso (pasando desde una pequeña PYME a una organización grande como es la propia Universidad) que aunque básicos, cubren las necesidades que mediante otras tecnologías tienen implantadas muchas organizaciones.
+
+\subsection*{Sobre telefonía IP y las aplicaciones de software libre}
+
+
+\begin{itemize}
+\item Las aplicaciones de software libre son lo suficientemente maduras como para implantar un sistema de telefonía a cualquier nivel. Desde pequeñas organizaciones a proveedores telefónicos. La flexibilidad, potencia de estas aplicaciones marcan un cambio radical con respecto al desarrollo de sistemas telefónicos clásicos.
+\item Es necesario la creación de interfaces gráficos o mejorar los existentes para que el operador pueda gestionar su instalación. Actualmente las aplicaciones de gestión o estos interfaces están orientados al instalador, permitiendo el control de todo el sistema.
+\item Debido a la aparición de terminales móviles con mejores recursos, y a la aparición de terminales con un sistema operativo propio libre (como \emph{Android}),es muy necesaria la creación de un softphone libre para móviles.
+\end{itemize}
+
+
+\subsection*{Trabajo futuro}
+
+\begin{itemize}
+\item Mejorar o crear interfaces gráficas de usuario y/o aplicaciones para \emph{Asterisk} y \emph{openSER} orientadas al operador que explote el sistema. Por ejemplo, ayudando a la creación de IVR de manera gráfica mediante \emph{Asterisk} o integrando estas herramientas en herramientas de monitorización como \emph{Nagios}.
+\item Desarrollar nuevos softphones para móviles y softphones libres con interfaces gráficas más pulidas que las existentes, utilizando para ello librerias libres como \emph{PJSIP} \cite{devel-pjsip} y Sofia \cite{devel-sofia}.
+\item Explorar las posibilidades como centro de domótica de \emph{Asterisk} utilizando pequeñas placas como \emph{Arduino}.
+\end{itemize}
+
+\bibliographystyle{is-alpha}
+\bibliography{bibliografia,rfc}
+
+\end{document}
