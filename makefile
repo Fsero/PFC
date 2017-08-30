@@ -15,8 +15,7 @@ pfc: main.tex
 	@biber $(basename $<) 2> /dev/null
 	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
 	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
-	@$(VISOR) $(basename $<).pdf
-
+	
 clean:
 	@$(RM) $(FICHAUX)$(FICHAUX2) 2> /dev/null 
 

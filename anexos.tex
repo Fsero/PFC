@@ -2,6 +2,336 @@
 
 \section{Codigo fuente}
 
+\subsection{\emph{container\_recycler}}
+\label{subsec:containe-recycler-src-code}
+
+Se incluye un extracto del código de \emph{container\_recycler} por completitud y como soporte a la lectura de la memoria. Sin
+embargo recomendamos su exploración en GitHub en \href{https://github.com/Fsero/container\_recycler}{https://github.com/Fsero/container\_recycler} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+hubiera.
+
+\begin{minted}[fontsize=\scriptsize]{go}
+    package main
+    
+    import (
+        "bitbucket.org/fseros/container_recycler/handlers"
+        "bufio"
+        "context"
+        "os"
+        "runtime"
+        "strings"
+    )
+    
+    func main() {
+        runtime.GOMAXPROCS(runtime.NumCPU())
+        handlers.SetupLogging()
+        ctx, cancel := context.WithCancel(context.Background())
+        defer cancel()
+    
+        // TODO: Replace with config file
+        ctx = context.WithValue(ctx, "exposure_time", "10m")
+        ctx = context.WithValue(ctx, "container_api_timeout", "10s")
+        ctx = context.WithValue(ctx, "tmp_flags_file_path", "/var/tmp/container_recycler_")
+    
+        // reading arguments
+    
+        for _, arg := range os.Args[1:] {
+            r := strings.NewReader(arg)
+            handlers.ParseFalcoNotifications(r, ctx)
+        }
+    
+        // read from stdin
+        r := bufio.NewReader(os.Stdin)
+        handlers.ParseFalcoNotifications(r, ctx)
+    
+    }
+    
+\end{minted}
+\captionof{listing}{container\_recycler - main.go \label{listing:container-recycler-main}}
+
+\begin{minted}[fontsize=\scriptsize]{go}
+    package handlers
+    
+    import (
+        "context"
+        "fmt"
+        "io/ioutil"
+        "os"
+        "runtime"
+        "strings"
+        "time"
+    
+        log "github.com/Sirupsen/logrus"
+        "github.com/docker/docker/api/types"
+        "github.com/docker/docker/client"
+    )
+    
+    type ContainerInfo struct {
+        Name, ID string
+    }
+    
+    func ListRunningContainers() []ContainerInfo {
+        cli, err := client.NewEnvClient()
+        if err != nil {
+            log.Fatal(err)
+        }
+    
+        containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+        if err != nil {
+            log.Fatal(err)
+        }
+    
+        container_list := make([]ContainerInfo, 0)
+        for _, container := range containers {
+            container_list = append(container_list, ContainerInfo{container.Image, container.ID[:10]})
+        }
+        return container_list
+    }
+    
+    func printContainerList(container_list []ContainerInfo) {
+        for _, container := range container_list {
+            fmt.Printf("%s, %s\n", container.Name, container.ID)
+        }
+    }
+    
+    func deleteFlagFile(alreadyBeingDeletedFlag string, container ContainerInfo) {
+    
+        err := os.Remove(alreadyBeingDeletedFlag)
+        if err != nil {
+            log.Fatalf("unable to delete flag file %s for container %s ID=%s", alreadyBeingDeletedFlag,
+                container.Name, container.ID)
+        }
+    }
+    func checkIfExistsFlag(alreadyBeingDeletedFlag string, container ContainerInfo) (bool, error) {
+    
+        found := false
+        fi, err := os.Stat(alreadyBeingDeletedFlag)
+        if err == nil {
+            found = true
+            modtime := fi.ModTime()
+            duration := time.Since(modtime)
+            if duration.Minutes() > 20 {
+                log.Infof("looks like file was not deleted in last execution, cleaning up...")
+                found = false
+                deleteFlagFile(alreadyBeingDeletedFlag, container)
+            }
+            log.Debugf("container %s already scheduled for being deleted ", container.Name)
+            return found, err
+        }
+    
+        return found, err
+    
+    }
+    
+    func ScheduleContainerStop(ctx context.Context, container ContainerInfo) {
+    
+        tmp_prefix_path := ctx.Value("tmp_flags_file_path").(string)
+        alreadyBeingDeletedFlag := tmp_prefix_path + container.ID
+        flag, err := checkIfExistsFlag(alreadyBeingDeletedFlag, container)
+        if flag {
+            log.Fatal(err)
+        }
+        log.Infof("scheduled container %s for stopping", container.Name)
+        timeout_duration, err := time.ParseDuration(ctx.Value("exposure_time").(string))
+        if err != nil {
+            log.Fatalf("incorrect format for exposure_timeout")
+        }
+        log.Debug("ScheduleContainerStop: outside the lambda function waiting for DONE signal")
+    
+        //wait for the exposure_time
+        timer := time.NewTimer(timeout_duration)
+        runtime.Gosched()
+        <-timer.C
+        var data []byte
+        data = make([]byte, 1)
+        // creating the flag
+        err = ioutil.WriteFile(alreadyBeingDeletedFlag, data, 0644)
+        if err != nil {
+            log.Fatal(err)
+        }
+        StopContainer(ctx, container)
+        deleteFlagFile(alreadyBeingDeletedFlag, container)
+        log.Debug("ScheduleContainerStop: Lambda function DONE")
+    
+    }
+    
+    func GetContainerByName(ContainerName string, container_list []ContainerInfo) (ContainerInfo, bool) {
+        for _, container := range container_list {
+            if container.Name == ContainerName {
+                return container, true
+            }
+        }
+        return ContainerInfo{}, false
+    }
+    
+    func GetContainerByID(ContainerID string, container_list []ContainerInfo) (ContainerInfo, bool) {
+        if len(ContainerID) <= 0 {
+            log.Debug("GetContainerByID: NIL container id provided")
+            return ContainerInfo{}, false
+        }
+    
+        if len(container_list) <= 0 {
+            log.Debug("GetContainerByID: NIL container_list provided")
+            return ContainerInfo{}, false
+        }
+        for _, container := range container_list {
+            if len(container.ID) < len(ContainerID) {
+                log.Debugf("incomparable ID, provided ID is larger 
+                            than existing one %s %d %s %d", container.ID,
+                            len(container.ID), ContainerID, len(ContainerID))
+                ContainerID = ContainerID[:len(container.ID)]
+            }
+            //convert to string
+            IDstr := fmt.Sprint(container.ID)
+            if strings.HasPrefix(IDstr, ContainerID) {
+                return container, true
+            }
+        }
+        return ContainerInfo{}, false
+    }
+    
+    func StopContainer(ctx context.Context, container ContainerInfo) {
+        log.Infof("Stopping container %s NOW!", container.Name)
+        cli, err := client.NewEnvClient()
+        if err != nil {
+            log.Fatal(err)
+        }
+        timeout, err := time.ParseDuration(ctx.Value("container_api_timeout").(string))
+        if err != nil {
+            log.Fatalf("incorrect format for api timeout")
+        }
+        err = cli.ContainerStop(context.Background(), container.ID, &timeout)
+        if err != nil {
+            log.Fatal(err)
+        }
+    
+        log.Infof("container %s has been stopped", container.Name)
+    }
+    
+    
+\end{minted}
+\captionof{listing}{container\_recycler - handlers/container.go \label{listing:container-recycler-container}}
+
+
+\begin{minted}[fontsize=\scriptsize]{go}
+    package handlers
+    
+    import (
+        "bufio"
+        "context"
+        "encoding/json"
+        log "github.com/Sirupsen/logrus"
+        "io"
+        "os"
+        "regexp"
+        "sync"
+        "time"
+    )
+    
+    type FalcoNotification struct {
+        RawOutput         string    `json:"output"`
+        Priority          string    `json:"priority"`
+        RuleNameTriggered string    `json:"rule"`
+        Time              time.Time `json:"time"`
+    }
+    
+    func SetupLogging() {
+        log.SetFormatter(&log.TextFormatter{})
+        log.SetOutput(os.Stdout)
+        log.SetLevel(log.DebugLevel)
+    }
+    
+    //{"output":"14:54:07.709160152: Alert Shell spawned in a container other than entrypoint 
+    // (user=root ssh (id=52d928d8b2a3) shell=sh parent=watch cmdline=sh -c id)",
+    // "priority":"Alert","rule":"Run shell in container","time":"2017-03-31T14:54:07.709160152Z"}
+    
+    func handle(ctx context.Context, f FalcoNotification, wg sync.WaitGroup) {
+    
+        log.Info(f)
+    
+        if f.Priority == "Alert" {
+    
+            var myExp = namedRegexp{regexp.MustCompile(
+                `.*\(user=(?P<user>[[:alpha:]]+)\s+(?P<image_name>[[:alpha:]]+)\s+\(id=(?P<image_id>[[:alnum:]]{6,})\).*\)`
+            )}
+            data := myExp.FindStringSubmatchMap(f.RawOutput)
+            log.Debug(data)
+    
+            log.Debug("Alert received, will try to stop container")
+            container_list := ListRunningContainers()
+    
+            ctx = context.WithValue(ctx, "container_list", container_list)
+            container, found := GetContainerByID(data["image_id"], container_list)
+            if found {
+                log.Debug("FalcoNotification.handle: stopping container")
+                ScheduleContainerStop(ctx, container)
+            } else {
+                log.Warnf("Alert received relative for container ID %s (name=%s) not found in running containers", 
+                           data["image_id"], data["image_name"])
+            }
+        }
+    }
+    
+    func ParseFalcoNotifications(r io.Reader, ctx context.Context) {
+        var f FalcoNotification
+        scanner := bufio.NewScanner(r)
+        var wg sync.WaitGroup
+        for scanner.Scan() {
+            if err := json.Unmarshal(scanner.Bytes(), &f); err != nil {
+                log.Error(err)
+    
+                log.Debug("ParseFalcoNotifications: Bad FalcoNotification format")
+                continue
+            }
+            wg.Add(1)
+            log.Debug("ParseFalcoNotifications: received a falco notification")
+    
+            go func() {
+                defer wg.Done()
+                handle(ctx, f, wg)
+            }()
+        }
+        wg.Wait()
+    }
+
+\end{minted}
+\captionof{listing}{container\_recycler - handlers/falco\_notification.go \label{listing:container-recycler-falco-notification}}
+
+\begin{minted}[fontsize=\scriptsize]{go}
+    package handlers
+    
+    import (
+        "regexp"
+    )
+    
+    // embed regexp.Regexp in a new type so we can extend it
+    type namedRegexp struct {
+        *regexp.Regexp
+    }
+    
+    // add a new method to our new regular expression type
+    func (r *namedRegexp) FindStringSubmatchMap(s string) map[string]string {
+        captures := make(map[string]string)
+    
+        match := r.FindStringSubmatch(s)
+        if match == nil {
+            return captures
+        }
+    
+        for i, name := range r.SubexpNames() {
+            // Ignore the whole regexp match and unnamed groups
+            if i == 0 || name == "" {
+                continue
+            }
+    
+            captures[name] = match[i]
+    
+        }
+        return captures
+    }    
+\end{minted}
+\captionof{listing}{container\_recycler - handlers/namedRegexp.go \label{listing:container-recycler-named-regexp}}
+
+
 
 %%% Local Variables: 
 %%% mode: latex
