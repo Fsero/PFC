@@ -1,41 +1,41 @@
 \chapter{Memoria}
 \minitoc{}
 \section{Objeto}
-El objeto de éste proyecto es la implementación de un sistema de \emph{Honeypots} utilizando \emph{containers}. 
-Las Honeypots han existido desde hace bastante tiempo, quizá el software más conocido es honeyd, publicado en 2007.
+El objeto de este proyecto es la implementación de un sistema de \emph{Honeypots} utilizando \emph{containers}. 
+Las \emph{Honeypots} existen desde hace bastante tiempo, quizá el software más conocido es \emph{Honeyd}, publicado en 2007.
 
-\emph{Honeyd} (veasé \cite{honeynet-lowinteraction}) y otros casos son aplicaciones de las llamadas honeypots de baja interacción, puesto que sólo exponian al atacante un entorno limitado
-no real y limitado frente a las \emph{honeypots} de alta interacción que permiten al atacante interactuar con la aplicación a investigar, el sistema operativo
-y todo aquello que pueda ser relevante para la diagnosis como el trafico de red.
+\emph{Honeyd} (véase \cite{honeynet-lowinteraction}) -junto a otros casos- es  una aplicación de las llamadas \emph{honeypots} de baja interacción, puesto que solo exponían al atacante un entorno limitado
+no real y limitado frente a las \emph{honeypots} de alta interacción que permiten al atacante interactuar con la aplicación a investigar, con el sistema operativo
+y con todo aquello que pueda ser relevante para el diagnóstico; como puede ser el tráfico de red.
 
-Habitualmente las \emph{honeypots} de alta interacción eran servidores fisicos o virtualizados creados exclusivamente para ésta tarea, lo que implica
-una utilización de recursos en terminos de CPU, RAM (en definitiva en coste economico), considerando ademas que una honeypot por sus caracteristicas
-y seguridad seguramente no se despliegue exactamente en el mismo entorno que el resto de aplicaciones de negocio de una organización, o en caso de hacerlo
-la gestión del riesgo y medidas de seguridad aumentarian.
+Habitualmente, las \emph{honeypots} de alta interacción eran servidores físicos o virtualizados creados exclusivamente para esta tarea, lo que implicaba
+una utilización de recursos en términos de CPU, RAM (en definitiva, en coste económico). Además, se ha de considerar que una \emph{honeypot} (por sus características
+y seguridad) tiene altas posibilidades de no desplegarse exactamente en el mismo entorno que el resto de aplicaciones de negocio de una organización y, en caso de hacerlo,
+la gestión del riesgo y de las medidas de seguridad aumentaran considerablemente.
 
-Por ello, desplegar y mantener honeypots de alta interacción es dificil. Desde la introducción de LXC (Linux Containers) en el kernel de Linux que los hizo posible, y
+Por ello, el despliegue y mantenimiento de \emph{honeypots}  de alta interacción es difícil. Desde la introducción de LXC (Linux Containers) en el kernel de Linux que los hizo posible, y
 especialmente desde la aparición de Docker, que le dio popularidad y facilito su adopción y explotación.
 
-Un \emph{container} es un metodo de virtualización para ejecutar multiples sistemas linux aislados (\emph{containers}) en un servidor que comparte un mismo kernel de Linux. Tecnicamente se basa en la utilización
-de cgroups para limitar y priorizar recursos del sistema (CPU, memoria, I/O...) y de \emph{namespaces} que limitan la visualización del sistema de los procesos que se ejecutan en el \emph{container}, y es la tecnica que produce el aislamiento. Es importante notar que
-frente a otras tecnologias de contanerización como \emph{Jails}, \emph{Zones} o incluso las maquinas virtuales, los \emph{containers} no tienen entidad propia para el kernel, asi que un \emph{container} se compone
-de una definición de cgroup y namespace. 
+Un \emph{container} es un método de virtualización para ejecutar múltiples sistemas linux aislados (\emph{containers}) en un servidor que comparte un mismo \emph{kernel} de Linux. Técnicamente, se basa en la utilización
+de \emph{cgroups} para limitar y priorizar recursos del sistema (CPU, memoria, I/O...), y de \emph{namespaces}, que limitan la visualización del sistema de los procesos que se ejecutan en el \emph{container}, y que es la técnica que produce el aislamiento. Es importante notar que
+frente a otras tecnologías de ``contanerización'' (como \emph{Jails}, \emph{Zones} o, incluso, las máquinas virtuales), los \emph{containers} no tienen entidad propia para el \emph{kernel}, así que un \emph{container} se compone
+de una definición de \emph{cgroups} y \emph{namespaces}. 
 
-Se puede considerar un container como un \emph{chroot} mejorado o como una maquina virtual ligera (que comparte el mismo kernel con el hipervisor), en éste sentido
-mi interés en \emph{containers} para éste proyecto es debido a su eficiente utilización de recursos frente a una maquina virtual y a la facilidad
-de crear, mantener y mejorar imagenes de sistema gracias al tooling alrededor de imagenes de Docker.
+Se puede considerar un \emph{container} como un \emph{chroot} mejorado o como una máquina virtual ligera (que comparte el mismo \emph{kernel} que el hipervisor). En este sentido
+mi interés en \emph{containers} para este proyecto es debido a su eficiente utilización de recursos frente a una máquina virtual y a la facilidad
+de crear, mantener y mejorar imágenes de sistema gracias al \emph{tooling} alrededor de imágenes de Docker.
 
-En resumen, el objeto de éste proyecto es el de construir una honeypot de alta interacción utilizando containers.
+En resumen, el objeto de este proyecto es el de construir una \emph{honeypot} de alta interacción utilizando \emph{containers}.
 
 \section{Alcance}
 
-El presente proyecto, tendrá como alcance:
+El presente proyecto tendrá como alcance:
 \begin{itemize}
-    \item La creación de una sonda que exponga al mundo el servicio que se quiere investigar que se ejecutará en un container.
-    \item Las medidas de seguridad que se apliquen en dicha sonda.
-    \item El uso de un sistema que guarde las trazas para poder identificar las acciones realizadas en la honeypot.
+    \item La creación de una sonda que exponga al mundo el servicio que se quiere investigar y que se ejecutará en un \emph{containers}.
+    \item La aplicación de las medidas de seguridad de dicha sonda.
+    \item El uso de un sistema que guarde las trazas para poder identificar las acciones realizadas en la \emph{honeypot}.
     \item El diseño de un sistema de colección, que recopile las trazas de las sondas y las almacene.
-    \item el diseño de un sistema de explotación de datos de dicha colección, en particular la extracción, transformación y visualización de los mismos.
+    \item El diseño de un sistema de explotación de datos de dicha colección; en particular de la extracción, transformación y visualización de los mismos.
 \end{itemize}
 
 \section{Antecedentes}
@@ -43,25 +43,25 @@ El presente proyecto, tendrá como alcance:
 % honeypots existentes...
 % Kippo, honeyd, honeynet, dionaea 
 
-El objetivo de una honeypot es el de aprender y conocer tecnicas de los atacantes para poder defenderse aplicando medidas de seguridad.
-Debido al coste y complejidad de las honeypots de alta interacción, la mayoria de ellas son de baja interacción. Examinaré algunas de ellas:
+El objetivo de una \emph{honyepot} es el de aprender y conocer técnicas de los atacantes para poder defenderse aplicando medidas de seguridad.
+Debido al coste y complejidad de las \emph{honeypots} de alta interacción, la mayoría de ellas son de baja interacción. A continuación, se examinarán brevemente algunas de ellas:
 
 \begin{enumerate}
-    \item[\emph{Kippo}] (\cite{honeynet-kippo}) una honeypot de SSH de baja interacción, implementa el protocolo SSH en un servidor en Python
-    lo que le permite extraer información del atacante (contraseña, IP, ordenes ejecutadas...), aunque intenta simular un servidor de SSH real
-    se puede diagnosticar que el servidor es una honeypot simplemente ejecutando ordenes de sistema.
-    \item[\emph{Dionaea}] (\cite{honeynet-dionaea}) una honeypot de baja interacción que simula varias aplicaciones como servidores TFTP, MySQL, HTTP, Memcache etc y expone sus puertos.
-    \item[\emph{honeyd}] (\cite{honeynet-lowinteraction}) una de las primeras honeypots open source de baja interacción, puede exponer varios servicios aunque su desarrollo no está activo.
-    \item[\emph{Dockerpot}] (\cite{honeynet-dockpot}) Una honeypot de alta interacción, basada en containers Docker, persigue un objetivo similar al de éste proyecto
-    sin embargo no se expone directamente un container, se expone un proxy (a lo \emph{kippo}) que implementa el protocolo SSH, pero a diferencia de \emph{kippo} se abre otra conexion
-    a un servidor SSH real que se ejecuta en un container. El proxy se encarga de levantar/parar el container, sólo se para el container cuando no hay ninguna conexión activa. Si el container es comprometido, siguiendo éste enfoque no se parará.
-    De manera similar a \emph{Kippo} es fácil descubrir  que se esta atacando una honeypot de éste tipo, ya que la latencia entre que se inicia la comunicación
-    y se pide la contraseña o se deniega el acceso al servidor SSH es sensiblemente elevada.
+    \item[\emph{Kippo}] (\cite{honeynet-kippo}): una \emph{honeypot} de SSH de baja interacción, implementa el protocolo SSH en un servidor en Python
+    lo que le permite extraer información del atacante (contraseña, IP, órdenes ejecutadas...), aunque intenta simular un servidor de SSH real
+    se puede diagnosticar que el servidor es una \emph{honeypot} simplemente ejecutando órdenes de sistema.
+    \item[\emph{Dionaea}] (\cite{honeynet-dionaea}): una \emph{honeypot} de baja interacción que simula varias aplicaciones como servidores TFTP, MySQL, HTTP, Memcache etc y expone sus puertos.
+    \item[\emph{honeyd}] (\cite{honeynet-lowinteraction}): una de las primeras \emph{honeypots open source} de baja interacción que puede exponer varios servicios aunque su desarrollo no está activo.
+    \item[\emph{Dockerpot}] (\cite{honeynet-dockpot}): una \emph{honeypot} de alta interacción, basada en \emph{containers} Docker que persigue un objetivo similar al de este proyecto.
+    Sin embargo, no se expone directamente un \emph{container}, sino que expone un \emph{proxy} (a lo \emph{kippo}) que implementa el protocolo SSH. Pero a diferencia de \emph{kippo}, se abre otra conexión
+    a un servidor SSH real que se ejecuta en un \emph{container}. El \emph{proxy} se encarga de levantar o de parar el \emph{container}, pero solo se para el \emph{container} cuando no hay ninguna conexión activa. Y, si el \emph{container} es comprometido, siguiendo este enfoque, no se parará.
+    De manera similar a \emph{Kippo}, es fácil descubrir  que se está atacando una \emph{honeypot} de este tipo, ya que la latencia entre que se inicia la comunicación
+    y que se pide la contraseña o se deniega el acceso al servidor SSH, es sensiblemente elevada.
 \end{enumerate}
 
-Si hay algo en comun a todas ellas que motivó la creación de éste proyecto es que o bien son honeypots de baja interacción que son facilmente reconocibles
-y por tanto carecen de interes para ataques reales o son de alta interacción pero para reciclar gestionar el servicio expuesto siempre hay un proxy delante
-que se encarga de levantar / parar el container.
+Si hay algo en común en todas ellas que motivó la creación de este proyecto es: que o bien son \emph{honeypots} de baja interacción fácilmente reconocibles
+y, por lo tanto, carecen de interés para ataques reales; o bien son de alta interacción pero, para reciclar y/o gestionar el servicio expuesto, siempre hay un \emph{proxy} delante
+que se encarga de levantar o de parar el \emph{container}.
 
 \nocite{*}
 \nopagebreak
@@ -70,7 +70,7 @@ que se encarga de levantar / parar el container.
 \subsubsection{Licencia FDL aplicable a ésta memoria}
 \input{./fdl.tex}
 \subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el código fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Todo el codigo fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
 Se puede consultar los terminos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
 \subsection{Bibliografia}
@@ -79,122 +79,117 @@ Se puede consultar los terminos de la licencia en la página de Apache \url{http
 \section{Definiciones y abreviaturas}
 \section{Requisitos de diseño}
 
-Para el diseño de la honeypot basada en containers hay que combinar principalmente funcionalidad, seguridad y viabilidad economica.
+Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principios que han regido el proyecto son: la funcionalidad, la seguridad y la viabilidad económica. Y a estos principios, se les ha de sumar la búsqueda de cualidades como la flexibilidad, eficiencia, utilidad y seguridad. ``Flexibilidad'' porque la \emph{honeypot} debe ser capaz de exponer cualquier tipo de servicio requerido. ``Eficiencia'' ya que las sondas y el \emph{backend} deben minimizar el número de servidores necesarios para su explotación. ``Utilidad'' porque las \emph{honeypots} deben exportar información útil. Y, por último, ``seguridad''  en tanto que las \emph{honeypots} y el \emph{backend} deben proveer de medidas de contención frente a los atacantes.
 
-\begin{enumerate}
-    \item[Flexible] la honeypot debe ser capaz de exponer cualquier tipo de servicio.
-    \item[Eficiente] las sondas y el \emph{backend} deben minimizar el numero de servidores necesarios para su explotación.
-    \item[Útil] Las honeypots deben exportar información útil.
-    \item[Segura] las honeypots y el \emph{backend} deben proveer medidas de contencion frente atacantes.  
-\end{enumerate}
+
 
 
 \section{Análisis de soluciones para la sonda}
 \label{sec:analisis-sonda}
 
 
-Lo más relevante de la sonda es la capacidad de extraer información de ella, a nivel de instrumentación. Cada proceso (y cabe recordar que un container en Linux es un proceso dentro de un \emph{namespace} con un \emph{cgroup} asociado) es gestionado, controlado
-y auditado por el kernel.
+Lo más relevante de la sonda es la capacidad de extraer información de ella a nivel de instrumentación. Cada proceso (y cabe recordar que un \emph{container} en Linux es un proceso dentro de un \emph{namespace} con un \emph{cgroup} asociado) es gestionado, controlado
+y auditado por el \emph{kernel}.
 
-Por ello, es interesante explorar si a través de alguna interfaz del kernel es posible instrumentar nuestra \emph{honeypot}. A la hora de exponer nuestro servicio, lo haremos utilizando
-un container. existen diversas tecnologias para utilizar containers en Linux, de más a menos antiguedad se puede utilizar LXC, \emph{Docker}, \emph{LXD} ó \emph{rkt}.
+Por ello, es interesante explorar si a través de alguna interfaz del \emph{kernel} es posible instrumentar nuestra \emph{honeypot}. A la hora de exponer nuestro servicio, se hará utilizando
+un \emph{container}. Existen diversas tecnologías para utilizar \emph{containers} en Linux. Citándolos de más a menos antigüedad, se puede utilizar LXC, \emph{Docker}, \emph{LXD} o \emph{rkt}.
 
-\emph{LXC}, \emph{LXD} y \emph{rkt} comparten que su objetivo es el de proporcionar una \emph{lightweight-VM}, un entorno donde se pueden lanzar varios procesos y aplicaciones a la VM
-pero sin la necesidad de cargar un kernel independiente y los costes extra que una VM supone (y perdiendo las garantias de aislamiento que también provee).
+\emph{LXC}, \emph{LXD} y \emph{rkt} comparten que su objetivo es el de proporcionar una \emph{lightweight-VM}; un entorno donde se pueden lanzar varios procesos y aplicaciones a la VM
+pero sin la necesidad de cargar un \emph{kernel} independiente y los costes extra que una VM supone (y perdiendo las garantías de aislamiento que también provee).
 
-Docker, sin embargo, promueve una filosofia en la que cada container deberia albergar idealmente un sólo proceso o una aplicación.
+\emph{Docker}, sin embargo, promueve una filosofía en la que cada \emph{container} debería albergar idealmente un solo proceso o aplicación.
 
-Hay varias diferencias entre estas alternativas, \emph{LXC} y \emph{LXD} proveen herramientas para crear un container "manualmente" entrando en el container y lanzando los procesos. Mientras que Docker y rkt
-lanzan containers utilizando imagenes. Una imagen no es mas que una descripción en un lenguaje de que contendrá el container, ordenes a lanzar para construir el container y el punto de entrada (la orden que se lanzara al lanzar el container) del mismo.
+Hay varias diferencias entre estas alternativas: \emph{LXC} y \emph{LXD} proveen de herramientas para crear un \emph{container} ``manualmente'' entrando en el \emph{container} y lanzando los procesos. Por su parte, \emph{Docker} y \emph{rkt}
+lanzan \emph{containers} utilizando imágenes. Una imagen no es más que una descripción en un lenguaje acerca de qué contendrá el \emph{container}, órdenes a lanzar para construir el \emph{container} y el punto de entrada (la orden que se lanzará al lanzar el \emph{container}) del mismo.
 
-Los \emph{containers} construidos con \emph{Docker} y rkt son inmutables, cada imágen define varias capas de almacenamiento (veasé \cite{docker-storage}) que se van apilando
-para construir el sistema de archivos, como ultima capa se añade una capa con permisos de lectura/escritura para permitir el almacenamiento temporal necesario para lanzar
-la mayoría de ordenes.
+Además, los \emph{containers} construidos con \emph{Docker} y \emph{rkt} son inmutables. Cada imgen define varias capas de almacenamiento (véase \cite{docker-storage}) que se van apilando
+para construir el sistema de archivos y como última capa se añade una con permisos de lectura/escritura para permitir el almacenamiento temporal necesario para lanzar
+la mayoría de órdenes.
 
-Aunque cualquiera de las tecnologias de containerizacion explicadas previamente podrian ser utilizadas para nuestros fines, Docker tiene una amplia acogida como la herramienta de containerizacion
-y hay muchisimas herramientas disponibles que suponen la utilización de Docker. Por ello, se escoge ésta tecnologia para construir nuestros containers.
+Aunque cualquiera de las tecnologías de ``containerización'' explicadas previamente podrían ser utilizadas para el fin y objetivo propuesto, \emph{Docker} tiene una amplia acogida como la herramienta de ``containerización''
+y hay muchísimas herramientas disponibles que, al final, suponen la utilización de \emph{Docker}. Por ello, se escoge esta tecnología para construir nuestros \emph{container}.
 
-\subsection{Instrumentación de los containers}
+\subsection{Instrumentación de los \emph{containers}}
 \label{subsec:instrumentacion-containers}
 
-Cuando se habla de instrumentación de procesos en Linux, generalmente lo que queremos es obtener información de:
+Cuando se habla de instrumentación de procesos en Linux, generalmente, lo que se persigue es obtener información de:
 \begin{enumerate}
-    \item[\emph{System calls}] Peticiones que realiza nuestro proceso al kernel (leer un fichero, abrir una conexión \ldots).
-    \item[\emph{kernel function calls}] Que funciones se llamaran en el kernel para satisfacer una \emph{syscall}.
-    \item[\emph{eventos}] eventos que se han definido en \emph{userspace} o dentro del kernel
+    \item[\emph{System calls}]: peticiones que realiza nuestro proceso al \emph{kernel} como leer un fichero o abrir una conexión.
+    \item[\emph{kernel function calls}]: funciones que se reclamarán en el \emph{kernel} para satisfacer una \emph{syscall}.
+    \item[\emph{eventos}]: eventos que se han definido en \emph{userspace} o dentro del \emph{kernel}.
 \end{enumerate}
 
-Para obtener ésta información hay diversas fuentes dentro del kernel:
+Para obtener esta información hay diversas fuentes dentro del \emph{kernel}:
 
 \begin{enumerate}
-    \item[\emph{kprobes}] el kernel modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si hablamos
-    de \emph{kprobes} las funciones a instrumentar son parte del kernel. 
-    \item[\emph{uprobes}] Similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
-    \item[\emph{tracepoints}] A diferencia de un \emph{kprobe} o \emph{uprobe}, un tracepoint se define en el código fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extraer la información de ese \emph{tracepoint}.
-    \item[\emph{ptrace}] A traves de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
+    \item[\emph{kprobes}]: el \emph{kernel} modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si se trata
+    de \emph{kprobes}, las funciones a instrumentar son parte del \emph{kernel}. 
+    \item[\emph{uprobes}]: similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
+    \item[\emph{tracepoints}]: a diferencia de un \emph{kprobe} o \emph{uprobe}, un \emph{tracepoint} se define en el código fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extrayendo la información de ese \emph{tracepoint}.
+    \item[\emph{ptrace}]: a través de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
 \end{enumerate}
 
-Lo que se persigue en éste proyecto es intentar obtener la máxima información modificando lo minimo posible la aplicación instrumentada. Sería posible
-reescribir el servicio expuesto implementando tracepoints para obtener información precisa, pero eso provocaria que la aplicación expuesta no fuese exactamente la misma que se utilizac
-en otros entornos productivos (por lo que la información que nos provee podría ser inutil) ó aumentariamos la superficie de ataque, ya que estariamos
-generando una versión nueva del \emph{software} que no está pasando quizá los mismos controles que el software original, y en cualquier caso, la modificación de todas las aplicaciones
-que nos interesa analizar supone una inversión de esfuerzo que no es trivial.
+Lo que se persigue en este proyecto es intentar obtener la máxima información modificando lo mínimo posible la aplicación instrumentada. Sería posible
+reescribir el servicio expuesto implementando \emph{tracepoints} para obtener información precisa, pero eso provocaría que la aplicación expuesta no fuese exactamente la misma que se utiliza
+en otros entornos productivos (por lo que la información que proveería podría ser inútil) o que se aumentase la superficie de ataque, ya que se estaría
+generando una versión nueva del \emph{software} que, quizá, no está pasando por los mismos controles que el \emph{software} original y, en cualquier caso, la modificación de todas las aplicaciones
+que interesa analizar, supone una inversión de esfuerzo nada trivial.
 
-No es interesante para éste proyecto información relativa al rendimiento, lo que sí nos intesa es información relativa al comportamiento de nuestra aplicación. Por lo tanto,
-utilidades como \emph{perf} no nos seran utiles y se expondran alternativas a continuación.
+No es interesante para este proyecto la información relativa al rendimiento pero sí lo es la relativa al comportamiento de nuestra aplicación. Por lo tanto,
+utilidades como \emph{perf} no serán útiles y, como posibilidades válidas, se expondrán a continuación las alternativas.
 
-\subsection{Obteniendo información del kernel: \emph{Auditd}}
+\subsection{Obtención de la información del \emph{kernel}: \emph{Auditd}}
 \label{subsec:auditd}
 
-\emph{Audit} (veasé \cite{redhat-auditd}) es un subsistema del kernel y un conjunto de utilidades, 
-disponibles desde el kernel 2.6 que nos proporcione información acerca de que \emph{syscalls}
+\emph{Audit} (véase \cite{redhat-auditd}) es un subsistema del \emph{kernel} y un conjunto de utilidades. 
+Están disponibles desde el kernel 2.6 y proporcionan información acerca de qué \emph{syscalls}
 se llaman desde los procesos del sistema. 
-Es un componente maduro que se utiliza extensivamente (como prueba es parte de las recomendaciones del CIS y NIST para guias de bastionado)
-y en base a un fichero de configuración se pueden definir que syscalls se monitorizaran
-\emph{audit} genera un fichero de log que puede guardarse en disco, enviar eventos a un recolector remoto o ser expuesto via una conexión
-\emph{netlink} (veasé \cite{wiki-netlink})
+Es un componente maduro que se utiliza extensivamente (como prueba, mencionar que es parte de las recomendaciones del CIS y NIST para guías de bastionado)
+y que, en base a un fichero de configuración, permite definir qué \emph{syscalls} se monitorizaran
+\emph{Audit} generando un fichero de \emph{log} que puede guardarse en disco, enviar eventos a un recolector remoto o ser expuesto vía una conexión
+\emph{netlink} (véase \cite{wiki-netlink})
 
-La primera aproximación realizada para la instrumentación de la sonda, fue utilizando \emph{auditd} es tan simple como lanzar un \emph{container} exponiendo un servicio
-y guardar cualquier syscall recibida. 
+La primera aproximación realizada para la instrumentación de la sonda, fue utilizando \emph{Auditd}. Es tan simple como lanzar un \emph{container} exponiendo un servicio
+y guardar cualquier \emph{syscall} recibida. 
 
-Este enfoque puede ser costoso a nivel de rendimiento, depende del número de eventos generados (tráfico / operaciones del container) a la hora de la colección de eventos
-y costoso también a la hora de extraer información relevante.
+Este enfoque puede ser costoso tanto a nivel de rendimiento, ya que depende del número de eventos generados (el tráfico / las operaciones del \emph{container}) a la hora de la coleccionarlos, como también
+a la hora de extraer la información relevante.
 
-La idea inicial es configurar \emph{audit} para volcar la información en fichero, tras una prueba inicial se encuentran los siguientes problemas:
+La idea inicial es configurar \emph{Audit} para volcar la información en un fichero y, tras una prueba inicial, se encuentraron los siguientes problemas a resolver:
 
 \begin{enumerate}
-    \item Reducir el numero de \emph{syscalls} a instrumentar en \emph{auditd}. Si sólo se instrumentan unas cuantas syscalls el volumen de eventos es mucho menor que si
-    instrumentamos todas las \emph{syscalls} del servidor, si además solo capturamos \emph{syscalls} proveniente de un sólo proceso el volumen de información se reduce, lo que es 
-    deseable para tener que procesar menos despues y para almacenaje de los eventos.
-    \item Hay que gestionar el fichero de log. El fichero crecerá y hay que rotarlo para que no llene el almacenamiento del servidor. Si el volumen de eventos es alto y es superior 
-    al \emph{buffer} disponible es posible perder eventos antes de escribir a fichero, o recibir eventos con demasiada posterioridad.
-    \item Tendremos que parsear el fichero de log para extraer información, lo que implica leer el fichero de disco/parsearlo y guardar la información. El hecho de tener que escribir a disco puede inducir una latencia además de aumentar la carga de la sonda si parseamos el fichero alli.
-    \item Para mitigar el punto anterior, podemos configurar \emph{auditd} para enviar eventos a un \emph{auditd} central y que este se encargue de volcar en ficheros los eventos de varias sondas. Sin embargo, esto sería aplazar el problema
-    que comentabamos anteriormente.
-    \item Una posible solución para mejorar la latencia es utilizar una conexión \emph{netlink},
-    auditd provee de interfaz \emph{netlink} asi en lugar de leer eventos de un fichero, 
-    recibiremos los eventos a través de una conexión de red. 
-    Al conectarnos por red mejoraremos la latencia de recepción de eventos, 
-    pero necesitaremos desarrollar un cliente netlink capaz de procesar estos eventos, 
-    y procesarlos en un tiempo adecuado, ya que de otro modo, 
+    \item La necesidad de reducir el numero de \emph{syscalls} a instrumentar en \emph{Auditd}. Esto es debido a que si solo se instrumentan unas cuantas \emph{syscalls}, el volumen de eventos es mucho menor que si
+    instrumentamos todas las \emph{syscalls} del servidor. Y si, además, solo capturamos \emph{syscalls} provenientes de un solo proceso, el volumen de información se reduce, lo que es 
+    deseable para tener que procesar menos después y para el almacenaje de los eventos.
+    \item La gestión del fichero de \emph{log}. El fichero crecerá y, por ello, hay que rotarlo para que no llene el almacenamiento del servidor. Si el volumen de eventos es alto y superior 
+    al \emph{buffer} disponible, es posible o bien que haya una pérdida de eventos antes de escribir a fichero, o bien que llegue la recepción de eventos con demasiada posterioridad.
+    \item La optimización del fichero de \emph{log} para extraer información una vez se haya parseado. Este paso implica leer el fichero de disco/parsearlo y guardar la información. El hecho de tener que escribir a disco puede inducir una latencia además de aumentar la carga de la sonda si parseamos el fichero alli.
+    \item Para mitigar el punto anterior, una posibilidad es la configuración  \emph{Auditd} para enviar eventos a un \emph{Auditd} central y que este se encargue de volcar en ficheros los eventos de varias sondas. Sin embargo, esto sería aplazar el problema
+    comentado anteriormente.
+    \item Otra posibilidad para mejorar la latencia es utilizar una conexión \emph{netlink},
+    \emph{Auditd} provee de interfaz \emph{netlink}; así, en lugar de leer eventos de un fichero, 
+    se reciben los eventos a través de una conexión de red. 
+    La conexión por red mejora la latencia de recepción de eventos, 
+    pero necesita del desarrollo de un cliente \emph{netlink} capaz de procesar estos eventos, 
+    y de la ejecución del proceso en un tiempo adecuado, ya que de otro modo, 
     si nuestro cliente no fuera capaz de procesar el volumen de eventos entregado,
-    dichos eventos se perderian.
-    \item \emph{auditd} no es capaz de reconocer \emph{containers}, por lo tanto seremos capaces de ver la actividad de procesos
-    sin saber si estos se ejecutan dentro de un container o no, esto es una limitación importante, especialmente, si queremos que nuestras sondas
-    ejecuten más de un container por sonda y en cualquier caso complica el procesamiento de eventos ya que no sería fácil, por ejemplo, diferenciar procesos
+    dichos eventos se perderían.
+    \item La incapacidad de \emph{Auditd} para reconocer \emph{containers}. Por lo tanto, la capacidad de ver la actividad de procesos
+    sin saber si estos se ejecutan dentro de un \emph{container} o no es una limitación muy importante, especialmente, si si persigue que nuestras sondas
+    ejecuten más de un \emph{container} por sonda. Y, en cualquier caso, complica el procesamiento de eventos ya que no sería fácil, por ejemplo, diferenciar procesos
     del \emph{host} frente a los que se ejecutan dentro del \emph{container}.
 \end{enumerate}
 
-Trás realizar una implementación inicial como prueba, no queda más que descartar la opción, el buffer de eventos de auditd no esta preparado para grandes volumenes.
-Si una sonda auditd pierde conectividad con un auditd que actua como recolector central, los eventos de éste se pierden.
+Tras realizar una implementación inicial como prueba, no queda más que descartar la opción del \emph{buffer} de eventos de  \emph{Auditd} por no estar preparado para grandes volúmenes.
+Si una sonda \emph{Auditd} pierde conectividad con un \emph{Auditd} que actua como recolector central, los eventos de este se pierden.
 
-Para paliar ésta deficiencia, se puede utilizar la interfaz netlink, existen varias librerias en diversos lenguajes para implementar un cliente de netlink, entre ellas
-se han probado (\cite{netlink-glnpy,netlink-audit-go,netlink-go-audit}).
+Y para paliar esta deficiencia, se puede utilizar la interfaz \emph{netlink}. Existen varias librerías en diversos lenguajes para implementar un cliente de \emph{netlink} y de entre ellas
+se han probado: (\cite{netlink-glnpy,netlink-audit-go,netlink-go-audit}).
 
-La realidad es que el formato recibido a través de la conexión de netlink es desigual (no todos los eventos tienen el mismo formato), inestable ( en ocasiones si se recarga la configuración de auditd la conexión se rompe y es imposible volver a obtener eventos) y hay una cierta fragilidad al trabajar con ella, pese a que hay historias de éxito
-como la de \emph{Slack} (\cite{netlink-slack-success}), si bien es cierto que dicho articulo se publica despues de realizar ésta prueba y que las condiciones no son identicas, Slack no instrumenta \emph{containers}.
+La realidad es que el formato recibido a través de la conexión de \emph{netlink} es desigual (ya que no todos los eventos tienen el mismo formato), inestable (porque, en ocasiones, si se recarga la configuración de \emph{Auditd}, la conexión se rompe y es imposible volver a obtener eventos) y frágil al trabajar con ella (pese a que hay historias de éxito
+como la de \emph{Slack} (\cite{netlink-slack-success}), también es cierto que dicho artículo se publica después de realizar esta prueba y que las condiciones no son idénticas, Slack no instrumenta \emph{containers}.
 
-Se descarta la utlización de \emph{Auditd} por éstas razones y se comienza a buscar alternativas.
+Llegados a este punto, se descarta la utilización de \emph{Auditd} y se justifica la búsqueda de alternativas.
 
 \subsection{Obteniendo información del kernel: \emph{eBPF}}
 \label{subsec:ebpf}
@@ -295,7 +290,7 @@ Por éstas razones se descarta el uso de \emph{eBPF} que aunque prometedor aún 
 \label{subsec:kernel-modulo}
 
 Dado que por las razones expuestas extraer información vía interfaces externas no parecía factible, hay que explorar otras opciones.
-el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de código que extienda las capacidades del kernel, es la manera
+el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de codigo que extienda las capacidades del kernel, es la manera
 en que habitualmente se cargan nuevos controladores, por ejemplo.
 
 Ya que extraer información a través de interfaces conocidas no es factible, queda la opción de crearnos la nuestra propia. 
@@ -768,11 +763,11 @@ los siguientes pasos:
 Todos estos pasos pueden ser ejecutados por un operador humano y a menudo lo son, pero si queremos un proceso repetible, rapido y automatizado
 no podemos permitirnos que estos procesos sean manuales, ya que imposibilitan crear un nuevo servidor en el orden de minutos.
 
-\subsubsection{Infrastructura como código}
+\subsubsection{Infrastructura como codigo}
 \label{subsec:infra-as-code}
 
 Un enfoque que nos acerca al objetivo de ser capaces de desplegar nuevas maquinas en minutos, necesaria en un entorno dinamico, es adoptar la practica
-de infrastructura como código (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
+de infrastructura como codigo (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
 
 \begin{itemize}
     \item Definición en ficheros. Toda la configuracion se recoge en ficheros ejecutables, ninguna persona deberia entrar en el servidor
