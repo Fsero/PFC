@@ -6,7 +6,7 @@
 \label{subsec:containe-recycler-src-code}
 
 Se incluye un extracto del código de \emph{container\_recycler} por completitud y como soporte a la lectura de la memoria. Sin
-embargo recomendamos su exploración en GitHub en \href{https://github.com/Fsero/container\_recycler}{https://github.com/Fsero/container\_recycler} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/container\_recycler}{https://github.com/Fsero/container\_recycler} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
 hubiera.
 
 \begin{minted}[fontsize=\scriptsize]{go}
@@ -331,7 +331,688 @@ hubiera.
 \end{minted}
 \captionof{listing}{container\_recycler - handlers/namedRegexp.go \label{listing:container-recycler-named-regexp}}
 
+\subsection{\emph{Sinker Registry API}}
+\label{subsec:sinker-registry-api-src-code}
+Se incluye un extracto del código de \emph{Sinker Registry API} por completitud y como soporte a la lectura de la memoria. Sin
+embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/sinker\_registry\_api}{https://github.com/Fsero/sinker\_registry\_api} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+hubiera.
 
+\begin{minted}[fontsize=\scriptsize]{go}
+    package controllers
+    
+    import (
+        "encoding/json"
+    
+        "fmt"
+    
+        "bitbucket.org/fseros/sinker_registry_api/models"
+        log "github.com/Sirupsen/logrus"
+        "github.com/astaxie/beego"
+    )
+    
+    // Operations about probe
+    type ProbeController struct {
+        beego.Controller
+    }
+    
+    func (p *ProbeController) URLMapping() {
+        p.Mapping("Post", p.Post)
+        p.Mapping("GetOne", p.Get)
+        p.Mapping("GetAll", p.GetAll)
+        p.Mapping("Put", p.Put)
+        p.Mapping("Delete", p.Delete)
+    }
+    
+    // @Title Create Probe
+    // @Description create new probe
+    // @Success 201 {object} models.Probe
+    // @Param  fqdn  body string true "fqdn address of the probe"
+    // @Param  ipv4  body string true "ipv4 address of the probe"
+    // @Param  ipv6  body string false "ipv6 address of the probe"
+    // @Param  provider  body string true "cloud provider of the probe"
+    // @Param  geolongitude  body float false "geolongitude of the probe"
+    // @Param  geolatitude  body float false "geolongitude of the probe"
+    // @Param  sshprivatekey  body string false "ssh private key of the probe"
+    // @Param  sshpublickey  body string false "ssh public key of the probe"
+    // @Param  enabled  body bool false "probe status" "true"
+    // @router / [post]
+    func (p *ProbeController) Post() {
+        var pr models.Probe
+        pr.SetDefaults()
+        json.Unmarshal(p.Ctx.Input.RequestBody, &pr)
+        log.Debugf(" received %v via POST", pr)
+        probeid, err := models.AddOne(pr)
+        if err != nil {
+            p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            p.Ctx.Output.SetStatus(400)
+            p.ServeJSON()
+            return
+        }
+        p.Data["json"] = map[string]string{"ProbeId": probeid}
+        p.Ctx.Output.SetStatus(201)
+        p.ServeJSON()
+    }
+    
+    // @router /:id [get]
+    func (p *ProbeController) Get() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            ob, err := models.GetByID(ProbeID)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = ob
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    // @router / [get]
+    func (p *ProbeController) GetAll() {
+        obs := models.GetAll()
+        p.Data["json"] = obs
+        p.ServeJSON()
+    }
+    
+    // @router /ip/:ip [get]
+    func (p *ProbeController) GetByIP() {
+        probeIP := p.Ctx.Input.Param(":ip")
+        fmt.Printf("Looking for probes with ip %s", probeIP)
+        if probeIP != "" {
+            obs, err := models.GetByIPv4(probeIP)
+            if err == nil {
+                fmt.Printf("Found \n %+v", obs)
+                newobs := make([]models.Probe, 0)
+                for _, ob := range obs {
+                    if ob.Enabled {
+                        newobs = append(newobs, ob)
+                    }
+                }
+                fmt.Printf("Found newobs \n %+v", newobs)
+                p.Data["json"] = newobs
+                p.Ctx.Output.SetStatus(200)
+                p.ServeJSON()
+            } else {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+                p.Ctx.Output.SetStatus(500)
+                p.ServeJSON()
+                p.StopRun()
+            }
+        }
+    }
+    
+    // @router /name/:fqdn [get]
+    func (p *ProbeController) GetByFQDN() {
+        probeName := p.Ctx.Input.Param(":fqdn")
+        fmt.Printf("Looking for probes with name %s", probeName)
+        if probeName != "" {
+            obs, err := models.GetByFQDN(probeName)
+            if err == nil {
+                fmt.Printf("Found \n %+v", obs)
+                newobs := make([]models.Probe, 0)
+                for _, ob := range obs {
+                    if ob.Enabled {
+                        newobs = append(newobs, ob)
+                    }
+                }
+                fmt.Printf("Found newobs \n %+v", newobs)
+                p.Data["json"] = newobs
+                p.Ctx.Output.SetStatus(200)
+                p.ServeJSON()
+            } else {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+                p.Ctx.Output.SetStatus(500)
+                p.ServeJSON()
+                p.StopRun()
+            }
+        }
+    }
+    
+    // @router /disable/?:id [put]
+    func (p *ProbeController) Disable() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.Disable]: disabling probe %s", ProbeID)
+            ob, err := models.Disable(ProbeID)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = ob
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    func getIDbyQueryParamOrAsAParam(p *ProbeController) string {
+        var ProbeID string
+        ProbeID = p.GetString("id")
+        if ProbeID == "" {
+            ProbeID = p.Ctx.Input.Param(":id")
+        }
+        return ProbeID
+    
+    }
+    
+    // @router /enable/?:id [put]
+    func (p *ProbeController) Enable() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.Enable]: enabling probe %s", ProbeID)
+            ob, err := models.Enable(ProbeID)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = ob
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    // @Title Updates traces path
+    // @Description updates traces path
+    // @Success 200 {object} models.Probe
+    // @Param  tracespath  body string false "traces path for probe"
+    // @router /tracespath/?:id [put]
+    func (p *ProbeController) UpdateTracesPath() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.UpdateTracesPath]: updating traces path for probe %s", ProbeID)
+            var pr models.Probe
+            json.Unmarshal(p.Ctx.Input.RequestBody, &pr)
+            ob, err := models.UpdateTracesPath(ProbeID, pr.TracesPath)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = ob
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    // @Title Updates ssh key
+    // @Description updates ssh key
+    // @Success 200 {object} models.Probe
+    // @Param  sshprivatekey  body string false "ssh private key of the probe"
+    // @Param  sshpublickey  body string false "ssh public key of the probe"
+    // @router /ssh/?:id [put]
+    func (p *ProbeController) UploadSSH() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.UploadSSH]: updating ssh key for probe %s", ProbeID)
+            var pr models.Probe
+            json.Unmarshal(p.Ctx.Input.RequestBody, &pr)
+            ob, err := models.UploadSSH(ProbeID, pr.SSHPrivateKey, pr.SSHPublicKey)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = ob
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    // @Title Gets ssh key
+    // @Description updates ssh key
+    // @Success 200 {object} models.Probe
+    // @Param  sshprivatekey  body string false "ssh private key of the probe"
+    // @Param  sshpublickey  body string false "ssh public key of the probe"
+    // @router /ssh/?:id [get]
+    func (p *ProbeController) GetSSH() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.GetSSH]: Getting ssh key for probe %s", ProbeID)
+            keys, err := models.GetSSH(ProbeID)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = map[string]string{"ProbeId": ProbeID, 
+                "SSHPrivateKey": keys.Private, 
+                "SSHPublicKey": keys.Public}
+    
+            }
+        }
+        p.ServeJSON()
+    }
+    
+    func (p *ProbeController) Put() {
+        var pr models.Probe
+        pr.SetDefaults()
+    
+        json.Unmarshal(p.Ctx.Input.RequestBody, &pr)
+        log.Debugf(" received %v via POST", pr)
+        probeid, err := models.AddOne(pr)
+        if err != nil {
+            p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            p.Ctx.Output.SetStatus(400)
+            p.ServeJSON()
+            return
+        }
+    
+        p.Data["json"] = map[string]string{"ProbeId": probeid}
+        p.Ctx.Output.SetStatus(201)
+        p.ServeJSON()
+    }
+    
+    // @router /delete/?:id [delete]
+    func (p *ProbeController) Delete() {
+        ProbeID := getIDbyQueryParamOrAsAParam(p)
+        if ProbeID != "" {
+            log.Infof("[controllers.probe.Delete]: deleting probe %s", ProbeID)
+            _, err := models.Delete(ProbeID)
+            if err != nil {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            } else {
+                p.Data["json"] = fmt.Sprintf("{ 'msg': 'deleted probe with id %s' }", ProbeID)
+            }
+        }
+        p.ServeJSON()
+    }
+    
+\end{minted}
+\captionof{listing}{sinkerregistryapi - controllers/probe.go \label{listing:sinker-registry-api-controllers-probe}}
+
+\subsection{\emph{metadata\_extractor}}
+\label{subsec:metadata-extractor-src-code}
+Se incluye un extracto del código de \emph{metadata\_extractor} por completitud y como soporte a la lectura de la memoria. Sin
+embargo se recomienda su exploración en GitHub en \href{https://github.com/metadata\_extractor}{metadata\_extractor} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+hubiera.
+
+\begin{minted}[fontsize=\scriptsize,linenos]{go}
+    package parsers
+    
+    import (
+        "bufio"
+        "bytes"
+        "encoding/json"
+        "fmt"
+        "os/exec"
+        "regexp"
+        "sort"
+        "strconv"
+        "strings"
+    
+        "bitbucket.org/fseros/metadata_extractor/helpers"
+        "github.com/Sirupsen/logrus"
+    )
+    
+    var loginAttemptRegexp = regexp.MustCompile(`(res=\d+) (data=.*PAM:authentication.*)(acct=.*)(exe=.*)
+                          (hostname=.*)(addr=[\d{1,3}\.]+).*(res=failed|success).*`)
+    var passwordInputRegexp = regexp.MustCompile(`(res=\d+) (data=.\w+.*)`)
+    
+    func Init() bool {
+        _, err := exec.Command("/usr/bin/sysdig", "-h").Output()
+        if err != nil {
+            logrus.Fatalf("Unable to initialize ssh parsers %s", err)
+            return false
+        }
+        return true
+    }
+    
+    func extractLoginAttempt(fields []string) AttackerLoginAttempt {
+    
+        var capture AttackerLoginAttempt
+        var subfields []string
+        subfields = make([]string, 1)
+    
+        for key, field := range fields {
+            if key == 0 {
+                continue
+            }
+            if key == 2 {
+                subfields = append(subfields, fmt.Sprintf("%s", field))
+                continue
+            }
+            helpers.SplitFieldsBySep("=", field, &subfields)
+        }
+        capture.User = subfields[3]
+        capture.Hostname = subfields[5]
+        capture.IP = subfields[6]
+        capture.Successful = subfields[7] == "success"
+        return capture
+    }
+    
+    func extractPassword(fields []string) AttackerLoginAttempt {
+        var capture AttackerLoginAttempt
+        var subfields []string
+        subfields = make([]string, 1)
+    
+        for key, field := range fields {
+            if key == 0 {
+                continue
+            }
+            helpers.SplitFieldsBySep("=", field, &subfields)
+        }
+        str := strings.Join(subfields[2:], "")
+        if strings.Contains(str, "PAM:") || len(str) > 30 {
+            capture.Password = "'NOTFOUND'"
+        } else {
+            capture.Password = subfields[2]
+        }
+        return capture
+    }
+    
+    func matchesRegexpTrace(trace Trace, re *regexp.Regexp) bool {
+    
+        str := strings.Replace(trace.EventInfo, "\n", "", -1)
+        return re.MatchString(str)
+    
+    }
+    
+    func parseTraces(traces []Trace) []AttackerLoginAttempt {
+        // on traces password appears first and then login attempt info.
+        // traces should be ordered by time
+        /*
+            {63f6e3883d7c ssh 0 < res=10 data=
+            abc123  159003 1496213704714312629 write sshd 21037 13946}
+            {63f6e3883d7c ssh 0 < res=140 data=
+            Lop=PAM:authentication acct="root" exe="/usr/sbin/sshd" hostname=107.160.16.221 
+            addr=107.160.16.221 terminal=ssh res=success  159104 1496213704727977064 
+            sendto sshd 21036 13945}
+    
+        */
+        var m map[int][]Trace
+        m = make(map[int][]Trace, 0)
+        for _, trace := range traces {
+            logrus.Debugf("[parseTraces] readed %+v", trace)
+            tr := m[trace.ThreadTid]
+            if tr == nil {
+                tr = make([]Trace, 0)
+            }
+            tr = append(tr, trace)
+            m[trace.ThreadTid] = tr
+        }
+    
+        var keys []int
+        for k := range m {
+            keys = append(keys, k)
+        }
+        sort.Ints(keys)
+        var LoginAttempts []AttackerLoginAttempt
+        LoginAttempts = make([]AttackerLoginAttempt, 0)
+    
+        for k := 0; k < len(keys); k += 2 {
+            var trace0, trace1 []Trace
+            trace0 = m[keys[k]]
+            logrus.Debugf("%d %+v\n", keys[k], m[keys[k]])
+            if k+1 < len(keys) {
+                trace1 = m[keys[k+1]]
+                logrus.Debugf("%d %+v\n", keys[k+1], m[keys[k+1]])
+            }
+            switch {
+            case len(trace0) <= 0 && len(trace1) <= 0:
+                logrus.Fatalf("[parseTraces] invalid block, something nasty happened")
+    
+            case len(trace0) <= 0 && len(trace1) > 0:
+                trace0, trace1 = trace1, trace0
+                logrus.Debugf("[parseTraces] swapping blocks, something weird happened")
+            }
+    
+            for i := range trace0 {
+                var elem0, elem1 Trace
+                if i < len(trace0) {
+                    elem0 = trace0[i]
+                } else {
+                    elem0 = Trace{}
+                }
+                if i < len(trace1) {
+                    elem1 = trace1[i]
+                } else {
+                    elem1 = Trace{}
+                }
+                var capture, p, l AttackerLoginAttempt
+                logrus.Debugf("elem0 %+v elem1 %+v", elem0, elem1)
+                switch {
+                case matchesRegexpTrace(elem0, passwordInputRegexp) && matchesRegexpTrace(elem1, loginAttemptRegexp):
+    
+                    str := strings.Replace(elem0.EventInfo, "\n", "", -1)
+                    fields := passwordInputRegexp.FindStringSubmatch(str)
+                    p = extractPassword(fields)
+                    str = strings.Replace(elem1.EventInfo, "\n", "", -1)
+                    fields = loginAttemptRegexp.FindStringSubmatch(str)
+                    l = extractLoginAttempt(fields)
+                    l.UnixTime = (strconv.FormatInt(elem1.EventOutputUnixTime, 10)[0:13])
+                    l.ContainerID = elem1.ContainerID
+                    logrus.Debug("elem0 == pass and elem1 == login")
+    
+                case matchesRegexpTrace(elem1, passwordInputRegexp) && matchesRegexpTrace(elem0, loginAttemptRegexp):
+                    str := strings.Replace(elem1.EventInfo, "\n", "", -1)
+                    fields := passwordInputRegexp.FindStringSubmatch(str)
+                    p = extractPassword(fields)
+                    str = strings.Replace(elem0.EventInfo, "\n", "", -1)
+                    fields = loginAttemptRegexp.FindStringSubmatch(str)
+                    l = extractLoginAttempt(fields)
+                    l.UnixTime = (strconv.FormatInt(elem0.EventOutputUnixTime, 10)[0:13])
+                    l.ContainerID = elem0.ContainerID
+                    logrus.Debug("elem1 == pass and elem0 == login")
+    
+                case matchesRegexpTrace(elem0, passwordInputRegexp) && matchesRegexpTrace(elem1, passwordInputRegexp):
+                    logrus.Debugf("[parseTraces] two password blocks, Discarding")
+                    continue
+    
+                case matchesRegexpTrace(elem1, loginAttemptRegexp) && matchesRegexpTrace(elem0, loginAttemptRegexp):
+                    logrus.Debugf("[parseTraces] two login blocks, Discarding")
+                    continue
+    
+                default:
+                    if elem0.ContainerID == "" {
+                        switch {
+                        case matchesRegexpTrace(elem1, loginAttemptRegexp):
+                            str := strings.Replace(elem1.EventInfo, "\n", "", -1)
+                            fields := loginAttemptRegexp.FindStringSubmatch(str)
+                            l = extractLoginAttempt(fields)
+                            l.UnixTime = (strconv.FormatInt(elem1.EventOutputUnixTime, 10)[0:13])
+                            p.Password = `'NOTFOUND'`
+                            l.ContainerID = elem1.ContainerID
+                            logrus.Debugf("[parseTraces] no password found :-(")
+                            logrus.Debug("elem0 == [] and elem1 == login")
+                        }
+                    } else if elem1.ContainerID == "" {
+                        switch {
+                        case matchesRegexpTrace(elem0, loginAttemptRegexp):
+                            str := strings.Replace(elem0.EventInfo, "\n", "", -1)
+                            fields := loginAttemptRegexp.FindStringSubmatch(str)
+                            l = extractLoginAttempt(fields)
+                            l.UnixTime = (strconv.FormatInt(elem0.EventOutputUnixTime, 10)[0:13])
+                            p.Password = `'NOTFOUND'`
+                            l.ContainerID = elem0.ContainerID
+                            logrus.Debugf("[parseTraces] no password found :-(")
+                            logrus.Debug("elem0 == login and elem1 == [] ")
+                        }
+                    } else {
+                        logrus.Fatalf("[parseTraces] unexpected error, 
+                        we didnt receive any block %+v %+v", trace0, trace1)
+                    }
+    
+                }
+                capture.Password = p.Password
+                capture.ContainerID = l.ContainerID
+                capture.Hostname = l.Hostname
+                capture.IP = l.IP
+                capture.Successful = l.Successful
+                capture.UnixTime = l.UnixTime
+                capture.User = l.User
+    
+                if validateCapture(capture) {
+                    logrus.Debugf("[parseTraces] adding capture %+v", capture)
+                    LoginAttempts = append(LoginAttempts, capture)
+                }
+    
+            }
+        }
+        return LoginAttempts
+    }
+    
+    func ExtractAttackerLoginAttempt(file string) []AttackerLoginAttempt {
+        //sysdig -j -A -F -r srv02.superprivyhosting.com.2017-05-31-06-54.part2 
+        // container.id!=host and fd.num=4 and evt.is_io_write=true 
+        // and evt.dir = '<' and proc.name=sshd | egrep -B1 PAM:
+    
+        sysdig := exec.Command("/usr/bin/sysdig", "-pc", "-j", "-F", "-A", "-r", file, 
+                  "container.id!=host", "and", "fd.num=4", "and", 
+                  "evt.is_io_write=true", "and", "evt.dir", 
+                  "=", "'<'", "and", "proc.name=sshd")
+        egrep := exec.Command("egrep", "-B1", "PAM:")
+        removedashes := exec.Command("egrep", "-v", "\\-")
+        output, stderr, err := helpers.Pipeline(sysdig, egrep, removedashes)
+        logrus.Debug(sysdig)
+        logrus.Debug(egrep)
+        logrus.Debugf("STDERR: %s", stderr)
+        if err != nil {
+            if checkSysdigFailure(output, stderr, file) {
+                logrus.Debugf("[ExtractAttackerActivity] Unable to launch sysdig %s", err)
+                return nil
+            }
+        }
+        var traces []Trace
+    
+        scanner := bufio.NewScanner(bytes.NewReader(output))
+        for scanner.Scan() {
+            var tr Trace
+            line := scanner.Text()
+            if len(line) == 0 {
+                continue
+            }
+            logrus.Debugf("[ExtractAttackerLoginAttempt] readed \n %s", line)
+            if err := json.Unmarshal([]byte(line), &tr); err != nil {
+                logrus.Debugf("[ExtractAttackerLoginAttempt] Unable to get JSON %s ", err)
+                logrus.Debugf("[ExtractAttackerLoginAttempt] Unable to parse trace from %s", line)
+                continue
+            }
+            tr.EventInfo = strings.Replace(tr.EventInfo, "\n", "", -1)
+            switch {
+            case !loginAttemptRegexp.MatchString(tr.EventInfo) && !passwordInputRegexp.MatchString(tr.EventInfo):
+                logrus.Debugf("[extractAttackerLoginAttempt] invalid trace, discarding it")
+                continue
+            case strings.Contains(tr.EventInfo, "ssh:notty"):
+                logrus.Debugf("[extractAttackerLoginAttempt] invalid trace, discarding it")
+                continue
+            case loginAttemptRegexp.MatchString(tr.EventInfo) && !strings.Contains(tr.EventInfo, "PAM:authentication"):
+                logrus.Debugf("[extractAttackerLoginAttempt] we are only interested on auth events from PAM")
+                continue
+            default:
+                traces = append(traces, tr)
+            }
+    
+        }
+        if err := scanner.Err(); err != nil {
+            logrus.Fatalf("[ExtractAttackerLoginAttempt] Unable to parse trace %s", err)
+        }
+        logrus.Debugf("num of traces %s", len(traces))
+        sort.Sort(ByEventNumber(traces))
+        LoginAttempts := parseTraces(traces)
+        return LoginAttempts
+    }
+    
+    //it reads raw data from command and outputs
+    //a formatted list of lines
+    func parseActivities(lines []byte) []string {
+        headerRegexp := regexp.MustCompile(`(\d+) (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{9}) (\w+)@(\w+)\)`)
+        scanner := bufio.NewScanner(bytes.NewReader(lines))
+        var buffer bytes.Buffer
+        AttackerActivityLog := make([]string, 0)
+    
+        for scanner.Scan() {
+            line := scanner.Text()
+            if len(line) == 0 {
+                continue
+            }
+            if headerRegexp.MatchString(line) {
+                if buffer.Len() > 0 {
+                    AttackerActivityLog = append(AttackerActivityLog, buffer.String())
+                    buffer.Reset()
+                }
+                buffer.WriteString(line)
+            } else {
+                buffer.WriteString(line)
+            }
+    
+        }
+        return AttackerActivityLog
+    }
+    
+    func isTraceFileOk(output, file string) bool {
+        var isOk bool
+        if strings.Contains(output, "Is the file truncated?") {
+            isOk = false
+            logrus.Debugf("looks like file is not complete, refusing to continue")
+        } else if ( strings.Contains(output, "error reading from file") 
+               || strings.Contains(output, "unexpected end of file") ) {
+            logrus.Debugf("looks like file is wrong, refusing to continue")
+            isOk = false
+        } else {
+            logrus.Debugf("looks like file is fine, why are we here?")
+            isOk = true
+        }
+        return isOk
+    }
+    
+    func checkSysdigFailure(stdout, stderr []byte, file string) bool {
+        sErr := string(stderr[:])
+        sOut := string(stdout[:])
+        if !isTraceFileOk(sErr, file) {
+            logrus.Debugf("STDERR: %s", sErr)
+            logrus.Debugf("[checkSysdigFailure] unable to read trace %s refusing to continue", file)
+            return true
+        } else if !isTraceFileOk(sOut, file) {
+            logrus.Debugf("STDOUT: %s", sOut)
+            logrus.Debugf("[checkSysdigFailure] unable to read trace %s refusing to continue", file)
+            return true
+        }
+        return false
+    }
+    
+    func ExtractAttackerActivity(file string) []AttackerActivity {
+    
+        //sysdig -pc -r test/srv02.superprivyhosting.com.2017-05-31-06-54.part2 -c spy_users
+        // '100 disable_color' container.id != host | grep -v 'sshd -R'
+        sysdig := exec.Command("/usr/bin/sysdig", "-pc", "-c", "spy_users", "-r", file, "container.id!=host")
+        egrep := exec.Command("egrep", "-v", `sshd.*R`)
+    
+        output, stderr, err := helpers.Pipeline(sysdig, egrep)
+        if err != nil {
+            if checkSysdigFailure(output, stderr, file) {
+                logrus.Debugf("[ExtractAttackerActivity] Unable to launch sysdig %s", err)
+                return nil
+    
+            }
+            // if stderr is not empty, then something nasty happened if not is just an empty file
+        }
+        AttackerActivityLog := parseActivities(output)
+        AttackerActivityEntries := make([]AttackerActivity, 0)
+        ActivityRegexp := regexp.MustCompile(`(\d+) (\d{4}-\d{2}-\d{2} 
+        \d{2}:\d{2}:\d{2}\.\d{9}) (\w+)@(\w+)\) (.*)`)
+        for _, logentry := range AttackerActivityLog {
+            subfields := ActivityRegexp.FindStringSubmatch(logentry)
+            if len(subfields) == 0 {
+                continue
+            }
+            var entry activitylog
+            entry.PID = subfields[1]
+            entry.User = subfields[3]
+            entry.Datetime = subfields[2]
+            entry.ContainerID = subfields[4]
+            entry.Command = subfields[5]
+            logrus.Debugf("entry parsed %+v", entry)
+            if validateEntry(entry) {
+                logrus.Debugf("entry validated")
+                var data AttackerActivity
+                data.Activity = entry.Command
+                data.ContainerID = entry.ContainerID
+                data.SourceFile = file
+                data.PID = entry.PID
+                data.User = entry.User
+                data.Datetime = entry.Datetime
+                AttackerActivityEntries = append(AttackerActivityEntries, data)
+    
+            }
+    
+        }
+        return AttackerActivityEntries
+    }
+    
+    
+\end{minted}
+\captionof{listing}{metadata\_extractor - handlers/ssh.go \label{listing:metadata-extractor-handlers-ssh}}
 
 %%% Local Variables: 
 %%% mode: latex

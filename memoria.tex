@@ -374,7 +374,7 @@ Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura
 \section{Análisis de soluciones para el recolector}
 
 
-\subsection{registro de las sondas}
+\subsection{Registro de las sondas}
 
 El recolector debe conocer el número de sondas desplegadas para poder extraer información de ellas o al menos validar
 los eventos que estas envien.
@@ -483,7 +483,7 @@ Para este proyecto escogemos la opción de utilizar un recolector de \emph{logs}
 En concreto se utilizará \emph{rsyslog} como recolector de \emph{logs} por sus pocas necesidad de memoria y CPU y su estabilidad. Las capacidades de modificación de \emph{logs}
 antes de su envio no son necesarias para este proyecto y \emph{logstash} y \emph{fluentd} tienen un \emph{footprint} de uso de memoria mucho mas elevado.
 
-\subsection{recoleccion de trazas}
+\subsection{Recolección de trazas}
 
 Las trazas generadas por la \emph{honeypot} seran ficheros binarios de un tamaño elevado ($>$ 25 MiB), en el se recogerán todos los eventos del sistema instrumentalizado (\emph{syscalls},datos,\ldots).
 Tendremos que buscar un sistema que nos permita recolectar todas las trazas de todas las sondas. Es importante notar que
@@ -692,7 +692,7 @@ Según algunas fuentes el versionado por URL es más popular (\cite{3scale-versi
     GET & /v1/\emph{{aplicacion}}/feed  \\
     \hline
     \end{tabular}
-    \caption{\label{tab:definicion-api} Definicion de la api}
+    \caption{\label{tab:definicion-api} Definicion de API externa, de clientes.}
     \end{table}
 
     Como puede verse en el cuadro \ref{tab:definicion-api}, solo necesitaremos dos funciones inicialmente para nuestra API, una donde se pidan incidentes. 
@@ -828,7 +828,7 @@ A continuación incluimos la arquitectura final de la sonda, que puede observars
     \label{fig:arquitectura-sonda}
   \end{figure}
 
-\subsection{elección del sistema operativo de la sonda}
+\subsection{Elección del sistema operativo de la sonda}
 \label{subsec:sonda-so}
   
 La eleccion del sistema operativo tiene una componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securizacion,
@@ -1311,7 +1311,7 @@ y creará un nuevo container.
 \label{subsec:securizacion-sonda}
 Hay diversas medidas de seguridad a aplicar en la sonda. Si seguimos el principio de defensa en profundidad \cite{wikipedia-defense-in-depth}, aplicaremos diversas capas de proteccion en diferentes sistemas.
 
-\subsubsection{securizacion del sistema operativo}
+\subsubsection{Securizacion del sistema operativo}
 
 En nuestro caso al escoger \emph{Debian} podremos utilizar capacidades como el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando 
 se publiquen actualizaciones de seguridad. 
@@ -1379,7 +1379,7 @@ Dicho modulo se encarga de:
     \item Configura SSH para no usar algoritmos de cifrado debiles. 
 \end{itemize}
 
-\subsection{securizacion del sistema de containers}
+\subsection{Securizacion del sistema de containers}
 
 Las opciones de securización vienen condicionadas por haber escogido \emph{Docker} como sistema ejecución de containers
 y \emph{Debian} como sistema operativo. 
@@ -1614,6 +1614,300 @@ el resto del tráfico se entregará con el ancho de banda disponible.
 \end{minted}
 \captionof{listing}{\emph{tc\_manager} script que controla ancho de banda usado en \emph{Docker} \label{listing:tc-manager-script}}
 \bigskip
+
+
+\section{Resultados finales: Arquitectura del colector}
+
+El servidor que realiza las funciones de recolector, también realiza las funciones
+de \emph{backend} y \emph{frontend} de la API de clientes. La razón principal
+es economica, y si la carga de la API o el almacenamiento disponible se queda pequeño
+habría que incorporar más servidores para la sostenibilidad del proyecto.
+
+Igualmente ésta situación provoca una situación en la que éste servidor se convierte en un 
+punto de fallo, si el servidor cae, la recolección de trazas y la API dejarán de funcionar.
+
+Sin embargo, en el diagrama \ref{fig:arquitectura-general}, se recogen todos los procesos involucrados
+en la recolección y la API y su interacción con las sondas. Dicha interacción y relación no cambiaria pese
+a que añadamos más servidores por razones de escalabilidad y resiliencia.
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.5]{images/collector_architecture}
+    \caption{Diagrama de arquitectura del recolector}
+    \label{fig:arquitectura-recolector}
+  \end{figure}
+
+\subsubsection{Microservicios}
+
+El conjunto \textbf{NO} sigue una arquitectura de microservicios \cite{fowler-microservices}, pero sigue una arquitectura
+orientada a servicios (SoA). En general cada elemento del diagrama \ref{fig:arquitectura-recolector} reune las siguientes
+caracteristicas:
+
+\begin{itemize}
+    \item Son desplegados en un \emph{container}, y tiene un ciclo de vida independiente. Por ejemplo, se puede desplegar una nueva
+    versión de \emph{metadata\_extractor}, el procesador de trazas, sin tener que desplegar otros componentes de la arquitectura
+    siempre y cuando no haya cambios en la interfaz común entre componentes.
+    \item Realizan una sola función o un número limitado de funciones bien definidas.
+    \item Se asume que cada elemento puede compartir la red con otro elemento. Esto es asi porque se lanzan en la misma maquina, y ayuda
+    a simplificar la diagnosis en caso de problemas a costa de aumentar el acoplamiento.
+    \item Existe acoplamiento entre elementos, esto va en contra de la arquitectura de microservicios.
+    \item Se comparten bases de datos, esto va en contra de la arquitectura de microservicios.
+\end{itemize}
+
+No utilizar una arquitectura de microservicios creemos que es una decisión correcta para este caso, puesto que cambiar la arquitectura
+actual a una de microservicios requeriria la introducción posiblemente de un \emph{backbone} de eventos o un sistema de colas y del despiece de la
+base de datos y replicación para dotar a cada microservicio con su base de datos independiente.
+
+Además, esto solo tendría sentido si el equipo técnico a cargo del proyecto fuese tan elevado que el coste de asumir esta arquitectura
+(proceso de construcción independiente para cada servicio, test, definición de interfaces \ldots) lo justificase y no es el caso.
+
+\subsection{API de registro para las sondas}
+\label{subsec:sinker-registry-api}
+
+Como se comentaba en la descripción de riesgos de la sonda \ref{fig:riesgo_sonda}, las sondas son maquinas efimeras que se
+crean y destruyen con cierta frecuencia, pero de las que necesitamos metadatos tales como el proveedor del servidor, 
+la región geografica en la que se encuentra o la dirección IP.
+
+Por ello, necesitamos una API de registro donde se almacenen los datos de estas sondas. 
+
+\subsubsection{Contrato de la API}
+
+\begin{tabular}[!h]{|c|c|c|}
+    \hline
+    \thead{Verbo HTTP} & \thead{URL} & \thead{comentarios} \\
+    \hline
+    GET & /v1/probe/ & Listado de todas las sondas. \\
+    \hline
+    GET & /v1/probe/ip/:ip & Listado de sondas que tengan la IP :ip. \\
+    \hline
+    GET & /v1/probe/:id  & Listado de sondas que tengan el ID :id. \\
+    \hline
+    GET & /v1/probe/ssh/:id & Lista de claves SSH de la sonda con ID :id \\
+    \hline
+    GET & /v1/probe/name/:fqdn & Lista de sondas con el nombre DNS :fqdn \\
+    \hline
+    POST & /v1/probe & Crear una nueva sonda, el \emph{payload} puede verse en código \ref{listing:json-api-sinker} \\
+    \hline
+    PUT & /v1/probe/disable/:id & Deshabilita la sonda con ID :id, no sale en listados \\
+    \hline
+    PUT & /v1/probe/enable/:id & habilita la sonda con ID :id \\
+    \hline
+    PUT & /v1/probe/tracespath/:id & Modifica directorio de trazas para sonda con ID :id \\
+    \hline
+    DELETE & /v1/probe/delete/:id & Elimina sonda del registro con ID :id \\
+    \hline
+    \end{tabular}
+    \captionof{table}{\label{tab:definicion-sinker-api} Definicion de la api}
+    
+
+    \begin{minted}[fontsize=\footnotesize]{json}
+        {
+            ProbeID: "JyuU2_rTy2uU4x37Q_rURqpknnFX1VEWpZzhFg==",
+            fqdn: "srv01.superprivyhosting.com",
+            ipv4: "45.32.157.125",
+            ipv6: "",
+            provider: "Vultr",
+            geolongitude: "8.728100",
+            geolatitude: "50.117199",
+            country: "Germany",
+            sshprivateKey: "X",
+            sshpublicKey: "Y",
+            tracespath: "/var/log/traces",
+            enabled: true,
+            created_at: "2017-07-07T05:16:56.207424127Z",
+            updated_at: "2017-07-21T09:50:18.528418195Z",
+            disabled_at: "0001-01-01T00:00:00Z"
+        }
+    \end{minted}
+    \captionof{listing}{Ejemplo de listado de una sonda en JSON de la \emph{Sinker Registry API} \label{listing:json-api-sinker}}
+
+La API realiza las siguientes convenciones:
+
+\begin{itemize}
+    \item Cada identificador es unico, no habrá dos sondas con el mismo identificador.
+    \item Cada IP estará registrada a una sonda y a un nombre DNS, un mismo servidor no puede ofrecer más de una sonda (aunque si multiples servicios).
+    \item Aunque no está implementado, si añadiesemos la componente temporal se podrian habilitar, deshabilitar y consultar las sondas existentes por fecha además
+    de por identificador, IP o nombre DNS.
+\end{itemize}
+
+\subsubsection{Clientes de \emph{Sinker Registry API}}
+
+La API es de uso interno, no es visible desde el exterior, sólo es visible para las sondas y para el servicio de \emph{metadata\_extractor}.
+Cuando vía \emph{Ansible} se crea y se configura una nueva sonda, como parte del \emph{playbook} , listado de pasos para crear la sonda , se
+realiza una llamada a la API para registrarla. Dicho proceso puede verse en detalle en el diagrama de secuencia UML \ref{fig:uml-sequence-post-probe}.
+Si el registro ha sido exitoso la API devolverá un código 201 y un \emph{JSON} que incluye el ID de la sonda recien creada.
+
+El diagrama de secuencia UML \ref{fig:uml-sequence-get-probe} muestra como se obtiene el listado de sondas a traves de su IP y la interacción
+de diversos objetos.
+
+\begin{figure}[htp]
+    \centering
+      \includegraphics[scale=0.6]{images/UMLSequenceGetProbe}
+    \caption{Diagrama de secuencia de UML de la API: GET}
+    \label{fig:uml-sequence-get-probe}
+\end{figure}
+
+\begin{figure}[htp]
+    \centering
+      \includegraphics[scale=0.6]{images/UMLSequencePostProbe}
+    \caption{Diagrama de secuencia de UML de la API: POST}
+    \label{fig:uml-sequence-post-probe}
+\end{figure}
+
+\subsubsection{Implementación de la API}
+\label{sinkers-regeistry-api-implementacion}
+
+la API sigue el patrón MVC y se diseña como API REST, se escoge \emph{Go} como lenguaje de programación para implementarla, se escoge \emph{Go} 
+como lenguaje para implementarla para mantener la homogeneidad con otras herramientas del proyecto, facilitar la reutilización de código,
+por ser fácil de distribuir y desplegar (acaba siendo un binario estatico), tener un muy buen soporte a la concurrencia y una biblioteca
+estandar de HTTP muy versatil y potente.
+
+Aunque la biblioteca estandar de \emph{Go} ya incluye un paquete de HTTP potente que podemos utilizar, se decide utilizar un \emph{framework} 
+que permita la creación de la API de manera más rapida. Escogemos \emph{Beego} como \emph{framework} por ofrecer un \emph{ORM},
+\emph{routers HTTP} y una \emph{CLI} para probar y desplegar la API entre otras funcionalidades y ser simple y completo para nuestros
+propositos.
+
+\subsection{Extracción de datos y recolección de trazas}
+\label{subsec:extraccion-trazas}
+
+El servicio \emph{metadata\_extractor} se encarga de la recolección de trazas y de la extracción de datos de las mismas.
+\emph{metadata\_extractor} es una aplicación de consola escrita en \emph{Go}, depende de la API de sondas y aunque puede prescindir de ella
+en el proceso habitual también depende de \emph{Elasticsearch}.
+
+\begin{minted}[fontsize=\scriptsize]{console}
+    ./metadata_extractor -h
+    This silly application reads from sysdig traces from potted containers 
+    and extracts data from them. It has
+    two functioning modes, one that process capture files from arguments 
+    and other that watches changes in filesystem through fanotify and process them
+    
+    Usage:
+      metadata_extractor [command]
+    
+    Available Commands:
+      file        sync files from ssh potted containers
+      ssh         extracts metadata from ssh potted containers
+    
+    Flags:
+      -c, --config string               config file (default is $PWD/.metadata_extractor.yaml 
+                                            and $HOME/.metadata_extractor.yaml)
+          --elasticsearch_host string   host to connect to elasticsearch
+          --elasticsearch_port string   port to connect to elasticsearch
+      -f, --follow                      follow traces created on fs, needs -i parameter
+      -o, --output string               where to output between cli and es
+      -i, --probeid string              probe id on sinkers API
+      -s, --sinker_api_url string       sinker_api_url (default "http://main01.superprivyhosting.com:38080")
+      -d, --tracebasepath string        Where the traces are stored  (default "/var/log/traces")
+      -v, --verbose                     gives detailed logging
+    
+    Use "metadata_extractor [command] --help" for more information about a command.
+\end{minted}
+\captionof{listing}{texto de ayuda de \emph{metadata\_extractor} \label{listing:metadata-extractor}}
+\bigskip
+\emph{metadata\_extractor} puede leer de un fichero de configuración en lugar de ser pasado como uno de los argumentos descritos en la ayuda, en caso
+de proporcionar ambos el argumento siempre tendrá prioridad.
+
+
+
+% que es, es una CLI hecha en GoLang
+% dos funciones principales, recoge trazas usando rsync, para eso consulta a la Sinker registry API donde hay
+% claves ssh que puede usar para acceder al directorio de trazas.
+
+% el otro es procesar las trazas, tienes dos modos o se le pasa como argumento una ruta y procesara los ficheros que encuentre
+% o se le pasa u -f y procesara los ficheros que se vayan escribiendo en un directorio que escucha.
+% los ficheros llegan a traves de fsnotify.
+
+\subsubsection{Recolectando trazas}
+
+% rsync a JIERRO contra sondas, limitado en bandwidth a X MiB
+
+\subsubsection{Procesando trazas de containers \emph{SSH}}
+
+% esto es un marron increible y tal como se hace ahora es lo siguiente:
+% se lee el fichero de captura usando sysdig y mas filtros, y se saca la salida del proceso SSH.
+% se agrupa por hilos de CPU y hay se hacen greps a CASCOPORRO.
+
+% esto es una guarrada y habria que procesar el fichero binario, pero se ha de decir
+% que SSH tiene secreto perfecto y es la unica manera de obtener información sin meternos en
+% medio del protocolo.
+
+% hay que explicar esto muy bien que sino no vale de nada este puto proyecto.
+
+% guardamos procesado en dos indice de ES, por mes, con alias. Hay que explicar esto bien sino no vale de nada
+% este puto proyecto.
+
+\subsubsection{Despliegue de metadata\_extractor}
+\begin{minted}[fontsize=\footnotesize]{console}
+    version: "2"
+    
+    services:
+      metadata_extractor_srv01_file:
+        build:
+          context: . #current dir as build context
+          args:
+            - CONFIGFILE=srv01metadataextractor.yaml
+        image: metadata_extractor_srv01
+        command: ./metadata_extractor -v file
+        container_name: metadata_extractor_srv01_file
+        network_mode: "host"
+        restart: always
+        volumes:
+          - /var/log/traces:/var/log/traces
+         
+      metadata_extractor_srv01_ssh:
+        build:
+          context: . #current dir as build context
+          args:
+            - CONFIGFILE=srv01metadataextractor.yaml
+        image: metadata_extractor_srv01
+        command: ./metadata_extractor -v ssh -f
+        container_name: metadata_extractor_srv01_ssh
+        network_mode: "host"
+        restart: always
+        volumes:
+          - /var/log/traces:/var/log/traces
+         
+\end{minted}
+\captionof{listing}{\emph{docker-compose} de \emph{metadata\_extractor} \label{listing:metadata-extractor-docker-compose}}
+
+
+\begin{minted}[fontsize=\footnotesize]{console}
+    [Unit]
+    Description=Launch metadataextractor
+    After=docker.service
+    BindsTo=docker.service
+    After=elasticsearchd.service
+    BindsTo=elasticsearchd.service
+    After=sinkerregistryapid.service
+    BindsTo=sinkerregistryapid.service
+    
+    [Service]
+    Type=forking
+    ExecStart=/usr/local/sbin/metadataextractord start
+    ExecStop=/usr/local/sbin/metadataextractord stop
+    Requires=docker.service
+    RemainAfterExit=no
+    Restart=always
+    PIDFile=/var/run/metadataextractord.pid
+    
+    [Install]
+    WantedBy=multi-user.target    
+         
+\end{minted}
+\captionof{listing}{Unidad \emph{systemd} que levanta el \emph{daemon} de \emph{metadataextractord} \label{listing:metadata-extractor-systemd}}
+
+
+\subsubsection{Trabajo futuro}
+
+% si añadimos containers de otros protocolos habra que añadir procesado.
+
+
+\subsection{Recolección de \emph{logs} y procesado de alertas}
+
+
+
+\subsection{Modelo de base de datos}
+
 
 
 
