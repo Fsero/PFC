@@ -1788,9 +1788,10 @@ en el proceso habitual también depende de \emph{Elasticsearch}.
       file        sync files from ssh potted containers
       ssh         extracts metadata from ssh potted containers
     
-    Flags:
+      Flags:
+      -b, --bandwidthlimit string       Amount of bandwidth in KiB used for syncing files (default "1024")
       -c, --config string               config file (default is $PWD/.metadata_extractor.yaml 
-                                            and $HOME/.metadata_extractor.yaml)
+                                        and $HOME/.metadata_extractor.yaml)
           --elasticsearch_host string   host to connect to elasticsearch
           --elasticsearch_port string   port to connect to elasticsearch
       -f, --follow                      follow traces created on fs, needs -i parameter
@@ -1799,8 +1800,6 @@ en el proceso habitual también depende de \emph{Elasticsearch}.
       -s, --sinker_api_url string       sinker_api_url (default "http://main01.superprivyhosting.com:38080")
       -d, --tracebasepath string        Where the traces are stored  (default "/var/log/traces")
       -v, --verbose                     gives detailed logging
-    
-    Use "metadata_extractor [command] --help" for more information about a command.
 \end{minted}
 \captionof{listing}{texto de ayuda de \emph{metadata\_extractor} \label{listing:metadata-extractor}}
 \bigskip
@@ -1813,30 +1812,93 @@ de proporcionar ambos el argumento siempre tendrá prioridad.
 % dos funciones principales, recoge trazas usando rsync, para eso consulta a la Sinker registry API donde hay
 % claves ssh que puede usar para acceder al directorio de trazas.
 
-% el otro es procesar las trazas, tienes dos modos o se le pasa como argumento una ruta y procesara los ficheros que encuentre
-% o se le pasa u -f y procesara los ficheros que se vayan escribiendo en un directorio que escucha.
-% los ficheros llegan a traves de fsnotify.
 
-\subsubsection{Recolectando trazas}
+\subsubsection{Recolección de trazas}
 
-% rsync a JIERRO contra sondas, limitado en bandwidth a X MiB
+\emph{metadata\_extractor} recolectará trazas si se le pasa como argumento el comando \emph{file}. Necesitará los siguientes
+parametros:
 
-\subsubsection{Procesando trazas de containers \emph{SSH}}
+\begin{itemize}
+    \item[\textbf{-i}] Ya que cada sonda puede almacenar trazas en una ruta diferente, necesitamos pasarle el 
+                       id de la sonda para que \emph{metadata\_extractor} consulte en \emph{Sinker Registry API}
+                       la ruta indicada la ruta, y la clave SSH que utilizará para descargar las trazas. Para este fin
+                       las sondas crean un usuario denominado \emph{file} con únicamente permisos para leer trazas en las sondas, y
+                       se crean claves SSH para dicho usuario que se publican en la API.
+    \item[\textbf{-s}] La URL donde la API de \emph{Sinker Registry} se encuentra, tiene un valor por defecto pero puede ser modificando
+                       para realizar pruebas y/o para tener diversos entornos.
+    \item[\textbf{-d}] La ruta donde \emph{metadata\_extractor} escribirá las trazas recolectadas, para guardarlas en el recolector
+                       montamos un directorio del \emph{host} como volumen en \emph{Docker} (véase Código \ref{listing:metadata-extractor-docker-compose})
+    \item[\textbf{-b}] Limite de ancho de banda utilizado para descargar trazas.
+\end{itemize}
 
-% esto es un marron increible y tal como se hace ahora es lo siguiente:
-% se lee el fichero de captura usando sysdig y mas filtros, y se saca la salida del proceso SSH.
-% se agrupa por hilos de CPU y hay se hacen greps a CASCOPORRO.
+En el diagrama de secuencia \ref{fig:uml-sequence-file-metadata-extractor} se describe la operación de recolección y la interacción con la API de \emph{Sinker Registry}.
 
-% esto es una guarrada y habria que procesar el fichero binario, pero se ha de decir
-% que SSH tiene secreto perfecto y es la unica manera de obtener información sin meternos en
-% medio del protocolo.
+\begin{figure}[htp]
+    \centering
+      \includegraphics[scale=0.4]{images/UMLSequenceFileOp}
+    \caption{Diagrama de secuencia UML del comando file de \emph{metadata\_extractor}}
+    \label{fig:uml-sequence-file-metadata-extractor}
+\end{figure}
 
-% hay que explicar esto muy bien que sino no vale de nada este puto proyecto.
+\subsubsection{Procesando trazas de \emph{containers} \emph{SSH}}
 
-% guardamos procesado en dos indice de ES, por mes, con alias. Hay que explicar esto bien sino no vale de nada
-% este puto proyecto.
+El otro comando implementado en \emph{metadata\_extractor} es el procesado de trazas para extraer información relativa abre
+SSH, que es el protocolo que tenemos implementado en la \emph{honeypot}. El comando SSH utiliza los siguientes parametros:
+
+\begin{itemize}
+    \item[\textbf{-s}] Al igual que en para ficheros la URL donde se encuentra desplegada la API.
+    \item[\textbf{-i}] El id de la sonda de la que procesaremos las trazas, se necesita para consultar la API y obtener metadatos
+    sobre la sonda que serán incluidos en el formato de salida de la traza. 
+    \item[\textbf{-f}] Este parametro activa la escucha continua de eventos de creación de ficheros en la ruta definida por el parametro \textbf{-d}. Básicamente 
+    se utiliza el subsistema \emph{inotify} (véase \cite{wiki-inotify}) del kernel para recibir eventos de modificaciones en el sistema de archivos. Para cada
+    evento de creación recibido se intenta procesar la traza. Si no se pasa este parametro, sólo se procesaran los ficheros pasados como argumento.
+    \item[\textbf{-o}] Donde se escribiran los datos extraidos, actualmente se implementan dos modulos de escritura, escritura a consola textual
+    y escritura a la base de datos \emph{Elasticsearch}, en el caso de seleccionar esta última hay que indicar donde se encuentra la interfaz HTTP de \emph{Elasticsearch} y
+    en que puerto (\emph{--elasticsearch\_host} y  \emph{--elasticsearch\_port}). 
+\end{itemize}
+
+El detalle de la operación de extracción puede observarse en el diagrama de secuencia \ref{fig:uml-sequence-ssh-metadata-extractor} y en el código \ref{listing:metadata-extractor-handlers-ssh} listado en el anexo. 
+El proceso de extracción de datos se basa en explorar la salida del proceso \emph{SSH}, \emph{SSH} es un protocolo de secreto perfecto (véase \cite{wiki-fsecrecy}) y
+por tanto es imposible para nosotros inteceptar la comunicacion entre cliente y servidor. La única opción para obtener la información de la comunicación es a través
+de la memoria del proceso que realiza la función de servidor, el handicap de este enfoque es que no tenemos el contexto de la comunicación y no siempre podremos
+mantener el orden cronologico de eventos.
+
+Afortunadamente, podemos utilizar el orden cronologico de eventos de la CPU como indicador cronologico y la salida del proceso SSH que nos da información contextual. Lamentablamente,
+esto implica que en un contexto determinado podemos superponer eventos y ordenarlos de manera incorrecta. El proceso que seguimos es:
+
+\begin{enumerate}
+    \item Ejecutamos \emph{sysdig} sobre la traza con un filtro más concreto para extraer la información que nos interesa. Por ejemplo, para extraer la información
+    del intento de \emph{login} en el servicio \emph{SSH} (línea 230 del código \ref{listing:metadata-extractor-handlers-ssh})o las ordenes ejecutadas en una sesión \emph{SSH} (línea 348 del código (línea 230 del código \ref{listing:metadata-extractor-handlers-ssh}).
+    \item Analizamos la salida de \emph{sysdig} y obtenemos un listado de bloques de actividad y de \emph{login}. En el caso del \emph{login}, la salida nos devuelve
+    el evento del intento de \emph{login}, su estado (si pudo iniciar sesión o no) y el nombre del usuario que realizó el intento, sin embargo, la contraseña se lee de manera independiente puesto que el cliente 
+    envia el \emph{challenge} usuario y contraseña, el servidor los comprueba y registra el resultado del intento de inicio de sesión. Al poder existir varios intentos de conexión de manera concurrente,
+    tenemos que asegurarnos que no asociamos una contraseña a un usuario que intenta otra conexión. Para \emph{intentar} conseguir esto, ordenamos los eventos de \emph{login} por fecha e ID del hilo (línea 38 a 48 del código \ref{listing:metadata-extractor-handlers-ssh-models}) agrupandolos por el identificador del hilo del proceso (línea 93 a 103 del código \ref{listing:metadata-extractor-handlers-ssh}), 
+    y analizamos los eventos recibidos intentando asociar contraseña con el usuario que realiza el intento. A veces, el usuario no envia contraseña, esto será marcado como `NOTPASSWORD` a la hora del analisis.
+\end{enumerate}
+
+Pese a que el proceso descrito puede parecer complejo, tiene la ventaja de que podemos analizar cualquier servidor SSH sin modificar el código del servidor SSH
+lo que hace que este metodo, con sus limitaciones (no se obtienen las claves SSH que se intentan, a veces se pierde la contraseña del intento \ldots), sea potente y proporcione datos de interés.
+
+Los datos extraidos se guardan en \emph{Elasticsearch} donde podrán ser consultados por otros servicios, en dos indices diferentes, uno para \emph{logins}
+y otro para \emph{actividades}.
+
+\begin{sidewaysfigure}[htp]
+    \centering
+    \includegraphics[scale=0.4]{images/UMLSequenceSSHOp}
+    \caption{Diagrama de secuencia UML del comando SSH de \emph{metadata\_extractor}}
+    \label{fig:uml-sequence-ssh-metadata-extractor}
+\end{sidewaysfigure}
 
 \subsubsection{Despliegue de metadata\_extractor}
+
+
+Como en otros servicios ya explicados, creamos un \emph{daemon} que se encargará de lanzar los \emph{containers} del servicio \emph{metadata\_extractor}. Se ejecutan dos containers
+por cada sonda, uno que recolecta trazas y otro que las procesa. También se puede lanzar un container de manera manual para reprocesar algunas trazas.
+
+En el código \ref{listing:metadata-extractor-systemd} puede verse la unidad de \emph{systemd} que define al \emph{daemon} y sus dependencias,
+el \emph{daemon} se encarga de lanzar un script similar al descrito en el código \ref{listing:containersvc-bash} que inicia el \emph{docker-compose}
+descrito en el código \ref{listing:metadata-extractor-docker-compose}.
+
 \begin{minted}[fontsize=\footnotesize]{console}
     version: "2"
     
@@ -1896,10 +1958,6 @@ de proporcionar ambos el argumento siempre tendrá prioridad.
 \end{minted}
 \captionof{listing}{Unidad \emph{systemd} que levanta el \emph{daemon} de \emph{metadataextractord} \label{listing:metadata-extractor-systemd}}
 
-
-\subsubsection{Trabajo futuro}
-
-% si añadimos containers de otros protocolos habra que añadir procesado.
 
 
 \subsection{Recolección de \emph{logs} y procesado de alertas}
