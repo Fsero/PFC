@@ -1094,6 +1094,260 @@ type activitylog struct {
 \end{minted}
 \captionof{listing}{metadata\_extractor - handlers/ssh\_models.go \label{listing:metadata-extractor-handlers-ssh-models}}
 
+\subsection{\emph{beekeeper\_api} API de clientes}
+\label{subsec:anexos-beekeeper-api-src-code}
+
+Se incluye un extracto del código de \emph{Beekeeper API} por completitud y como soporte a la lectura de la memoria. Sin
+embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/beekeeper\_api}{https://github.com/Fsero/beekeeper\_api} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+hubiera.
+
+
+\begin{minted}[fontsize=\scriptsize,linenos]{go}
+    package controllers
+    
+    import (
+        "fmt"
+        "log"
+        "sort"
+    
+        "bitbucket.org/fseros/beekeeper_api/models/ssh"
+    
+        "time"
+    
+        "github.com/Sirupsen/logrus"
+        "github.com/astaxie/beego"
+    )
+    
+    // Operations about object
+    type IncidentController struct {
+        beego.Controller
+    }
+    
+    type IncidentResponse struct {
+        GeneratedAt time.Time          `json:"generatedat"`
+        Incidents   *[]models.Incident `json:"incidents"`
+    }
+    
+    // @Title GetIncidents
+    // @Description get all objects
+    // @Success 200 {object} []models.Incident
+    // @Failure 500 "Unable to get incidents"
+    // @router / [get]
+    func (o *IncidentController) GetIncidents() {
+        var start_date, end_date string
+        var obs map[string]*models.Incident
+        var err error
+        var endDate, startDate time.Time
+        var endDateErr, startDateErr error
+        var pageSize int
+        o.Ctx.Input.Bind(&start_date, "from")
+        o.Ctx.Input.Bind(&end_date, "to")
+        o.Ctx.Input.Bind(&pageSize, "size")
+    
+        fmt.Printf("%s %s \n", start_date, end_date)
+    
+        if pageSize == 0 {
+            pageSize = 30
+        }
+        if start_date != "" {
+            timeString := time.RFC3339
+            if end_date == "" {
+                endDate = time.Now()
+            } else {
+                endDate, endDateErr = time.Parse(timeString, end_date)
+            }
+            startDate, startDateErr = time.Parse(timeString, start_date)
+    
+            if startDateErr != nil || endDateErr != nil {
+    
+                log.Println(startDateErr, endDateErr)
+                return
+            }
+            logrus.Infof("searching for %d incidents from %s to %s",
+             pageSize, start_date, end_date)
+            obs, err = models.GetIncident(startDate, endDate, pageSize)
+    
+        } else {
+            obs, err = models.GetAllIncidents(pageSize)
+        }
+        if err == nil {
+            var keys []string
+            for k := range obs {
+                keys = append(keys, k)
+            }
+            sort.Sort(sort.Reverse(sort.StringSlice(keys)))
+            var values []models.Incident
+            values = make([]models.Incident, 0)
+            for _, k := range keys {
+                values = append(values, *(obs[k]))
+            }
+            response := IncidentResponse{}
+            response.GeneratedAt = time.Now()
+            response.Incidents = &values
+            o.Data["json"] = &response
+            o.ServeJSON()
+        } else {
+            o.Data["json"] = fmt.Sprintf("{ 'msg': '%s' }", err.Error())
+            o.Ctx.Output.SetStatus(500)
+            o.ServeJSON()
+            o.StopRun()
+        }
+    }
+    
+   
+\end{minted}
+\captionof{listing}{beekeeper\_api - controllers/ssh/incident.go \label{listing:beekeeper-api-controllers-ssh-incident}}
+
+
+
+\begin{minted}[fontsize=\scriptsize,linenos]{go}
+    package models
+    
+    import (
+        "encoding/json"
+        "errors"
+        "fmt"
+        "sort"
+        "strings"
+        "time"
+    
+        "bitbucket.org/fseros/beekeeper_api/helpers"
+    
+        "regexp"
+    
+        "github.com/Sirupsen/logrus"
+        "gopkg.in/olivere/elastic.v5"
+    )
+    
+    var (
+        Incidents map[string]*Incident
+    )
+    
+    type Provider struct {
+        Provider string
+        Country  string
+    }
+    
+    type Incident struct {
+        ID        string
+        Triggered string
+        Provider
+        StartedAt  time.Time
+        FinishedAt time.Time
+        Offenders  []attackerLoginAttemptDoc
+        Activities []attackerActivityDoc
+    }
+    
+    // Jul 15 20:59:00 srv01 falco: 
+    // {"output":"20:48:49.599471717: Alert Shell spawned in a container 
+    //other than entrypoint (user=root ssh (id=94cf593573b3) ssh (id=94cf593573b3)
+    // shell=bash parent=sshd cmdline=bash -c /usr/lib/openssh/sftp-server)",
+    //"priority":"Alert","rule":"Run shell in container",
+    // "time":"2017-07-15T20:48:49.599471717Z"}
+    
+    type Alert struct {
+        Output    string    `json:"output"`
+        Priority  string    `json:"priority"`
+        Rule      string    `json:"rule"`
+        Timestamp time.Time `json:"time"`
+    }
+    
+    func GetIncident(from time.Time, to time.Time, size int) (map[string]*Incident, error) {
+        var e ElasticOutputClient
+        query := elastic.NewBoolQuery()
+        d1 := elastic.NewRangeQuery("@timestamp")
+        d1.From(from)
+        d1.To(to)
+        query = query.Must(d1)
+        searchResult, err := e.Search("alerts-*", size, query)
+        Incidents, err := getIncidents(searchResult)
+        logrus.Debugf("[GetAllIncidents] %d incidents found \n", len(Incidents))
+        return Incidents, err
+    }
+    
+    func getIncidents(searchResult *elastic.SearchResult) (map[string]*Incident, error) {
+        Incidents = make(map[string]*Incident, 0)
+        if searchResult.Hits.TotalHits > 0 {
+            logrus.Infof("[getIncidents] found %d incidents", searchResult.Hits.TotalHits)
+            for _, hit := range searchResult.Hits.Hits {
+                var t alertDoc
+                err := json.Unmarshal(*hit.Source, &t)
+                if err != nil {
+                    logrus.Fatalf("[getIncidents] Unable to unmarshall json %s %s", *hit.Source, err)
+                }
+                if t.Message == "" {
+                    logrus.Debugf("[getIncident] empty alert?")
+                    continue
+                }
+                slices := strings.Split(t.Raw, "falco: ")
+                input := slices[1]
+                var alert Alert
+                if err = json.Unmarshal([]byte(input), &alert); err != nil {
+                    logrus.Errorf("[getIncidents] Unable to unmarshall json %s %s", input, err)
+                    return nil, errors.New("unable to get alerts")
+    
+                }
+                containerIDRegexp := regexp.MustCompile(`(id=(\w+))`)
+                matches := containerIDRegexp.FindStringSubmatch(t.Message)
+                if len(matches) > 0 {
+                    containerID := matches[2]
+                    stringSlice := strings.Split(t.Source, "/")
+                    //TODO: DNS name should be configurable.
+                    probeName := fmt.Sprintf("%s.superprivyhosting.com", stringSlice[3])
+                    probes, err := helpers.GetProbe(probeName)
+                    var probe helpers.Probe
+                    if len(probes) > 0 {
+                        probe = probes[0]
+                    } else {
+                        logrus.Errorf("[GetIncidents] Unable to get probe info")
+                        return nil, errors.New("unable to get probe info")
+                    }
+                    offenders, _ := GetOffenders(containerID, probe.FQDN, 
+                                    fmt.Sprintf("%d000", alert.Timestamp.Unix()))
+                    activities, _ := GetActivities(containerID, probe.FQDN,
+                                    fmt.Sprintf("%d000", alert.Timestamp.Unix()))
+                    sort.Sort(ByUnixTimeActivities(activities))
+                    sort.Sort(ByUnixTimeOffenders(offenders))
+                    logrus.Debugf("[getIncidents] new alert found! %+v", alert)
+                    var lastSeen time.Time
+                    if len(offenders) > 0 {
+                        lastSeen = offenders[len(offenders)-1].Timestamp
+                    } else {
+                        lastSeen = time.Time{}
+                    }
+    
+                    if err == nil {
+                        inc := Incident{Activities: activities, 
+                        Triggered: t.Message,
+                        ID: fmt.Sprintf("%d000-%s", alert.Timestamp.Unix(), 
+                        probe.Provider),
+                        StartedAt: alert.Timestamp,
+                        FinishedAt: lastSeen, 
+                        Provider: Provider{Provider: probe.Provider, Country: probe.Country},
+                        Offenders: offenders}
+
+                        logrus.Debugf("[getIncidents] adding incident %+v", inc)
+                        Incidents[inc.ID] = &inc
+                    }
+                }
+            }
+        }
+        return Incidents, nil
+    }
+    
+    func GetAllIncidents(size int) (map[string]*Incident, error) {
+        var e ElasticOutputClient
+        searchResult, err := e.Search("alerts-*", size, nil)
+        Incidents, err := getIncidents(searchResult)
+        logrus.Debugf("[GetAllIncidents] %d incidents found \n", len(Incidents))
+        return Incidents, err
+    }
+    
+
+\end{minted}
+\captionof{listing}{beekeeper\_api - controllers/ssh/incident.go \label{listing:beekeeper-api-models-ssh-incident}}
+    
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "main"

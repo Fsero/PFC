@@ -604,16 +604,17 @@ demasiadas trazas para analisis historico y/o para poder reprocesar.
 Pero su simplicidad y bajo coste junto a su compatibilidad con otras opciones la convierten en la opción escogida.
 
 \subsection{Modelo de datos del sistema}
-
+\label{subsec:modelo-de-datos}
 No se entrará en detalle de que sistema de gestión de bases de datos utilizar, pero si  se ha de analizar cual es el modelo de datos
 adecuado para el proyecto en el contexto del dominio.
 
 La información extraida es muy relevante cuando es reciente y pierde relevancia en muy poco tiempo, información de un ataque realizando
-hace un año es poco relevante, habran surgido nuevas versiones del \emph{software}, el método de atauqe ya habrá sido analizado y el único interes
+hace un año es poco relevante, habran surgido nuevas versiones del \emph{software}, el método de ataque ya habrá sido analizado y el único interes
 que tiene es como aportación para un estudio estadistico.
 
-Por ello nuestro modelo de datos estará modelado como una serie temporal con foco en la busqueda. La inserción de datos se realizará muy poco frecuentemente, idealmente una vez
-y posiblemente nuestro modelo no sea relacional o no evidentemente relacional, ya que la integridad de los datos no es tan relevante.
+Por ello nuestro modelo de datos será el de una serie temporal con foco en la busqueda. La inserción de datos se realizará muy poco frecuentemente, idealmente una vez
+y posiblemente nuestro modelo no sea relacional o no evidentemente relacional, ya que la integridad de los datos no es relevante y no podemos saber a priori que busquedas
+seran las relevantes, por lo que una base de datos sin esquema seria conveniente.
 
 Si tenemos una alerta sin más información adicional, aunque no tiene tanto valor como una alerta con toda la información es de por si relevante.
 
@@ -680,6 +681,7 @@ un método que permite la evolución o el cambio de la misma. Existen varios mé
 Según algunas fuentes el versionado por URL es más popular (\cite{3scale-versionado)}, y por ello escogemos este aunque el versionado como cabecera HTTP se adhiera más a \emph{REST}.
 
 \subsubsection{Definición de la API}
+\label{subsubsec:definicion-api}
 
 \begin{table}[h]
     \centering
@@ -1206,6 +1208,7 @@ se preservan las trazas mas recientes (60 minutos desde que se ejecute, para dar
     
 
 \subsection{Notificaciones usando falco}
+\label{subsec:notificaciones-falco}
 
 \emph{Falco} es una herramienta desarrollada por \emph{sysdig} que se encarga de monitorizar el comportamiento del sistema y notificar en 
 caso de que el sistema cumpla la regla descrita.
@@ -1755,7 +1758,7 @@ de diversos objetos.
 \end{figure}
 
 \subsubsection{Implementación de la API}
-\label{sinkers-regeistry-api-implementacion}
+\label{subsubsec:sinkers-registry-api-implementacion}
 
 la API sigue el patrón MVC y se diseña como API REST, se escoge \emph{Go} como lenguaje de programación para implementarla, se escoge \emph{Go} 
 como lenguaje para implementarla para mantener la homogeneidad con otras herramientas del proyecto, facilitar la reutilización de código,
@@ -1767,7 +1770,20 @@ que permita la creación de la API de manera más rapida. Escogemos \emph{Beego}
 \emph{routers HTTP} y una \emph{CLI} para probar y desplegar la API entre otras funcionalidades y ser simple y completo para nuestros
 propositos.
 
-\subsection{Extracción de datos y recolección de trazas}
+\subsection{Base de datos.}
+
+Como se analizo en \ref{subsec:modelo-de-datos}, nuestra base de datos ha de reunir las siguientes caracteristicas:
+
+\begin{itemize}
+    \item Orientada a busquedas. La inserción se realizará muy poco frecuentemente, idealmente una sola vez (salvo reprocesados).
+    \item Escalable y particionada. Como analizamos previamente, la información es menos relevante cuanto menos reciente sea, por lo tanto es importante
+    ser capaces de particionar nuestra base de datos para albergarla completa por interes estadistico y ser capaz de eliminar una partición sin afectar al rendimiento del conjunto.
+\end{itemize}
+
+Por estas razones se escoge \emph{Elasticsearch} como base de datos. \emph{Elasticsearch} es una base de datos orientada a busqueda que permite
+busquedas rapidas de texto y que permite también la creación de series temporales.
+
+\subsection{Recolección y procesado de trazas}
 \label{subsec:extraccion-trazas}
 
 El servicio \emph{metadata\_extractor} se encarga de la recolección de trazas y de la extracción de datos de las mismas.
@@ -1899,6 +1915,34 @@ En el código \ref{listing:metadata-extractor-systemd} puede verse la unidad de 
 el \emph{daemon} se encarga de lanzar un script similar al descrito en el código \ref{listing:containersvc-bash} que inicia el \emph{docker-compose}
 descrito en el código \ref{listing:metadata-extractor-docker-compose}.
 
+
+\begin{minted}[fontsize=\footnotesize]{console}
+    [Unit]
+    Description=Launch metadataextractor
+    After=docker.service
+    BindsTo=docker.service
+    After=elasticsearchd.service
+    BindsTo=elasticsearchd.service
+    After=sinkerregistryapid.service
+    BindsTo=sinkerregistryapid.service
+    
+    [Service]
+    Type=forking
+    ExecStart=/usr/local/sbin/metadataextractord start
+    ExecStop=/usr/local/sbin/metadataextractord stop
+    Requires=docker.service
+    RemainAfterExit=no
+    Restart=always
+    PIDFile=/var/run/metadataextractord.pid
+    
+    [Install]
+    WantedBy=multi-user.target    
+         
+\end{minted}
+\captionof{listing}{Unidad \emph{systemd} que levanta el \emph{daemon} de \emph{metadataextractord} \label{listing:metadata-extractor-systemd}}
+\bigskip
+
+
 \begin{minted}[fontsize=\footnotesize]{console}
     version: "2"
     
@@ -1931,43 +1975,333 @@ descrito en el código \ref{listing:metadata-extractor-docker-compose}.
          
 \end{minted}
 \captionof{listing}{\emph{docker-compose} de \emph{metadata\_extractor} \label{listing:metadata-extractor-docker-compose}}
-
-
-\begin{minted}[fontsize=\footnotesize]{console}
-    [Unit]
-    Description=Launch metadataextractor
-    After=docker.service
-    BindsTo=docker.service
-    After=elasticsearchd.service
-    BindsTo=elasticsearchd.service
-    After=sinkerregistryapid.service
-    BindsTo=sinkerregistryapid.service
-    
-    [Service]
-    Type=forking
-    ExecStart=/usr/local/sbin/metadataextractord start
-    ExecStop=/usr/local/sbin/metadataextractord stop
-    Requires=docker.service
-    RemainAfterExit=no
-    Restart=always
-    PIDFile=/var/run/metadataextractord.pid
-    
-    [Install]
-    WantedBy=multi-user.target    
-         
-\end{minted}
-\captionof{listing}{Unidad \emph{systemd} que levanta el \emph{daemon} de \emph{metadataextractord} \label{listing:metadata-extractor-systemd}}
-
-
+\bigskip
 
 \subsection{Recolección de \emph{logs} y procesado de alertas}
 
+Tal y como se describe en \ref{subsec:notificaciones-falco}, se guardan las alertas en un fichero de log que se recupera a través de
+\emph{rsyslog}. 
+Se instala el servidor \emph{rsyslog} en el recolector y clientes \emph{rsyslog} en las sondas, y se configura \emph{rsyslog}
+para utilizar un canal cifrado para la comunicación mediante certificados SSL firmados por nuestra propia CA.
+
+Una visión general del proceso puede verse en el diagrama \ref{fig:alert-log-architecture} con todos los componentes involucrados.
+
+\begin{figure}[htp]
+    \centering
+    \includegraphics[scale=0.4]{images/AlertasEnvioLog}
+    \caption{Diagrama de recolección de alertas y componentes involucrados.}
+    \label{fig:alert-log-architecture}
+\end{figure}
+
+\begin{minted}[fontsize=\footnotesize]{console}
+    # Increase the amount of open files rsyslog is allowed, which includes open tcp sockets
+    # This is important if there are many clients.
+    # http://www.rsyslog.com/doc/rsconf1_maxopenfiles.html
+    - $MaxOpenFiles 2048
+
+    # make gtls driver the default
+    - $DefaultNetstreamDriver gtls
+
+    - $DefaultNetstreamDriverCAFile {{ rsyslog_rsyslog_tls_ca_path }}
+    - $DefaultNetstreamDriverCertFile {{ rsyslog_rsyslog_tls_cert_path }}
+    - $DefaultNetstreamDriverKeyFile {{ rsyslog_rsyslog_tls_key_path }}
+
+    # Provides TCP syslog reception
+    # for parameters see http://www.rsyslog.com/doc/imtcp.html
+    - module(load="imtcp"
+           MaxSessions="2000"
+           StreamDriver.mode="1"
+          StreamDriver.authmode="x509/name"
+           PermittedPeer="*.{{ pot_domain }}")
+    - input(type="imtcp" port="10514" name="tcp-tls")
+         
+\end{minted}
+\captionof{listing}{Configuración de \emph{rsyslog} como servidor. \label{listing:rsyslog-server}}
+\bigskip
+
+En el lado del cliente, en las sondas como puede verse en el código \ref{listing:rsyslog-cliente}, se reenvian todos los logs
+al recolector y sólo a través del canal cifrado TLS. Se configura además un fichero en disco como almacenamiento temporal
+para evitar perdidas de alertas si hay problemas en la conexión de red.
+
+\begin{minted}[fontsize=\footnotesize]{console}
+    # make gtls driver the default
+    - $DefaultNetstreamDriver gtls
+    
+    - $DefaultNetstreamDriverCAFile {{ rsyslog_rsyslog_tls_ca_path }}
+    - $DefaultNetstreamDriverCertFile {{ rsyslog_rsyslog_tls_cert_path }}
+    - $DefaultNetstreamDriverKeyFile {{ rsyslog_rsyslog_tls_key_path }}
+    - $ActionSendStreamDriverAuthMode x509/name
+    - $ActionSendStreamDriverPermittedPeer {{rsyslog_rsyslog_collector_dns_name}}
+    - $ActionSendStreamDriverMode 1 # run driver in TLS-only mode
+    - $WorkDirectory /var/spool/rsyslog # default location for work (spool) files
+    - $ActionQueueType LinkedList # use asynchronous processing
+    - $ActionQueueFileName srvrfwd # set file name, also enables disk mode
+    - $ActionResumeRetryCount -1 # infinite retries on insert failure
+    - $ActionQueueSaveOnShutdown on # save in-memory data if rsyslog shuts down
+    - "*.* @@{{ rsyslog_rsyslog_collector_host_name}}:10514"         
+\end{minted}
+\captionof{listing}{Configuración de \emph{rsyslog} como cliente. \label{listing:rsyslog-cliente}}
+\bigskip
+
+Con ambas configuraciones conseguimos que los \emph{logs} de las sondas acaben en el \emph{rsyslog} del servidor.
+El siguiente paso será filtar los eventos por sonda en ficheros diferentes, de otra manera, tendremos todos los eventos
+en un unico log agregado en \code{/var/log/syslog}.
+
+Para discriminar los \emph{logs} por servidor, utilizamos una funcionalidad de \emph{rsyslog} que nos permite
+segregar los eventos por fichero en base a algunos parametros, como puede verse en el codigo \ref{listing:rsyslog-split}.
+
+\begin{minted}[fontsize=\footnotesize]{console}
+     $ModLoad imuxsock.so
+     $ModLoad imklog.so
+     $ActionFileDefaultTemplate      RSYSLOG_TraditionalFileFormat
+     $template DYNmessages,"/var/log/%HOSTNAME%/messages"
+     $template DYNsecure,"/var/log/%HOSTNAME%/secure"
+     $template DYNmaillog,"/var/log/%HOSTNAME%/maillog"
+     $template DYNcron,"/var/log/%HOSTNAME%/cron"
+     $template DYNspooler,"/var/log/%HOSTNAME%/spooler"
+     $template DYNboot,"/var/log/%HOSTNAME%/boot.log"
+     $template DYNfalco,"/var/log/%HOSTNAME%/falco.log"
+     if $source != 'localhost' \
+       and \
+       $syslogseverity <= '6' \
+       and ( \
+         $syslogfacility-text != 'mail' \
+         and \
+         $syslogfacilitytext != 'authpriv' \
+         and \
+         $syslogfacility-text != 'cron' \
+       ) \
+       then    ?DYNmessages
+
+     if \
+          $source != 'localhost' \
+          and \
+          $syslogfacility-text == 'authpriv' \
+       then    ?DYNsecure
+
+     if \
+          $source != 'localhost' \
+          and \
+          $syslogfacility-text == 'mail' \
+       then    -?DYNmaillog
+
+     if \
+          $source != 'localhost' \
+          and \
+          $syslogfacility-text == 'cron' \
+       then    ?DYNcron
+
+     if \
+          $source != 'localhost' \
+          and \
+          (\
+            $syslogfacility-text == 'uucp' \
+            or \
+            $syslogfacility-text == 'news' \
+          )\
+          and \
+          $syslogseverity-text == 'crit' \
+       then    ?DYNspooler
+
+     if \
+          $source != 'localhost' \
+          and \
+          $syslogfacility-text == 'local7' \
+       then    ?DYNboot
+
+     if \
+          $source != 'localhost' \
+          and \
+          $programname == 'falco' \
+       then ?DYNfalco
+\end{minted}
+\captionof{listing}{Configuración de \emph{rsyslog} para segregar por fuente y servidor de origen. \label{listing:rsyslog-split}}
+\bigskip
+
+Con estas configuraciones conseguimos tener las alertas guardadas en disco en la ruta \code{/var/log/[SERVER\_NAME]/falco.log}, necesitamos
+ahora de alguna manera enviar estas alertas a \emph{Elasticsearch} donde pueden ser correladas con los datos extraidos de las trazas.
+
+\subsubsection{Envio de alertas a \emph{Elasticsearch}.}
+
+Se necesita alguna aplicación que sea capaz de leer el fichero previamente mencionado que guarda \emph{rsyslog} y sea capaz de guardarlo
+en \emph{Elasticsearch} lidiando con caidas de la base de datos, actualizaciones del fichero de \emph{log} y rotados.
+
+Dicha aplicación no es especialmente compleja pero si sensible, afortunadamente \emph{Elastic}, la compañia que desarrolla principalmente
+\emph{Elasticsearch} ya nos proporciona aplicaciones que realizan esta tarea:
+
+\begin{itemize}
+    \item[\emph{Filebeat}] Se encarga de comprobar periodicamente si un conjunto de ficheros de origen ha sido modificado, y si lo han sido
+    es capaz de enviar las modificaciones a \emph{Logstash} o directamente a \emph{Elasticsearch} entre otras opciones (véase \cite{elastic-filebeat}). Implementa 
+    \emph{back-pressure}, si \emph{Logstash} o la salida seleccionada no confirma la escritura de nuevos eventos bajará paulatinamente la velocidad de envío. 
+    Al enviarlas vía \emph{rsylog}, se añaden cabeceras a las alertas, como necesitamos filtrar estas cabeceras para acceder a las alertas necesitamos \emph{Logstash} para 
+    guardarlas en \emph{Elasticsearch}.
+    \item[\emph{Logstash}] Se encarga de analizar el evento enviado por \emph{Filebeat}, eliminar sobrantes añadidos por syslog y realizar la escritura en
+    \emph{Elasticsearch}.
+\end{itemize}
+
+\section{Resultados finales: arquitectura de la API de clientes}
+
+Con las sondas y el recolector funcionando, la siguiente tarea a realizar es poner en marcha la \emph{API} de clientes, 
+la \emph{API} que se usará para extraer información de incidentes de manera correlada.
+
+La API es sencilla y su contrato ya fue descrito en \ref{subsubsec:definicion-api}. En este caso, por falta de tiempo no se implementa
+la función de \code{/feed} y sólo se oferta el protocolo SSH.
+
+La API depende de \emph{Elasticsearch}, si \emph{Elasticsearch} no funciona la \emph{API} no puede obtener las alertas ni los datos de capturas y no funcionará. Para reducir el acoplamiento entre la base de datos y la API, habría que implementar una cache 
+en la API y/o incluir una base de datos propia del servicio para seguir una arquitectura de microservicios. Ninguna de estas opciones se ha implementado en la versión actual.
 
 
-\subsection{Modelo de base de datos}
+La API esta abierta a Internet, y por lo tanto es susceptible a ataques del exterior ya sea de denegación del servicio o intentos de intrusión. 
+Para mitigar el riesgo de intrusión sería conveniente aislar la API en un servidor propio, pero esto aumentaría el coste economico del proyecto, dado 
+que la \emph{API} es sencilla e implementada en \emph{Go}, se asume el riesgo de intrusión.
+
+El riesgo de denegación de servicio sigue presente, y la manera de mitigarlo es implementar politicas de contención de tráfico.
 
 
+\subsection{Inclusión de un \emph{API Gateway} }
 
+Aunque podriamos implementar politicas de \emph{rate-limiting} en la propia \emph{API}, se decide externalizar a un \emph{API gateway}, una API para APIs que nos ofrecen funciones genericas como
+autenticación, control de trafico, cuotas, cacheo y otros. 
+
+Utilizar un \emph{API Gateway} tambien nos permite separar nuestra \emph{API} en diversos servicios si necesitamos especializar alguna de las funciones
+de la \emph{API}. Por ejemplo, externalizar la función de \code{/feed} de la \emph{API} a otro servicio. 
+
+Se decide usar \emph{krakend} (\href{http://www.krakend.io/}{http://www.krakend.io/}) como \emph{API Gateway} por ser simple, \emph{Open Source} y útil para este proposito aunque se podria utilizar cualquier otra. En concreto, 
+\emph{krakend} se encargará del \emph{rate-limit} y de la terminación \emph{SSL}. Para obtener los certificados hacemos uso de la iniciativa del Internet Security Research Group \emph{Let's Encrypt} que nos
+ofrece certificados \emph{SSL} validados por una \emph{CA} publica de manera gratuita.
+
+\subsection{diseño de la API}
+
+la \emph{API} se implementa en \emph{Go} utilizando el \emph{framework Beego} al igual que la API de registro de sondas descrita en el apartado \ref{subsubsec:sinkers-registry-api-implementacion}, 
+por las razones allí expuestas y para reaprovechar codigo entre ellas.
+
+Por razones de tiempo, sólo se ha podido implementar el \emph{endpoint} de incidentes, se trata basicamente de crear un objeto
+que relacione alertas recibidas con intentos de \emph{login} y actividades detectadas en la sonda si existen. El código \ref{listing:beekeeper-api-models-ssh-incident}, 
+líneas 117 a 127, muestra como se construye dicho objeto combinando tres indices de \emph{Elasticsearch}, el indice de alertas con el de \emph{activities} y \emph{login-attempts}.
+con información de la sonda utilizando la API de registro de sondas.
+
+\subsection{Salida de la \emph{API}}
+
+El código \ref{listing:api-incident-json} muestra un ejemplo del JSON que devuelve la API que representa un incidente. En la estructura se 
+incluyen los siguientes campos:
+
+\begin{itemize}
+    \item[\code{started\_at}] Fecha de inicio del incidente.
+    \item[\code{finished\_at}] Fecha de fin del incidente, a veces es imposible de determinar y se establece a la fecha nula (\code{0000-00-00T00:00:01Z}).
+    \item[\code{ID}] ID del incidente.
+    \item[\code{Activities}] Listado de actividades (ordenes lanzadas) detectadas en la sonda.
+    \item[\code{Offenders}] Listado de atacantes que intentaron y/o consiguieron iniciar sesión en la sonda en la ventana de tiempo del incidente, se incluye además la IP de atacantes y geolocalización.
+    \item[\code{Provider}] Proveedor donde esta instalada la sonda.
+    \item[\code{Triggered}] Mensaje de la alerta que inicia el incidente.
+\end{itemize}
+
+Con esta información expuesta, los clientes pueden crear sus propias herramientas de visualización y respuesta a incidentes, es importante destacar que 
+el incidente tiene un marco temporal y que se debe actuar teniendolo en cuenta. Por ejemplo, una determinada IP puede realizar una actividad maliciosa en un 
+periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botnet}, porque el servidor infectado ha sido destruido y la IP asignada a otro servidor, etc).
+
+\begin{minted}[fontsize=\footnotesize]{json}    
+{
+    Activities: [
+    {
+    @timestamp: "2017-09-01T01:15:07.143824471Z",
+    activity: "bash -c uname -a",
+    containerid: "6d7e2680e0d3",
+    pid: "20855",
+    user: "root"
+    }
+    ],
+    Country: "Germany",
+    FinishedAt: "2017-09-01T01:24:40Z",
+    ID: "1504228507000-Vultr",
+    Offenders: [
+    {
+    @timestamp: "2017-09-01T01:24:40Z",
+    containerid: "6d7e2680e0d3",
+    country: "Czech Republic",
+    ip: "91.195.103.215",
+    location: {
+    lat: 50.071201,
+    lon: 14.2758
+    },
+    password: "123456 ",
+    successful: true,
+    user: "root "
+    }
+    ],
+    Provider: "Vultr",
+    StartedAt: "2017-09-01T01:15:07.143818446Z",
+    Triggered: " Alert Shell spawned in a container other than entrypoint 
+    (user=root ssh (id=6d7e2680e0d3) 
+    ssh (id=6d7e2680e0d3) 
+    shell=bash parent=sshd cmdline=bash -c uname -a)"
+},
+\end{minted}
+\captionof{listing}{Ejemplo de incidente expuesto en la API \label{listing:api-incident-json}}
+\bigskip
+
+
+\section{Resultados finales: analisis de datos obtenidos a través de la \emph{honeypot}}
+
+\begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticAlertsByDay}
+    \caption{Alertas generadas por las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \label{fig:data-alerts-by-day}
+  \end{figure}
+
+  \begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticAttemptsPerProvider}
+    \caption{Intentos de \emph{login} en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017 por proveedor.}
+    \label{fig:data-attempts-per-provider}
+  \end{figure}
+
+  \begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticMapUnified}
+    \caption{Mapa que incluye los intentos de inicio desde la misma IP en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \label{fig:data-map-unified}
+  \end{figure}
+
+  \begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticTableByCountryUnified}
+    \caption{Tabla resumen de paises que atacan más a las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \label{fig:data-table-by-country-unified}
+  \end{figure}
+
+  \begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticPiePasswors}
+    \caption{Contraseñas más utilizadas en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \label{fig:data-pie-passwords}
+  \end{figure}
+
+  \begin{figure}[h]
+    \centering
+      \includegraphics[scale=0.3]{images/ElasticPiePasswordSuccessful}
+    \caption{Contraseñas que tuvieron exito en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \label{fig:data-pie-passwords}
+  \end{figure}
+  
+  
+  
+% this is fucking it.
+% explicar que con contraseñas aleatorias habia pocos ataques.
+% explicar que sin contraseña, los bots no hacian nada.
+% mostrar mapita molon de ataques, China y rusia FTW.
+% añadir tabla con datos.
+% Mostrar tarta con contraseña mas utilizadas.
+% Mostrar listado de contraseñas utilizados.
+% Mostrar tarta con contraseñas exitosas mas utilizadas.
+% recomendaciones en base a esto.
+\section{Trabajo futuro}
+
+% muchisimo.
+% escalabilidad,
+% extraer ficheros o guardar docker container.
+% mas protocolos
+% sondas de windows
 
 
 \section{Planificación}

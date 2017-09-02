@@ -3,6 +3,7 @@ VISOR=evince
 FICHAUX=*.bbl *.blg *.brf *.lof *.glo *.out *.snm *.nav 
 FICHAUX2=*.toc *.log *.aux *.idx *.dvi 
 FICHAUX3= *.pdf
+SHELL=/bin/zsh
 
 all: pfc
 
@@ -15,7 +16,7 @@ pfc: main.tex
 	@biber $(basename $<) 2> /dev/null
 	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
 	@pdflatex -shell-escape -interaction batchmode $< 2> /dev/null
-	
+	@$(VISOR) $(basename $<).pdf &
 clean:
 	@$(RM) $(FICHAUX)$(FICHAUX2) 2> /dev/null 
 
