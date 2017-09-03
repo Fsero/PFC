@@ -23,6 +23,7 @@
 \usepackage{fancyvrb} %inclusion de ficheros externo en modo verbatim
 \usepackage{makecell}
 \usepackage{rotating}
+\usepackage[section]{placeins}
 
 
 \renewcommand\listingscaption{Código}
@@ -104,9 +105,11 @@
 \input{./introduccion.tex}
 % Memoria
 \input{./memoria.tex}
-\input{./anexos.tex}
 \input{./presupuestos.tex}
-\listoffigures{}
+\input{./anexos.tex}
+
+\listoffigures
+\listoftables
 \listoflistings
 
 

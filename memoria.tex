@@ -83,6 +83,9 @@ Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principio
 
 
 
+\chapter{Análisis de soluciones}
+\minitoc{}
+
 
 \section{Análisis de soluciones para la sonda}
 \label{sec:analisis-sonda}
@@ -406,6 +409,7 @@ La sonda no requiere instalación adicional de \emph{software} ya que sólo requ
 Si la conexión de red de la sonda no funciona al realizar la petición el evento también se perderá.
 
 \subsubsection{Notificaciones usando un sistema de colas}
+\label{subsubsec:notificaciones-colas}
 
 Tendremos que instalar, configurar y mantener un sistema de colas como \emph{RabbitMQ, ZeroMQ, Kafka} 
 o pagar por el uso de sistemas de colas en el \emph{cloud} como \emph{AWS SQS, AWS Kinesis o Google Cloud PubSub}.
@@ -730,7 +734,11 @@ Como esquema de datos podremos utilizar o basarnos en \emph{STIX} (\cite{oasis-s
 desarrollado por el grupo OASIS.
 \clearpage
 
-\section{Resultados finales: Arquitectura}
+\chapter{Resultados finales}
+\minitoc{}
+
+
+\section{Arquitectura}
 
 La arquitectura final puede observarse en la figura \ref{fig:arquitectura-general}. En ella se encuentran los siguientes elementos:
 
@@ -819,7 +827,7 @@ y cumplir de sobra con los requisitos para este proyecto (es capaz de provisiona
     \label{fig:configmanagement1}
   \end{figure}
 
-\section{Resultados finales: Arquitectura de la sonda}
+\section{Arquitectura de la sonda}
 
 A continuación incluimos la arquitectura final de la sonda, que puede observarse en la figura \ref{fig:arquitectura-sonda}.
 
@@ -1619,7 +1627,7 @@ el resto del tráfico se entregará con el ancho de banda disponible.
 \bigskip
 
 
-\section{Resultados finales: Arquitectura del colector}
+\section{Arquitectura del colector}
 
 El servidor que realiza las funciones de recolector, también realiza las funciones
 de \emph{backend} y \emph{frontend} de la API de clientes. La razón principal
@@ -2139,7 +2147,7 @@ Dicha aplicación no es especialmente compleja pero si sensible, afortunadamente
     \emph{Elasticsearch}.
 \end{itemize}
 
-\section{Resultados finales: arquitectura de la API de clientes}
+\section{Arquitectura de la API de clientes}
 
 Con las sondas y el recolector funcionando, la siguiente tarea a realizar es poner en marcha la \emph{API} de clientes, 
 la \emph{API} que se usará para extraer información de incidentes de manera correlada.
@@ -2240,72 +2248,218 @@ periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botn
 \bigskip
 
 
-\section{Resultados finales: analisis de datos obtenidos a través de la \emph{honeypot}}
+\section{Analisis de datos obtenidos a través de la \emph{honeypot}}
 
-\begin{figure}[h]
+Esta sección demuestra el tipo de visualizaciones que se pueden obtener a través de la \emph{API} de clientes para obtener
+patrones e inteligencia sobre atacantes. Todas las visualizaciones comprenden el periodo del 4 de Junio de 2017 al 2 de septiembre de
+2017 (90 dias).
+
+En la figura \ref{fig:data-alerts-by-day} podemos observar una gráfica de las alertas generadas. Se puede observar que hay un pico de 
+alertas alrededor del 7 de julio que también se ve reflejado en la figura \ref{fig:data-attempts-per-provider} donde se muestran
+los intentos de inicio de sesión por día y proveedor.
+    Se puede apreciar en ambos que la actividad maliciosa es continua en el tiempo pero con intensidad variable. También podemos observar
+en la figura \ref{fig:data-attempts-per-provider} que un proveedor es más atacado que otro, esto puede guardar relación con las diferencias
+perimetrales del proveedor.
+
+En la figura \ref{fig:data-table-by-country-unified} podemos ver una tabla con los paises que originan más ataques desde IPs diferentes (no se tiene en cuenta 
+la repetición de ataques desde la misma IP) que puede observarse de una manera más visual en la figura \ref{fig:data-map-unified}. Como vemos los ataques son globales,
+pese a que hay paises como China, Argentina o Rusia que generan más ataques que el resto.
+
+Si nuestro servicio esta localizado en varios paises y no incluye a los tres mencionados una posible respuesta sería bloquear todo el trafico proveniente
+de estos paises, lo que es una medida muy drastica pero efectiva. 
+
+En la figura \ref{fig:data-pie-passwords} puede observarse los usuarios habitualmente utilizados (circulo interno) con Respecto
+a las contraseñas mas utilizadas. Vemos que el usuario \code{root}, seguido de \emph{admin} es el más utilizado y que en contraseñas
+\code{1234} y \code{password} son de las más utilizadas.
+
+Podemos observar tambien en la figura \ref{fig:data-pie-passwords-successful}, las contraseñas y usuarios que tuvieron exito en las que podemos ver
+como el usuario \code{root} predomina y las contraseñas \code{12345}, \code{123456} y \code{111111} son las más utilizadas.
+
+Dicha distribución tiene sentido ya que nuestras sondas tienen sólo dos usuarios \code{jeremy} y \code{root}, y se utiliza una contraseña aleatoria 
+de la siguiente lista:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|l|}
+        \hline
+        
+        \thead{Contraseñas de las sondas} \\
+        \hline
+        root \\
+        \hline
+        123456 \\
+        \hline
+        password \\
+        \hline
+        12345678 \\
+        \hline
+        123456789 \\
+        \hline
+        12345 \\
+        \hline
+        1234 \\
+        \hline
+        111111 \\
+        \hline
+        1234567 \\
+        \hline
+        123123 \\
+        \hline
+        abc123 \\
+        \hline
+        696969 \\
+        \hline
+        shadow \\
+        \hline
+        master \\
+        \hline
+        666666 \\
+        \hline
+        1234567890 \\
+        \hline
+        654321 \\
+        \hline
+        7777777 \\
+        \hline
+        000000 \\
+        \hline
+    \end{tabular}
+    \caption{\label{tab:sondas-passwords}Contraseñas de las sondas.}
+    \end{table}
+
+Durante la fase inicial, se probo a crear sondas que permitian iniciar sesión SSH sin contraseña. 
+Pero al hacerlo se comprobo que:
+
+\begin{itemize}
+    \item La mayoria de atacantes son scrips automatizados, si no se les pregunta por contraseña asumen que es una \emph{honeypot} y no realizan ninguna actividad.
+    \item Perdemos la información del login, puesto que no vemos que combinaciones se han probado para iniciar sesión ni cuales son las más exitosas.
+\end{itemize}
+
+Por estas razones se decide utilizar el listado expuesto en el cuadro \ref{tab:sondas-passwords}, extraido de un repositorio que incluye las contraseñas
+más utilizadas según analisis de volcado de contraseñas de sitios web conocidos (\href{https://github.com/danielmiessler/SecLists.git}{https://github.com/danielmiessler/SecLists.git}).
+
+De estos diagramas podemos extraer que si no permitimos que el usuario \emph{root} inicie sesión, eliminamos de un plumazo un porcentaje importante de ataques.
+
+Lamentablamente lo más interesante que sería analizar los ficheros utilizados dentro de la \emph{honeypot} no ha sido implementado por falta de tiempo. Es una tarea
+que es factible pero no facil y que pese a todo podemos implementar usando la \emph{API}, extrayendo las \emph{urls} de descarga y analizando el fichero descargado en plataformas como
+\emph{VirusTotal}.
+
+Lo interesante de este enfoque seria poder ofertar datos estadisticos de los tipos de \emph{malware} que observamos en la \emph{honeypot} y ser capaz de determinar si encontramos un malware por
+su actividad que no sea reconocido en plataformas de analisis como \emph{VirusTotal}.
+
+Durante el tiempo que el sistema lleva funcionando, se ha observado que la \emph{honeypot} ha sido infectada para formar parte de una \emph{botnet Mirai} (véase \cite{wiki-mirai})
+o ser parte de una \emph{botnet} que realiza ataques DDoS a la plataforma de Sony Playstation.
+
+Es ahi donde reside el potencial más interesante de la \emph{honeypot}, pese a que la información que ya se extra es valiosa por si misma.
+
+\begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticAlertsByDay}
-    \caption{Alertas generadas por las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \caption{Alertas generadas por las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017.}
     \label{fig:data-alerts-by-day}
-  \end{figure}
+  \end{sidewaysfigure}
 
-  \begin{figure}[h]
+  \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticAttemptsPerProvider}
     \caption{Intentos de \emph{login} en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017 por proveedor.}
     \label{fig:data-attempts-per-provider}
-  \end{figure}
+  \end{sidewaysfigure}
 
-  \begin{figure}[h]
+  \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticMapUnified}
     \caption{Mapa que incluye los intentos de inicio desde la misma IP en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
     \label{fig:data-map-unified}
-  \end{figure}
+  \end{sidewaysfigure}
 
-  \begin{figure}[h]
+  \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticTableByCountryUnified}
     \caption{Tabla resumen de paises que atacan más a las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
     \label{fig:data-table-by-country-unified}
-  \end{figure}
+  \end{sidewaysfigure}
 
-  \begin{figure}[h]
+  \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticPiePasswors}
     \caption{Contraseñas más utilizadas en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
     \label{fig:data-pie-passwords}
-  \end{figure}
+  \end{sidewaysfigure}
 
-  \begin{figure}[h]
+  \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticPiePasswordSuccessful}
     \caption{Contraseñas que tuvieron exito en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
-    \label{fig:data-pie-passwords}
-  \end{figure}
+    \label{fig:data-pie-passwords-successful}
+  \end{sidewaysfigure}
   
   
   
-% this is fucking it.
-% explicar que con contraseñas aleatorias habia pocos ataques.
-% explicar que sin contraseña, los bots no hacian nada.
-% mostrar mapita molon de ataques, China y rusia FTW.
-% añadir tabla con datos.
-% Mostrar tarta con contraseña mas utilizadas.
-% Mostrar listado de contraseñas utilizados.
-% Mostrar tarta con contraseñas exitosas mas utilizadas.
-% recomendaciones en base a esto.
+\chapter{Trabajo futuro y conclusiones}
 \section{Trabajo futuro}
 
-% muchisimo.
-% escalabilidad,
-% extraer ficheros o guardar docker container.
-% mas protocolos
-% sondas de windows
+De cara al trabajo futuro hay muchisimas líneas de actuación en diversas categorias, desde mejorar la estabilidad 
+y escalabilidad del sistema, aumentar el número de sondas, protocolos y sistemas operativos a exponer, o 
+mejorar la presentación de los datos mejorando la API para incluir otros formatos y una busqueda más precisa de incidentes.
+
+\subsubsection{Mejora de la escalabilidad de la plataforma.}
+
+Habría que realizar un desembolso economico importante en horas de trabajo y servidores para separar los servicios expuestos
+en \ref{fig:arquitectura-recolector} que son desplegados actualmente en un sólo servidor en varios servidores que creciesen
+de manera horizontal atendiendo a la carga. Esto posiblemente involucraria el despliegue de un sistema de colas, como se analizo
+en \ref{subsubsec:notificaciones-colas}.
+
+El proceso de provisión y configuración también debería mejorar para acomodarse a esta nueva situación y pasar de utilizar \emph{Ansible}
+en un enfoque de \emph{PhoenixServers} a imagenes inmutables con una \emph{pipeline} de \emph{CI/CD}.
+
+\subsubsection{Extracción de ficheros en las sondas.}
+
+Además de extraer información de las trazas sobre actividad segun el protocolo seria interesante poder extraer el contenido de disco del \emph{container},
+en nuestro caso quizá la opción más simple para incorporar esta funcionalidad sería la de crear un registro privado de \emph{containers}, y al detectar 
+una intrusión a la vez que se notifica la alerta guardar esta versión del container como una nueva imágen en el registro.
+
+Luego en la API se podría añadir la dirección del registro privado y permitir al usuario descargar el \emph{container} para su analisis bajo su responsabilidad. 
+    Mantener este tipo de registros privados de \emph{containers} involucra cierta complejidad especialmente si la base de usuarios es elevada, elementos como
+una \emph{CDN} y almacenamiento que crece de manera dinamica serían necesarios para la supervivencia del proyecto. Desarrollar y mantener esta funcionalidad
+es costoso en tiempo de desarrollo y/o en pago a terceros que ofrecen estas soluciones.
+
+\subsubsection{Más protocolos.}
+
+Seria interesante tambien ofrecer otras sondas con otros protocolos y aplicaciones (servidores web, caches distribuidas, etc) de la que poder extraer información de otro
+tipo de ataques. Añadir nuevos protocolos y sondas solo elevaría el coste economico de la partida de servidores, ya que en el estado actual del proyecto no sería 
+complejo añadir nuevas sondas y protocolos.
+
+\subsubsection{Sondas de Windows.}
+
+Seria interesante incorporar aplicaciones \emph{Windows} en nuestro parqué de sondas, para ello habría que analizar y construir un sistema de recolección de trazas
+para \emph{Windows} al igual que se ha realizado en \ref{sec:analisis-sonda}.
+
+Dicho análisis y desarrollo de la solución requeriria una inversión en tiempo de investigación y ejecución de varios meses y un incremento en la partida de servidores en el aspecto economico, 
+pero proporcionaria información muy relevante dado que muchos sistemas criticos (hospitales, bancos, \ldots) utilizan dichos sistemas.
 
 
+\subsubsection{Monetización}
+
+Es posible la monetización del proyecto, quizás vendiendo \emph{feeds} personalizados a instituciones relevantes. Sin embargo, en el estado actual de desarrollo del proyecto
+sería más fácil intentar integrar el proyecto en soluciones de inteligencia de seguridad informatica ya disponibles, que ya incorporen las partes que faltan a este proyecto
+(visualizaciones atractivas vía dashboard, gestión de clientes y otros \ldots).
+
+
+\section{Conclusiones}
+
+
+
+% Concluye madarfaca, concluye.
+
+\chapter{Planificación}
 \section{Planificación}
 
+% Modelo de prototipo e iterativo incremental.
+% fase uno, toma de requisitos y construcción de prototipo.
+% fase dos, construcción de la sonda.
+% fase tres, construcción del recolector.
+% fase cuatro, construcción de la API.
 % 26/08/2017
 
 % Commit inicial 15/2/2016
@@ -2314,8 +2468,6 @@ periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botn
 % Construccion del recolector 20/5/2016 - 21/7/2016
 % Construccion de la API 21/7/2016 - 22/7/2016
 
-\subsection{Metodologia utilizada: modelo iterativo}
-% 27/08/2017
 
 %%% Local Variables: 
 %%% mode: latex
