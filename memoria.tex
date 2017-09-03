@@ -63,6 +63,11 @@ Si hay algo en común en todas ellas que motivó la creación de este proyecto e
 y, por lo tanto, carecen de interés para ataques reales; o bien son de alta interacción pero, para reciclar y/o gestionar el servicio expuesto, siempre hay un \emph{proxy} delante
 que se encarga de levantar o de parar el \emph{container}.
 
+\section{Requisitos de diseño}
+
+Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principios que han regido el proyecto son: la funcionalidad, la seguridad y la viabilidad económica. Y a estos principios, se les ha de sumar la búsqueda de cualidades como la flexibilidad, eficiencia, utilidad y seguridad. ``Flexibilidad'' porque la \emph{honeypot} debe ser capaz de exponer cualquier tipo de servicio requerido. ``Eficiencia'' ya que las sondas y el \emph{backend} deben minimizar el número de servidores necesarios para su explotación. ``Utilidad'' porque las \emph{honeypots} deben exportar información útil. Y, por último, ``seguridad''  en tanto que las \emph{honeypots} y el \emph{backend} deben proveer de medidas de contención frente a los atacantes.
+
+
 \nocite{*}
 \nopagebreak
 \printbibheading[title={Normas y referencias},heading=subbibnumbered]
@@ -77,13 +82,9 @@ Se puede consultar los terminos de la licencia en la página de Apache \url{http
 \printbibliography[title={Referencias},heading=none]
 \nopagebreak
 \section{Definiciones y abreviaturas}
-\section{Requisitos de diseño}
-
-Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principios que han regido el proyecto son: la funcionalidad, la seguridad y la viabilidad económica. Y a estos principios, se les ha de sumar la búsqueda de cualidades como la flexibilidad, eficiencia, utilidad y seguridad. ``Flexibilidad'' porque la \emph{honeypot} debe ser capaz de exponer cualquier tipo de servicio requerido. ``Eficiencia'' ya que las sondas y el \emph{backend} deben minimizar el número de servidores necesarios para su explotación. ``Utilidad'' porque las \emph{honeypots} deben exportar información útil. Y, por último, ``seguridad''  en tanto que las \emph{honeypots} y el \emph{backend} deben proveer de medidas de contención frente a los atacantes.
-
-
 
 \chapter{Análisis de soluciones}
+\label{chapter:analisis-de-soluciones}
 \minitoc{}
 
 
@@ -1628,6 +1629,7 @@ el resto del tráfico se entregará con el ancho de banda disponible.
 
 
 \section{Arquitectura del colector}
+\label{sec:arquitecura-del-colector}
 
 El servidor que realiza las funciones de recolector, también realiza las funciones
 de \emph{backend} y \emph{frontend} de la API de clientes. La razón principal
@@ -2148,6 +2150,7 @@ Dicha aplicación no es especialmente compleja pero si sensible, afortunadamente
 \end{itemize}
 
 \section{Arquitectura de la API de clientes}
+\label{sec:arquitectura-api-clientes}
 
 Con las sondas y el recolector funcionando, la siguiente tarea a realizar es poner en marcha la \emph{API} de clientes, 
 la \emph{API} que se usará para extraer información de incidentes de manera correlada.
@@ -2445,30 +2448,199 @@ Es posible la monetización del proyecto, quizás vendiendo \emph{feeds} persona
 sería más fácil intentar integrar el proyecto en soluciones de inteligencia de seguridad informatica ya disponibles, que ya incorporen las partes que faltan a este proyecto
 (visualizaciones atractivas vía dashboard, gestión de clientes y otros \ldots).
 
-
 \section{Conclusiones}
 
 
 
 % Concluye madarfaca, concluye.
 
-\chapter{Planificación}
-\section{Planificación}
+\chapter{Planificación y presupuesto.}
+\section{Metodologia de desarrollo}
 
-\subsection{}
+Para la realización del proyecto se ha utilizado un modelo iterativo incremental como enfoque general. Era importante definir
+muy bien el conjunto de funcionalidad a incluir y la calidad minima en cada iteración sin atender a una estimación en fechas. 
+Cualquier estimación se realizaba en tallas de camiseta o puntos de historia que miden la complejidad y no la duración de una tarea.
 
-% Modelo de prototipo e iterativo incremental.
-% fase uno, toma de requisitos y construcción de prototipo.
-% fase dos, construcción de la sonda.
-% fase tres, construcción del recolector.
-% fase cuatro, construcción de la API.
-% 26/08/2017
+Cabe reseñar que el alumno y desarrollador del proyecto no tiene una dedicación completa al mismo, pudiendo dedicar unas 10 horas semanales
+de media al proyecto. Esto tiene impacto en la duración del proyecto puesto que al tiempo inherente a cada tarea hay un tiempo
+invertido en recuperar el contexto de la última sesión de trabajo que incrementa la duración del desarrollo del proyecto.
 
-% Commit inicial 15/2/2016
-% Prototipo 21/5/2016
-% Construccion de la sonda 21/5/2016 - 20/5/2017
-% Construccion del recolector 20/5/2016 - 21/7/2016
-% Construccion de la API 21/7/2016 - 22/7/2016
+
+\subsection{Primera iteración: construcción del prototipo.}
+
+En la primera iteración se basa en validar la idea del proyecto y evaluar las herramientas que utilizaremos. Para ello se construye
+un prototipo creando una sonda manualmente y evaluar como se extraería información de la misma de manera automatizada.
+
+También se exploran tecnologías para realizar la recolección y construir la API. El resultado de ésta iteración se describe en
+el capitulo \ref{chapter:analisis-de-soluciones}.
+
+\subsection{Segunda iteración: construcción de las sondas.}
+
+El objetivo de ésta iteración es construir las sondas de manera repetible y automatizada asegurando que son estables,
+seguras y resistentes y que tenemos los mecanismos necesarios para extraer información de ellas.
+
+En esta etapa se decide:
+
+\begin{itemize}
+    \item Construir un sistema similar para las notificaciones de alertas hasta descubrir que \emph{Falco} es liberado, cuando se descarta.
+    \item Utilizar \emph{Ansible} para la creación y configuración de las sondas y el resto de servicios de manera automatizada.
+    \item Como se securizará la sonda de ataques y el modelo de riesgo de la sonda.
+\end{itemize}
+
+\subsection{Tercera iteración: construcción del recolector.}
+
+Con las sondas funcionando, el siguiente paso es la extracción,almacenamiento y procesado de la información que capturan. En esta iteración
+se decide utilizar \emph{Elasticsearch} como motor base de datos, se desarrollan \emph{metadata\_extractor} para recolectar y procesar las trazas, y 
+la API de registro de sondas (\emph{Sinker Registry API}), también se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
+con \emph{Filebeat} y \emph{Logstash}.
+
+En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
+
+\subsection{Cuarta iteración: construcción de la API.}
+
+Con nuestro proceso de extracción, procesado y almacenamiento de datos sólo queda trabajar en la explotacion y visualización de la misma. En ésta iteración
+el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
+una descripción completa del sistema.
+
+\subsection{Quinta iteración: redacción de la memoria del proyecto.}
+
+Como dirian los anglosajones \emph{last, but not least} con el sistema funcionando y en producción solo queda la redacción de esta memoria
+para dar por acabado el presente PFC.
+
+\section{Calendarización}
+
+En el cuadro \ref{tab:calendarizacion-pfc} puede verse el tiempo invertido en cada iteración. No se puede observar el desfase 
+entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, sólo se ha estimado la complejidad
+de las mismas.
+
+Atendiendo a ese criterio la calendarizacion cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
+de la sonda serían las más complejas puesto que se alejan más del dominio de conocimiento del desarrollador del proyecto.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|l|l|c|}
+    \hline
+    \thead{Iteración} & \thead{Inicio} & \thead{Fin} &  \thead{Horas invertidas aprox} \\
+    \hline
+    \textbf{1ª} & 15/2/2016 & 21/5/2016 & 140 horas \\
+    \hline
+    \textbf{2ª} & 21/5/2016 & 20/5/2017 & 520 horas \\
+    \hline
+    \textbf{3ª} & 21/5/2017 & 21/7/2017 & 90 horas  \\
+    \hline
+    \textbf{4ª} & 21/7/2017 & 08/8/2017 & 20 horas  \\
+    \hline
+    \textbf{5ª} & 08/8/2017 & 03/9/2017 & 40 horas \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:calendarizacion-pfc} Calendarización del proyecto }
+    \end{table}
+
+\section{Recursos inventariables}
+
+Los recursos de \emph{hardware} utilizados para la elaboración del presente proyecto y su puesta en marcha, se detallan a continuación:
+
+\begin{itemize}
+    \item Servidor con gran capacidad de almacenamiento y procesamiento.
+    \begin{itemize}
+        \item CPU: Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz
+        \item RAM: 4 x Kingston DDR3 8GiB (32 GiB)
+        \item Disco: RAID 1 por software de 2 discos TOSHIBA DT01ACA300 de 3TiB
+    \end{itemize}
+
+    \item Servidor para sonda en Alemania en el proveedor \emph{Vultr} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore
+        \item RAM: 1GiB RAM.
+        \item Disco: 20GiB de disco
+    \end{itemize}
+
+    \item Servidor para sonda en Holanda en el proveedor \emph{Digital Ocean} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
+        \item RAM: 1GiB RAM.
+        \item Disco: 30GiB de disco.
+    \end{itemize}
+
+    \item Servidor para \emph{PKI} y control en Londres en el proveedor \emph{Digital Ocean} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
+        \item RAM: 1GiB RAM.
+        \item Disco: 30GiB de disco.
+    \end{itemize}
+
+    \item Registro DNS de dominio para la \emph{honeypot} y la \emph{API} de clientes en \emph{Amazon Web Services} y monitorización
+    externa del servicio.
+
+\end{itemize}
+
+
+\section{Presupuesto}
+
+Para el presupuesto debemos desglosar dos conceptos fundamentales:
+
+\begin{itemize}
+    \item El coste en \emph{hardware} y servicios.
+    \item El coste del personal durante el tiempo de desarrollo y mantenimiento.
+\end{itemize}
+
+Si consideramos el desarrollo \emph{acabado}, se necesitará un número de horas del personal para el mantenimiento del proyecto, 
+incluyendo actualizaciones de seguridad de los servidores, gestión de incidentes, arreglo de errores etc.
+
+En cuanto al personal tanto para el desarrollo y mantenimiento del mismo necesitamos un perfil \emph{DevSecOps}, dicho de otro modo
+alguien capaz de involucrarse indistintamente en tareas de codificación, administración de servidores y tareas de seguridad. 
+
+En el convenio colectivo de empresas de ingeniería (véase \cite{boe-convenio}) se detalla que un licenciado y/o analista cobrará un sueldo bruto de 
+23.618,28 € al año. El perfil previamente descrito entraría dentro de dicha categoría profesional cifrandose el precio/hora en
+14 € / hora. 
+
+El cuadro \ref{tab:costes-totales} incluye los costes totales del proyecto y sus conceptos hasta la fecha de redacción de la presente
+memoria, no se incluye el coste de mantenimiento por parte del personal. Es el alumno el que desarrolla las labores de personal, se incluyen
+los costes aproximados para valorar la dimensión economica de ampliar el equipo tecnico.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|c|c|}
+    \hline
+    \thead{Concepto} & \thead{Unidades} & \thead{precio/mes}  \\
+    \hline
+    Servidor en \emph{Hetzner} para recolector & 1 & 41,69 € \\
+    \hline
+    Servidor en \emph{Vultr} para sonda & 1 & 12 € \\
+    \hline
+    Servidor en \emph{Digital Ocean} para sonda & 1 & 12 € \\
+    \hline
+    Servidor en \emph{Digital Ocean} para \emph{PKI} y control & 1 & 12 € \\
+    \hline
+    Registro DNS y monitorización externa en \emph{AWS} & 1 & 10 € \\
+    \hline
+    \textbf{Total / mes} & - & \textbf{87,69 €} \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:presupuesto-mensual} Tabla de costes mensual }
+    \end{table}
+
+
+    \begin{table}[h]
+        \centering
+        \begin{tabular}[!h]{|c|c|}
+        \hline
+        \thead{Concepto} & \thead{Precio}  \\
+        \hline
+        Coste del servidor para prototipo (3 meses) & 30 € \\
+        \hline
+        Coste de \emph{hardware} del proyecto (15 meses) & 87,69 x 15 = 1315,35 €  \\
+        \hline
+        Coste de desarrollo del proyecto & 810 horas x 14 €/hora =  11340 € \\
+        \hline
+        \textbf{Total} &  \textbf{12685,35 €} \\
+        \hline
+        \end{tabular}
+        \caption{\label{tab:costes-totales} Tabla de costes del proyecto hasta fecha actual }
+        \end{table}
+    
+    
+
 
 
 %%% Local Variables: 
