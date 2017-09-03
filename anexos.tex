@@ -1,12 +1,12 @@
 \chapter{Anexos}
 
-\section{Codigo fuente}
+\section{Código fuente}
 
-\subsection{\emph{container\_recycler}}
+\subsection{\emph{Container\_recycler}}
 \label{subsec:containe-recycler-src-code}
 
 Se incluye un extracto del código de \emph{container\_recycler} por completitud y como soporte a la lectura de la memoria. Sin
-embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/container\_recycler}{https://github.com/Fsero/container\_recycler} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+embargo, se recomienda su exploración en GitHub en \href{https://github.com/Fsero/container\_recycler}{https://github.com/Fsero/container\_recycler}, donde será más fácil interactuar con el código y ver cambios recientes si los 
 hubiera.
 
 \begin{minted}[fontsize=\scriptsize]{go}
@@ -333,8 +333,7 @@ hubiera.
 
 \subsection{\emph{Sinker Registry API}}
 \label{subsec:sinker-registry-api-src-code}
-Se incluye un extracto del código de \emph{Sinker Registry API} por completitud y como soporte a la lectura de la memoria. Sin
-embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/sinker\_registry\_api}{https://github.com/Fsero/sinker\_registry\_api} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+También se incluye un extracto del código de \emph{Sinker Registry API} por la razón de completitud y como soporte a la lectura de la memoria. Del mismo modo, se recomienda su exploración en GitHub en \href{https://github.com/Fsero/sinker\_registry\_api}{https://github.com/Fsero/sinker\_registry\_api}, donde será más fácil interactuar con el código y ver cambios recientes si los 
 hubiera.
 
 \begin{minted}[fontsize=\scriptsize]{go}
@@ -1013,23 +1012,24 @@ hubiera.
     
 \end{minted}
 \captionof{listing}{metadata\_extractor - handlers/ssh.go \label{listing:metadata-extractor-handlers-ssh}}
+
 \bigskip
 
 \begin{minted}[fontsize=\scriptsize,linenos]{go}
 package parsers
 
 type Trace struct {
-	ContainerID         string `json:"container.id",omitempty`
-	ContainerName       string `json:"container.name",omitempty`
-	EventCPU            int    `json:"evt.cpu"`
-	EventDir            string `json:"evt.dir"`
-	EventInfo           string `json:"evt.info"`
-	EventNumber         int    `json:"evt.num"`
-	EventOutputUnixTime int64  `json:"evt.outputtime"`
-	EventType           string `json:"evt.type"`
-	ProcName            string `json:"proc.name"`
-	ThreadTid           int    `json:"thread.tid"`
-	ThreadVTid          int    `json:"thread.vtid",omitempty`
+       ContainerID         string `json:"container.id",omitempty`
+       ContainerName       string `json:"container.name",omitempty`
+       EventCPU            int    `json:"evt.cpu"`
+       EventDir            string `json:"evt.dir"`
+       EventInfo           string `json:"evt.info"`
+       EventNumber         int    `json:"evt.num"`
+       EventOutputUnixTime int64  `json:"evt.outputtime"`
+       EventType           string `json:"evt.type"`
+       ProcName            string `json:"proc.name"`
+       ThreadTid           int    `json:"thread.tid"`
+       ThreadVTid          int    `json:"thread.vtid",omitempty`
 }
 type ByUnixTime []Trace
 type ByEventNumber []Trace
@@ -1038,57 +1038,57 @@ func (a ByUnixTime) Len() int      { return len(a) }
 func (a ByUnixTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByUnixTime) Less(i, j int) bool {
 
-	if a[i].EventOutputUnixTime == a[j].EventOutputUnixTime {
-		if a[i].ThreadTid == a[j].ThreadTid {
-			if a[i].ThreadVTid == a[j].ThreadVTid {
-				return a[i].EventNumber < a[j].EventNumber
-			}
-			return a[i].ThreadVTid < a[j].ThreadVTid
-		}
-		return a[i].ThreadTid < a[j].ThreadTid
-	}
-	return a[i].EventOutputUnixTime < a[j].EventOutputUnixTime
+       if a[i].EventOutputUnixTime == a[j].EventOutputUnixTime {
+               if a[i].ThreadTid == a[j].ThreadTid {
+                       if a[i].ThreadVTid == a[j].ThreadVTid {
+                               return a[i].EventNumber < a[j].EventNumber
+                       }
+                       return a[i].ThreadVTid < a[j].ThreadVTid
+               }
+               return a[i].ThreadTid < a[j].ThreadTid
+       }
+       return a[i].EventOutputUnixTime < a[j].EventOutputUnixTime
 
 }
 
 func (a ByEventNumber) Len() int      { return len(a) }
 func (a ByEventNumber) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByEventNumber) Less(i, j int) bool {
-	switch {
-	case a[i].EventOutputUnixTime < a[j].EventOutputUnixTime:
-		// p < q, so we have a decision.
-		return true
-	case a[i].EventOutputUnixTime > a[j].EventOutputUnixTime:
-		// p > q, so we have a decision.
-		return false
-	}
-	return a[i].ThreadTid < a[j].ThreadTid
+       switch {
+       case a[i].EventOutputUnixTime < a[j].EventOutputUnixTime:
+               // p < q, so we have a decision.
+               return true
+       case a[i].EventOutputUnixTime > a[j].EventOutputUnixTime:
+               // p > q, so we have a decision.
+               return false
+       }
+       return a[i].ThreadTid < a[j].ThreadTid
 }
 
 type AttackerLoginAttempt struct {
-	UnixTime    string
-	IP          string
-	User        string
-	Password    string
-	Successful  bool
-	ContainerID string
-	Hostname    string
+       UnixTime    string
+       IP          string
+       User        string
+       Password    string
+       Successful  bool
+       ContainerID string
+       Hostname    string
 }
 
 type AttackerActivity struct {
-	ContainerID string
-	SourceFile  string
-	User        string
-	PID         string
-	Datetime    string
-	Activity    string
+       ContainerID string
+       SourceFile  string
+       User        string
+       PID         string
+       Datetime    string
+       Activity    string
 }
 type activitylog struct {
-	PID         string
-	User        string
-	ContainerID string
-	Command     string
-	Datetime    string
+       PID         string
+       User        string
+       ContainerID string
+       Command     string
+       Datetime    string
 }
 
 \end{minted}
@@ -1098,36 +1098,36 @@ type activitylog struct {
 \label{subsec:anexos-beekeeper-api-src-code}
 
 Se incluye un extracto del código de \emph{Beekeeper API} por completitud y como soporte a la lectura de la memoria. Sin
-embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/beekeeper\_api}{https://github.com/Fsero/beekeeper\_api} , dónde será más fácil interactuar con el código y ver cambios recientes si los 
+embargo se recomienda su exploración en GitHub en \href{https://github.com/Fsero/beekeeper\_api}{https://github.com/Fsero/beekeeper\_api} , dóndeserá más fácil interactuar con el código y ver cambios recientes si los
 hubiera.
 
 
 \begin{minted}[fontsize=\scriptsize,linenos]{go}
     package controllers
-    
+
     import (
         "fmt"
         "log"
         "sort"
-    
+
         "bitbucket.org/fseros/beekeeper_api/models/ssh"
-    
+
         "time"
-    
+
         "github.com/Sirupsen/logrus"
         "github.com/astaxie/beego"
     )
-    
+
     // Operations about object
     type IncidentController struct {
         beego.Controller
     }
-    
+
     type IncidentResponse struct {
         GeneratedAt time.Time          `json:"generatedat"`
         Incidents   *[]models.Incident `json:"incidents"`
     }
-    
+
     // @Title GetIncidents
     // @Description get all objects
     // @Success 200 {object} []models.Incident
@@ -1143,9 +1143,9 @@ hubiera.
         o.Ctx.Input.Bind(&start_date, "from")
         o.Ctx.Input.Bind(&end_date, "to")
         o.Ctx.Input.Bind(&pageSize, "size")
-    
+
         fmt.Printf("%s %s \n", start_date, end_date)
-    
+
         if pageSize == 0 {
             pageSize = 30
         }
@@ -1157,16 +1157,16 @@ hubiera.
                 endDate, endDateErr = time.Parse(timeString, end_date)
             }
             startDate, startDateErr = time.Parse(timeString, start_date)
-    
+
             if startDateErr != nil || endDateErr != nil {
-    
+
                 log.Println(startDateErr, endDateErr)
                 return
             }
             logrus.Infof("searching for %d incidents from %s to %s",
              pageSize, start_date, end_date)
             obs, err = models.GetIncident(startDate, endDate, pageSize)
-    
+
         } else {
             obs, err = models.GetAllIncidents(pageSize)
         }
@@ -1193,8 +1193,8 @@ hubiera.
             o.StopRun()
         }
     }
-    
-   
+
+
 \end{minted}
 \captionof{listing}{beekeeper\_api - controllers/ssh/incident.go \label{listing:beekeeper-api-controllers-ssh-incident}}
 
@@ -1202,7 +1202,7 @@ hubiera.
 
 \begin{minted}[fontsize=\scriptsize,linenos]{go}
     package models
-    
+
     import (
         "encoding/json"
         "errors"
@@ -1210,24 +1210,24 @@ hubiera.
         "sort"
         "strings"
         "time"
-    
+
         "bitbucket.org/fseros/beekeeper_api/helpers"
-    
+
         "regexp"
-    
+
         "github.com/Sirupsen/logrus"
         "gopkg.in/olivere/elastic.v5"
     )
-    
+
     var (
         Incidents map[string]*Incident
     )
-    
+
     type Provider struct {
         Provider string
         Country  string
     }
-    
+
     type Incident struct {
         ID        string
         Triggered string
@@ -1237,21 +1237,21 @@ hubiera.
         Offenders  []attackerLoginAttemptDoc
         Activities []attackerActivityDoc
     }
-    
-    // Jul 15 20:59:00 srv01 falco: 
-    // {"output":"20:48:49.599471717: Alert Shell spawned in a container 
+
+    // Jul 15 20:59:00 srv01 falco:
+    // {"output":"20:48:49.599471717: Alert Shell spawned in a container
     //other than entrypoint (user=root ssh (id=94cf593573b3) ssh (id=94cf593573b3)
     // shell=bash parent=sshd cmdline=bash -c /usr/lib/openssh/sftp-server)",
     //"priority":"Alert","rule":"Run shell in container",
     // "time":"2017-07-15T20:48:49.599471717Z"}
-    
+
     type Alert struct {
         Output    string    `json:"output"`
         Priority  string    `json:"priority"`
         Rule      string    `json:"rule"`
         Timestamp time.Time `json:"time"`
     }
-    
+
     func GetIncident(from time.Time, to time.Time, size int) (map[string]*Incident, error) {
         var e ElasticOutputClient
         query := elastic.NewBoolQuery()
@@ -1264,7 +1264,7 @@ hubiera.
         logrus.Debugf("[GetAllIncidents] %d incidents found \n", len(Incidents))
         return Incidents, err
     }
-    
+
     func getIncidents(searchResult *elastic.SearchResult) (map[string]*Incident, error) {
         Incidents = make(map[string]*Incident, 0)
         if searchResult.Hits.TotalHits > 0 {
@@ -1285,7 +1285,7 @@ hubiera.
                 if err = json.Unmarshal([]byte(input), &alert); err != nil {
                     logrus.Errorf("[getIncidents] Unable to unmarshall json %s %s", input, err)
                     return nil, errors.New("unable to get alerts")
-    
+
                 }
                 containerIDRegexp := regexp.MustCompile(`(id=(\w+))`)
                 matches := containerIDRegexp.FindStringSubmatch(t.Message)
@@ -1302,7 +1302,7 @@ hubiera.
                         logrus.Errorf("[GetIncidents] Unable to get probe info")
                         return nil, errors.New("unable to get probe info")
                     }
-                    offenders, _ := GetOffenders(containerID, probe.FQDN, 
+                    offenders, _ := GetOffenders(containerID, probe.FQDN,
                                     fmt.Sprintf("%d000", alert.Timestamp.Unix()))
                     activities, _ := GetActivities(containerID, probe.FQDN,
                                     fmt.Sprintf("%d000", alert.Timestamp.Unix()))
@@ -1315,14 +1315,14 @@ hubiera.
                     } else {
                         lastSeen = time.Time{}
                     }
-    
+
                     if err == nil {
-                        inc := Incident{Activities: activities, 
+                        inc := Incident{Activities: activities,
                         Triggered: t.Message,
-                        ID: fmt.Sprintf("%d000-%s", alert.Timestamp.Unix(), 
+                        ID: fmt.Sprintf("%d000-%s", alert.Timestamp.Unix(),
                         probe.Provider),
                         StartedAt: alert.Timestamp,
-                        FinishedAt: lastSeen, 
+                        FinishedAt: lastSeen,
                         Provider: Provider{Provider: probe.Provider, Country: probe.Country},
                         Offenders: offenders}
 
@@ -1334,7 +1334,7 @@ hubiera.
         }
         return Incidents, nil
     }
-    
+
     func GetAllIncidents(size int) (map[string]*Incident, error) {
         var e ElasticOutputClient
         searchResult, err := e.Search("alerts-*", size, nil)
@@ -1342,17 +1342,16 @@ hubiera.
         logrus.Debugf("[GetAllIncidents] %d incidents found \n", len(Incidents))
         return Incidents, err
     }
-    
+
 
 \end{minted}
 \captionof{listing}{beekeeper\_api - controllers/ssh/incident.go \label{listing:beekeeper-api-models-ssh-incident}}
-    
+
 \subsection{\emph{Playbook} de Ansible}
 \label{subsec:playbook-ansible}
 
 No se incluye en el listado el \emph{playbook} de Ansible utilizado para configurar y provisionar las sondas y el recolector, pero se encuentra liberado en GitHub
 en \href{https://github.com/Fsero/beekeeper\_ansible}{https://github.com/Fsero/beekeeper\_ansible}.
-
 
 %%% Local Variables: 
 %%% mode: latex

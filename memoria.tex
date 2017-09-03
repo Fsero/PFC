@@ -212,30 +212,30 @@ como la de \emph{Slack} (\cite{netlink-slack-success}), también es cierto que d
 
 Llegados a este punto, se descarta la utilización de \emph{Auditd} y se justifica la búsqueda de alternativas.
 
-\subsection{Obteniendo información del kernel: \emph{eBPF}}
+\subsection{Obtención de la información del \emph{kernel}: \emph{eBPF}}
 \label{subsec:ebpf}
 
-\emph{eBPF (extended BPF)} (véase \cite{ebpf-brendan-gregg,ebpf-series}) es una maquina virtual muy eficiente que se ejecuta dentro del kernel. Su función original era la de filtrado de paquetes de red, que ha sido
-extendido para ser un motor de procesado de eventos en general.
+\emph{eBPF, extended BPF,} (véase \cite{ebpf-brendan-gregg,ebpf-series}) es una máquina virtual muy eficiente que se ejecuta dentro del \emph{kernel}. Su función original era la de filtrado de paquetes de red, que ha sido
+extendida para ser un motor de procesado de eventos en general.
 
-BPF \emph{Berkeley packet filter} es una maquina virtual que ha sido utilizada para filtrado de paquetes de red en BSD y Linux desde hace 24 años, la orden
-más conocida que utiliza ésta maquina virtual es \emph{tcpdump}, utilidad frecuentemente utilizada para diagnostico de problemas de red.
+\emph{BPF}, \emph{Berkeley packet filter}, es una máquina virtual que ha sido utilizada para el filtrado de paquetes de red en BSD y Linux desde hace 24 años. La orden
+más conocida que utiliza esta máquina virtual es \emph{tcpdump}, utilidad frecuentemente utilizada para el diagnóstico de problemas de red.
 
-Aunque su origen sea el de filtrado de red, a partir del kernel 3.8 y en especial en los ultimos kernels \emph{4.x} se han ido ampliando las capacides de la maquina virtual BPF para poder
-observar eventos de multiples sistemas.
+Aunque su origen sea el de filtrado de red, a partir del \emph{kernel 3.8} y, en especial, en los últimos \emph{kernels 4.x} se han ido ampliando las capacides de la máquina virtual \emph{BPF} para poder
+observar eventos de múltiples sistemas.
 
-la manera de crear nuevos programas \emph{eBPF} es creando programas con instrucciones \emph{eBPF}, dichos programas se pueden escribir utilizando
-instrucciones o a traves de un compilador en \emph{C}. bcc (véase \cite{bcc-project}) es una herramienta que permite escribir programas \emph{Python} que contienen código C que generan 
-instrucciones eBPF.
+La manera de crear nuevos programas \emph{eBPF} es creando programas con instrucciones \emph{eBPF}. Dichos programas se pueden escribir utilizando
+instrucciones o a través de un compilador en \emph{C}. bcc (véase \cite{bcc-project}), que es una herramienta que permite escribir programas \emph{Python} que contienen un código C que generan 
+instrucciones \emph{eBPF}.
 
 \begin{figure}[h]
   \centering
     \includegraphics[scale=0.3]{images/linux_ebpf_internals}
-  \caption{Detalle de como funciona un programa \emph{eBPF} y su relación con el kernel. \emph{Autor: Brendan Gregg}}
+  \caption{Detalle de cómo funciona un programa \emph{eBPF} y su relación con el \emph{kernel}. \emph{Autor: Brendan Gregg}}
   \label{fig:ebpf-internals}
 \end{figure}
 
-el proyecto \emph{bcc} incluye pequeñas utilidades que sirven para monitorizar algunas partes del sistema, en la figura \ref{fig:bcc-tracing-tools} puede observarse un diagrama que incluye algunas de ellas
+El proyecto \emph{bcc} incluye pequeñas utilidades que sirven para monitorizar algunas partes del sistema. En la figura \ref{fig:bcc-tracing-tools}, puede observarse un diagrama que incluye algunas de ellas
 con referencia al sistema que monitorizan.
 
 \begin{figure}[h]
@@ -248,7 +248,7 @@ con referencia al sistema que monitorizan.
 \begin{figure}[h]
   \centering
     \includegraphics[scale=0.65]{images/linux_ebpf_support}
-  \caption{Relación de versiones del kernel donde se dan soporte a susbsistemas en \emph{eBPF}. \emph{Autor: Brendan Gregg \& iovisor project}}
+  \caption{Relación de versiones del \emph{kernel} donde se dan soporte a susbsistemas en \emph{eBPF}. \emph{Autor: Brendan Gregg \& iovisor project}}
   \label{fig:linux_ebpf_support}
 \end{figure}
 
@@ -286,84 +286,82 @@ Linux 4.0 Released 12 April, 2015 \\
 \caption{\label{tab:linux-release-date}Fecha de publicación de versiones de Linux \emph{4.X}}
 \end{table}
 
-Sin embargo el soporte a subsistemas ha sido introducido de manera paulatina, desde la introducción de eBPF, como referencia véase el cuadro \ref{tab:linux-release-date} dónde se incluye la fecha de publicación de algunas versiones de la rama
-\emph{4.x} y la figura \ref{fig:linux_ebpf_support} donde se aprecia en que versión del kernel se incluye.
+Sin embargo, el soporte a subsistemas ha sido introducido de manera paulatina, desde la introducción de \emph{eBPF}. Como referencia, véase el cuadro \ref{tab:linux-release-date} donde se incluye la fecha de publicación de algunas versiones de la rama
+\emph{4.x} y la figura \ref{fig:linux_ebpf_support}, donde se aprecia en qué versión del \emph{kernel} se incluye.
 
 \clearpage
 
 
-Si se utiliza \emph{eBPF} hay importantes ventajas e incovenientes con respecto a \emph{auditd} y otras opciones:
+Si se utiliza \emph{eBPF}, se encuentran diferencias notables respecto a otras opciones. Las diferentes ventajas e incovenientes más importantes con respecto a \emph{Auditd} y otras opciones son:
 \begin{enumerate}
-    \item[Eficiencia] el procesado de eventos y filtrado se hace dentro del kernel, en un entorno aislado, lo que es mucho más
-    rapido y menos costoso que copiar el evento a espacio de usuario y filtrarlo alli.
-    \item[Prometedor] aunque \emph{eBPF} es de incorporación reciente utiliza tecnología existente en el kernel desde hace más de 20 años.
-    \item[Falta de soporte] no hay que perder la vista de que queremos instrumentar una \emph{honeypot} y aunque es viable escribir aplicaciones \emph{eBPF} capaces de instrumentar, no hay demasiada documentación al respecto
-    y quizá ese objetivo sea merecedor de un proyecto por sí sólo.
-    \item[Soporte reciente] si queremos utilizar todas las capacidades de \emph{eBPF} necesitaremos al menos un kernel \emph{4.10} que no está disponible aún en todas las distribuciones, que suelen instalar
-    versiones \emph{LTS} (4.4 actualmente) y que por lo tanto no estará disponible en la mayoría de proveedores de servidores como \emph{AWS, Digital Ocean \ldots}. Aunque no es imposible instalar nuevas versiones del kernel,
+    \item[Eficiencia]: el procesado de eventos y filtrado se hace dentro del \emph{kernel} en un entorno aislado, lo que es mucho más
+    rápido y menos costoso que copiar el evento a espacio de usuario y filtrarlo allí.
+    \item[Prometedor]: aunque \emph{eBPF} es de incorporación reciente, utiliza una tecnología existente en el \emph{kernel} desde hace más de 20 años.
+    \item[Falta de soporte]: no se puede olvidar que lo que se persigue es instrumentar una \emph{honeypot} y que aunque es viable escribir aplicaciones \emph{eBPF} capaces de instrumentar, no hay demasiada documentación al respecto
+    y quizá ese objetivo sea merecedor de un proyecto por sí solo.
+    \item[Soporte reciente]: si se pretende utilizar todas las capacidades de \emph{eBPF} es necesario, al menos, un \emph{kernel 4.10} que no está disponible aún en todas las distribuciones y que suelen instalar en
+    versiones \emph{LTS} (4.4 actualmente), no estando disponible en la mayoría de proveedores de servidores como \emph{AWS, Digital Ocean \ldots}. Aunque no es imposible instalar nuevas versiones del \emph{kernel},
     supone un esfuerzo extra y un coste para el proyecto.
 \end{enumerate}
 
-Por éstas razones se descarta el uso de \emph{eBPF} que aunque prometedor aún no es suficientemente estable para acometer éste proyecto.
+Por estas razones se descarta el uso de \emph{eBPF} que, aun siendo prometedor, todavía no es suficientemente estable para acometer este proyecto.
 \clearpage
 
-\subsection{Obteniendo información del kernel: crear un módulo}
+\subsection{Obtención de la información del \emph{kernel}: crear un módulo}
 \label{subsec:kernel-modulo}
 
-Dado que por las razones expuestas extraer información vía interfaces externas no parecía factible, hay que explorar otras opciones.
-el kernel de \emph{Linux} es modular, y por tanto se puede inyectar un módulo de codigo que extienda las capacidades del kernel, es la manera
-en que habitualmente se cargan nuevos controladores, por ejemplo.
+Dado que por las razones expuestas anteriormente, extraer información vía interfaces externas no parece factible, hay que explorar otras opciones.
+El \emph{kernel} de \emph{Linux} es modular y, por tanto, se le puede inyectar un módulo de código que extienda las capacidades del \emph{kernel} kernel; esta es, por ejemplo, la manera
+en que habitualmente se cargan nuevos controladores.
 
-Ya que extraer información a través de interfaces conocidas no es factible, queda la opción de crearnos la nuestra propia. 
-Desarrollar un módulo del kernel para generar eventos y procesarlos no es una tarea sencilla, el módulo debe ser eficiente para procesar el volumen
-de eventos y correcto para no provocar un fallo en el kernel que deje inutilizado el sistema.
+Ya que extraer información a través de interfaces conocidas no es una opción válida, queda la posibilidad de crear una propia. 
+Desarrollar un módulo del \emph{kernel} para generar eventos y procesarlos no es una tarea sencilla ya que el módulo debe ser eficiente y correcto. ``Eficiente'' para procesar el volumen
+de eventos y ``correcto'' para no provocar un fallo en el \emph{kernel} que deje inutilizado el sistema.
 
-El esfuerzo y tiempo a dedicar necesario para crear un módulo de kernel con cierta calidad y caracteristicas necesitaria un tiempo de desarrollo grande, quizás de la talla
-de éste mismo proyecto. Por ello, antes de comenzar esa tarea cabe buscar si hay opciones disponibles que nos eviten ese trabajo extra.
+El esfuerzo y tiempo de dedicación necesarios para crear un módulo de \emph{kernel} con cierta calidad y características necesitaría de una gran inversión de tiempo de desarrollo; quizás de la talla
+de este mismo proyecto. Por ello, antes de comenzar esa tarea cabe buscar si hay opciones disponibles que eviten ese trabajo extra.
 
-\emph{sysdig} (\cite{sysdig-project}) es un proyecto de \emph{Draios} que consta de una \emph{CLI (Command Line Interface)} que utiliza eventos de un modulo del kernel
+\emph{Sysdig} (\cite{sysdig-project}) es un proyecto de \emph{Draios} que consta de una \emph{CLI (Command Line Interface)} que utiliza eventos de un módulo del \emph{kernel}
 licenciado con GPLv2, lo que supone un encaje perfecto para las necesidades del proyecto.
 
-Ventajas e inconvenientes de éste enfoque:
+Ventajas e inconvenientes de este enfoque son:
 
 \begin{enumerate}
-    \item[Coste] Sysdig obtiene los eventos en espacio del kernel pero los copia a espacio de usuario para ser
-    filtrados y procesados. Si el filtro que escogemos es suficientemente amplio se necesitará una importante cantidad de recursos de CPU y memoria para el filtrado y procesado de eventos.
-    \item[Flexibilidad] \emph{sysdig} como cliente del modulo del kernel, proporciona una enorme flexibilidad a la hora de definir filtros y varios formatos de salida (JSON, formato variable \emph{a la printf},\ldots).
-    \item[Almacenaje] \emph{sysdig} guarda a disco las trazas en fichero en un formato binario propio que es posible leer y filtrar con posterioridad. Proporciona además opciones para el rotado automático por tamaño y/o fecha,
-    lo que permite el almacenaje y gestion de ficheros de trazas directamente desde sysdig y la capacidad de reprocesar eventos si los filtros originales son generalistas. 
+    \item[Coste]: \emph{sysding} obtiene los eventos en el espacio del \emph{kernel} pero los copia a espacio de usuario para ser
+    filtrados y procesados. Si el filtro que escogemos es suficientemente amplio se necesitará una importante cantidad de recursos de CPU y de memoria para el filtrado y procesado de eventos.
+    \item[Flexibilidad]: \emph{sysdig} como cliente del módulo del \emph{kernel}, proporciona una enorme flexibilidad a la hora de definir filtros y varios formatos de salida (JSON, formato variable \emph{a la printf},\ldots).
+    \item[Almacenaje]: \emph{sysdig} guarda a disco las trazas en fichero en un formato binario propio que es posible leer y filtrar con posterioridad. Proporciona además opciones para el rotado automático por tamaño y/o fecha,
+    lo que permite el almacenaje y gestión de ficheros de trazas directamente desde \emph{sysdig} y la capacidad de reprocesar eventos si los filtros originales son generalistas. 
 \end{enumerate}
 
-Las ventajas superan los incovenientes en éste caso, ya que aunque el consumo de CPU sea más elevado, poder gestionar las trazas directamente, reprocesar ficheros de captura y las opciones flexibles de filtrado y postprocesado hacen de ésta opción la opción finalmente escogida.
+Las ventajas superan los incovenientes en este caso, ya que aunque el consumo de CPU sea más elevado, poder gestionar las trazas directamente, reprocesar ficheros de captura y tener flexibilidad en las opciones de filtrado y postprocesado hacen de esta opción la finalmente escogida.
 
 \subsection{Notificación de alertas en base a eventos capturados en las trazas}
 \label{subsec:alertas-trazas}
 
-Una vez que hemos establecido como obtener los eventos, necesitamos que en ciertas condiciones algun componente, ya
-sea el método de instrumentación o un sistema externo nos notifique cuando se vulnera nuestra \emph{honeypot} o hay un
+Una vez establecido cómo obtener los eventos, el siguiente paso es cumplir con la necesidad de que -en ciertas condiciones- algún componente (ya sea el método de instrumentación o un sistema externo) notifique cuando se vulnera nuestra \emph{honeypot} o hay un
 cambio relevante dentro de ella.
 
-Necesitamos esa notificación para conocer cuando se produce un incidente y sobre todo para ser capaz de limpiar el entorno tras una
-cierta ventana de tiempo de exposición, nuestro objetivo es el de aprender de nuestros atacantes no de convertirnos en una plataforma de soporte
+Esta notificación es necesaria para conocer cuándo se produce un incidente y, sobre todo, para tener la capacidad de limpiar el entorno tras una
+cierta ventana de tiempo de exposición ya que nuestro objetivo es el de aprender de nuestros atacantes y no el de convertirnos en una plataforma de soporte
 para ellos.
 
-Desgraciadamente, al comienzo de éste proyecto (Marzo de 2016) no existía ningún tipo de aplicación que realizase ésta tarea.
-Por ello, extender \emph{sysdig} para realizar ésta tarea parece lo más apropiado, la manera de extension puede ser a través de un
-script en Lua que sea ejecutado dentro de \emph{sysdig} o procesando la salida en una aplicación externa.
+Desgraciadamente, al comienzo de este proyecto (Marzo de 2016) no existía ningún tipo de aplicación que realizase esta tarea.
+Por ello, extender \emph{sysdig} para realizarla pareció lo más apropiado. La manera de extension puede ser a través de un
+\emph{script en Lua} que sea ejecutado dentro de \emph{sysdig} o procesando la salida en una aplicación externa.
 
-\emph{Lua} es un lenguaje pequeño, versatil y potente y posiblemente capaz de realizar ésta tarea, pero la poca familiaridad del autor con este lenguaje decanta
-la balanza a favor de desarrollar una aplicación externa que recibiendo los eventos procesados por \emph{sysdig} genere las notificaciones.
+\emph{Lua} es un lenguaje pequeño, versátil, potente y -posiblemente- capaz de realizar esta tarea, pero la poca familiaridad del autor con este lenguaje decanta
+la balanza a favor de desarrollar una aplicación externa que, recibiendo los eventos procesados por \emph{sysdig}, genere las notificaciones.
 
-Afortunada (o desgraciadamente por el tiempo \emph{invertido}) antes de que el desarrollo de dicha aplicación terminase, \emph{Draios} lanza \emph{Falco} (\cite{falco-project}) en Mayo de 2016, un proyecto cuyo objetivo
-es el analizar el comportamiento anomalo de containers en base a filtros de \emph{sysdig} y generar notificaciones sobre ello.
+Afortunadamente (o desgraciadamente por el tiempo ``invertido''), antes de que el desarrollo de dicha aplicación terminase, \emph{Draios} lanzó \emph{Falco} (\cite{falco-project}) en Mayo de 2016; un proyecto cuyo objetivo
+es el de analizar el comportamiento anómalo de \emph{containers} en base a filtros de \emph{sysdig} y generar notificaciones sobre ello.
 
-El encaje con los propositos del proyecto es perfecto, y por ello se descarta el desarrollo propio tras una prueba inicial.
+El encaje con los propósitos del proyecto es perfecto y, por ello, se descartó el desarrollo propio tras una prueba inicial.
 
 \subsection{Modelo de riesgo de la sonda y del servicio expuesto.}
 \label{subsec:riesgos}
 
-El objetivo de una  \emph{honeypot} es el de engañar a atacantes para que realicen un ataque como lo harian en un entorno real. Aunque este ataque se produce en un entorno en el que esperamos un ataque
-tendremos que definir el riesgo que asumimos al exponerse y que medidas o politicas se aplicarán para éstos riesgos. En la figura \ref{fig:riesgo_sonda} se describen los posibles riesgos, realizando un diagrama de riesgos siguiendo la metodologia expuesta en \cite{Shostack:2014:TMD:2829295}.
+El objetivo de una  \emph{honeypot} es el de engañar a atacantes para que realicen un ataque como lo harían en un entorno real. Aunque este ataque se produce en un entorno en el que dicho ataque es "esperado", se ha de definir el riesgo asumido al exponerse y qué medidas o políticas se aplicarán para estos riesgos. En la figura \ref{fig:riesgo_sonda} están descritos, realizando un diagrama de riesgos siguiendo la metodología expuesta en \cite{Shostack:2014:TMD:2829295}.
 
 \begin{figure}[!h]
   \centering
@@ -374,20 +372,20 @@ tendremos que definir el riesgo que asumimos al exponerse y que medidas o politi
 
 Listado de riesgos analizados sobre la figura \ref{fig:riesgo_sonda}:
 \begin{enumerate}
-    \item[\emph{Naranja 1}] Elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
-    \item[\emph{Naranja 2}] Riesgo de que la \emph{honeypot} sea reconocible o listada, la \emph{honeypot} es conocida por alguna caracteristica (\emph{IP del servidor, versión del servicio,\ldots}) marcandola como \emph{honeypot} permitiendo a los atacantes simplemente ignorarla.
-    \item[\emph{Azul}] El atacante escapa desde el \emph{container}, elevación de privilegios que rompe el aislamiento del kernel y el atacante gana acceso a otros containers o al servidor.
-    \item[\emph{Verde}] \emph{Spoofing} de la información enviada al recolector, una vez el atacante gana acceso al servidor puede enviarnos al recolector información falseada.
-    \item[\emph{Rojo}] Elevación de privilegios de un atacante que ya ha conseguido acceso al recolector. El recolector y la sonda mantendran una conexión, si alguien ataca al recolector y gana privilegios puede atacar a las sondas. Pese a que es un riesgo, si el recolector ha sido vulnerado, que nos ataquen las sondas no es tan grave.
+    \item[\emph{Naranja 1}]: elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
+    \item[\emph{Naranja 2}]: riesgo de que la \emph{honeypot} sea reconocible o listada. La \emph{honeypot} es conocida por alguna característica (\emph{IP del servidor, versión del servicio,\ldots}) marcándola como \emph{honeypot} y permitiendo a los atacantes simplemente ignorarla.
+    \item[\emph{Azul}]: el atacante escapa desde el \emph{container}. Hay una elevación de privilegios que rompe el aislamiento del \emph{kernel} y el atacante gana acceso a otros \emph{containers} o al servidor.
+    \item[\emph{Verde}]: \emph{spoofing} de la información enviada al recolector. Una vez el atacante gana acceso al servidor, puede enviar al recolector la información falseada.
+    \item[\emph{Rojo}]: elevación de privilegios de un atacante que ya ha conseguido acceso al recolector. El recolector y la sonda mantendrán una conexión y, si alguien ataca al recolector y gana privilegios, puede atacar a las sondas. Pese a que es un riesgo, si el recolector ha sido vulnerado, que ataquen las sondas no es tan grave.
 \end{enumerate}
 
 Listado de mitigaciones para los riesgos analizados:
 \begin{enumerate}
-    \item[\emph{Naranja 1}] Reducir la superficie de ataque, eliminar servicios expuestos que no pertenezcan a la \emph{honeypot} o limitar el acceso a ciertas direcciones ip conocidas.
-    \item[\emph{Naranja 2}] Para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. la mejor alternativa para mitigar éste riesgo es reciclar las sondas, y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automatico, se pueden crear nuevas sondas con frecuencia diaria u horaria.
-    \item[\emph{Azul}] Debemos aceptar el riesgo, que el container siempre tendra acceso al kernel que se comparte con otros containers y el servidor, como mitigación podemos restringir los privilegios del container para que solo pueda utilizar algunas syscalls, pero en cualquier caso el riesgo de compromiso de un servidor a traves de un container siempre estara presente. 
-    \item[\emph{Verde}] La comunicacion entre sonda y recolector se realizara a traves de un canal cifrado con clave asimetrica. En el lado del recolector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
-    \item[\emph{Rojo}] De todos los riesgos listados, este es el menos grave, si el recolector ha sido atacado y vulnerado tendremos problemas mayores que nuestra sonda sea atacada. La mitigación en este caso es si hemos sido vulnerados cerrar el entorno, apagar los servidores, guardar periodicamente la informacion obtenida en un almacenamiento diferente y externo, hacer una auditoria de seguridad y analisis de que provoco el ataque para repararlo y recrear el entorno desde cero para asegurarnos que el atacante no tiene acceso a el.
+    \item[\emph{Naranja 1}]: reducción de la superficie de ataque, eliminación de los servicios expuestos que no pertenezcan a la \emph{honeypot} o limitación del acceso a ciertas direcciones \emph{ip} conocidas.
+    \item[\emph{Naranja 2}]: para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. La mejor alternativa para mitigarlo es reciclar las sondas y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automático, se pueden crear nuevas sondas con frecuencia diaria u horaria.
+    \item[\emph{Azul}]: aceptación del riesgo que supone que el \emph{container} siempre tendrá acceso al \emph{kernel} que se comparte con otros \emph{containers} y el servidor. Como mitigación, podemos restringir los privilegios del \emph{container} para que solo pueda utilizar algunas \emph{syscalls} pero -en cualquier caso- el riesgo de compromiso de un servidor a través de un \emph{container} siempre estará presente. 
+    \item[\emph{Verde}]: la comunicacion entre sonda y recolector se realizará a través de un canal cifrado con clave asimétrica. En el lado del recolector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
+    \item[\emph{Rojo}]: de todos los riesgos listados, este es el menos grave. Si el recolector ha sido atacado y vulnerado, tendremos problemas mayores que nuestra sonda sea atacada. La mitigación en este caso es si se ha vulnerado: cerrar el entorno, apagar los servidores, guardar periódicamente la información obtenida en un almacenamiento diferente y externo, hacer una auditoria de seguridad y realizar el análisis de qué provocó el ataque para repararlo y recrear el entorno desde cero para tener la seguridad de que el atacante no tiene acceso a él.
 \end{enumerate}
 
 Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura y diseñar las protecciones, en general los riesgos \emph{Naranja 1}, \emph{Naranja 2} y \emph{Azul} son mas prioritarios que los riesgos \emph{Verde} y \emph{Rojo}. Las posibles acciones a tomar estan listadas en las mitigaciones del mismo color y creemos que son suficientes para equilibrar los riesgos.
@@ -397,52 +395,51 @@ Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura
 
 \subsection{Registro de las sondas}
 
-El recolector debe conocer el número de sondas desplegadas para poder extraer información de ellas o al menos validar
-los eventos que estas envien.
+El recolector debe conocer el número de sondas desplegadas para poder extraer información de ellas o, al menos, validar
+los eventos que estas envíen.
 
-En definitiva debemos preguntarnos como se realizará el registro de sondas y que casos de uso ha de proporcionar. En general, necesitaremos lo siguiente:
+En definitiva, las preguntas a resolver son: ¿cómo se realizará el registro de sondas? y ¿qué casos de uso ha de proporcionar? En general, es necesario lo siguiente:
 
 \begin{enumerate}
-    \item Necesitamos \emph{metadata} de las sondas para la explotación de datos, al menos la ubicación donde la sonda esta desplegada, el proveedor, servicios expuestos en la \emph{honeypot} y versiones.
-    \item Como se comentaba en el modelo de seguridad de las sondas, consideramos las sondas como entidades efimeras, que aparecen y desaparecen. 
-    Necesitaremos un registro de sondas si queremos realizar analisis historicos, especialmente si queremos permitir el reprocesado de datos.
-    \item Verificación de la sonda para mantener la integridad de la información, la sonda ha de identificarse frente al recolector para asegurarnos que la fuente de información es legitima.
-    \item De cara a la recolección de datos, tendremos que pensar si optaremos por un modelo \emph{pull} frente a uno \emph{push}. En caso de escoger un modelo \emph{pull} el recolector debe conocer
+    \item La \emph{metadata} de las sondas para la explotación de datos, al menos la ubicación donde la sonda está desplegada, el proveedor y servicios expuestos en la \emph{honeypot} y en sus versiones.
+    \item Como se comentaba en el modelo de seguridad de las sondas, estas son consideradas entidades efímeras, que aparecen y desaparecen. 
+    Así, también es necesario un registro de sondas para realizar los análisis históricos, especialmente, si se quiere permitir el reprocesado de datos.
+    \item La verificación de la sonda para mantener la integridad de la información. La sonda ha de identificarse frente al recolector para tener la seguridad de que la fuente de información es legítima.
+    \item De cara a la recolección de datos, la elección de un modelo \emph{pull} frente a uno \emph{push}. En caso de escoger un modelo \emph{pull}, el recolector debe conocer
     cuales son las sondas y su estado para obtener las trazas.
 \end{enumerate}
 
 \subsection{Recolección de notificaciones de la \emph{honeypot}}
 
-Las alertas generadas por la \emph{Honeypot} seran eventos en formato textual o binario de un tamaño pequeño ( $<$ 1MiB). 
+Las alertas generadas por la \emph{honeypot} serán eventos en formato textual o binario de un tamaño pequeño ( $<$ 1MiB). 
 Es importante que dichos eventos no se pierdan y que sean recolectados con la mayor celeridad posible incluso si las trazas disponibles
 y la información de las trazas no está disponible.
 
-Para la recolección de estas notificaciones, tenemos varias opciones, que se listan a continuación.
+Para la recolección de estas notificaciones, hay las opciones que se listan a continuación.
 
 \subsubsection{Notificaciones a través de HTTP}
 
-La \emph{honeypot} cuando detecta un evento relevante, realiza una petición HTTP a un servicio web de recolección que se ejecuta en el recolector.
-Si dicho servicio no está disponible o esta congestionado, el evento se perdera.
-La sonda no requiere instalación adicional de \emph{software} ya que sólo requiere realizar una petición HTTP. 
-Si la conexión de red de la sonda no funciona al realizar la petición el evento también se perderá.
+Cuando detecta un evento relevante, la \emph{honeypot} realiza una petición HTTP a un servicio web de recolección que se ejecuta en el recolector.
+Si dicho servicio no está disponible o está congestionado, el evento se perderá.
+La sonda no requiere instalación adicional de \emph{software} ya que solo requiere realizar una petición HTTP. 
+Si la conexión de red de la sonda no funciona al realizar la petición, el evento también se perderá.
 
 \subsubsection{Notificaciones usando un sistema de colas}
-\label{subsubsec:notificaciones-colas}
 
-Tendremos que instalar, configurar y mantener un sistema de colas como \emph{RabbitMQ, ZeroMQ, Kafka} 
+Habrá que instalar, configurar y mantener un sistema de colas como \emph{RabbitMQ, ZeroMQ, Kafka} 
 o pagar por el uso de sistemas de colas en el \emph{cloud} como \emph{AWS SQS, AWS Kinesis o Google Cloud PubSub}.
 
-La principal ventaja al seguir este enfoque es que los eventos seran almacenados en el sistema de colas y no en las sondas o en el recolector. Si queremos
-distribuir las tareas de procesamiento y recolección eventos entre varios recolectores, necesitaremos este elemento central de coordinación.
+La principal ventaja al seguir este enfoque es que los eventos serán almacenados en el sistema de colas y no en las sondas o en el recolector. Si queremos
+distribuir las tareas de procesamiento y recolección de eventos entre varios recolectores, este elemento central de coordinación es un requisito imprescindible.
 
-El principal inconveniente es el coste en terminos economicos y de esfuerzo en mantener esta solucion. 
-Si decidimos gestionarlo dentro del proyecto usando algo como \emph{RabbitMQ o Kafka} además del incremento economico en servidores 
-debemos añadir el incremento en la complejidad del proyecto. En cambio, si apostamos por utilizar una solución \emph{cloud} la complejidad
-de instalación y mantenimiento baja a costa de un mayor desembolso economico y a aceptar las capacidades tecnicas y limites que las soluciones 
+El principal inconveniente es el coste en términos económicos y de esfuerzo en mantener esta solución. 
+Si decidimos gestionarlo dentro del proyecto usando algo como \emph{RabbitMQ o Kafka} además del incremento económico en servidores 
+se le debe añadir el incremento en la complejidad del proyecto. En cambio, si se apuesta por utilizar una solución \emph{cloud}, la complejidad
+de instalación y mantenimiento baja a costa de un mayor desembolso económico y de aceptar las capacidades técnicas y límites que las soluciones 
 \emph{cloud} tienen.
 
-Para este proyecto, el orden estricto de recepción de eventos no es necesario. No nos importará el orden de eventos recibidos siempre y cuando
-ningun evento se entregue con demasiada posterioridad.
+Para este proyecto, el orden estricto de recepción de eventos no es necesario. De modo que no importará el orden de eventos recibidos siempre y cuando
+ningún evento se entregue con demasiada posterioridad.
 \begin{table}[h]
     \centering
     \begin{tabular}[!h]{|l|l|r|}
@@ -456,71 +453,69 @@ ningun evento se entregue con demasiada posterioridad.
     \emph{RabbitMQ} & 3 instancias (512 MiB,1 CPU, 20 GiB de disco) & 15\$ mes \\
     \hline
     \end{tabular}
-    \caption{\label{tab:colas-coste} coste aproximado minimo de sistemas de colas}
+    \caption{\label{tab:colas-coste} Coste aproximado mínimo de sistemas de colas}
     \end{table}
 
 
-El cuadro \ref{tab:colas-coste} refleja el coste de sistemas actuales con el precio fijado en la fecha de redacción de esta memoria. En el no se contemplan costes indirectos,
-como el coste de las horas invertidas en configurar y puesta a punto del sistema, que en el caso de las soluciones \emph{cloud} aunque no es cero, es menor que la solucion de hacerlo \emph{in-house}.
+El cuadro \ref{tab:colas-coste} refleja el coste de sistemas actuales con el precio fijado en la fecha de redacción de esta memoria. En él no se contemplan costes indirectos,
+como el coste de las horas invertidas en configurar la puesta a punto del sistema, que en el caso de las soluciones \emph{cloud} aun no siendo cero, es menor que la solución de hacerlo \emph{in-house}.
 
-Tampoco se tiene en cuenta la escalabilidad de la solucion, que en el caso de las soluciones \emph{cloud} el sistema es escalable a costa de un precio cada vez mayor, mientras que en la solucion in-house los costes son
-fijos hasta que se consuma toda la capacidad. El volumen de eventos a procesar dependera de las condiciones de red de la instalación y el volumen de eventos por lo que no podemos
-proporcionar un numero de referencia de eventos a procesar.
+Tampoco se tiene en cuenta la escalabilidad de la solución; que en el caso de las soluciones \emph{cloud}, el sistema es escalable a costa de un precio cada vez mayor, mientras que en la solución \emph{in-house}, los costes son
+fijos hasta que se consuma toda la capacidad. El volumen de eventos a procesar dependerá de las condiciones de red de la instalación y el volumen de eventos por lo que no es posible
+proporcionar un número de referencia de eventos a procesar ``a priori''.
 
-Las soluciones \emph{cloud} tienen un coste indirecto, nos ligan a un proveedor en concreto. Si escogemos que nuestras \emph{honeypots} se desplieguen en otros proveedores diferentes, tendremos que hacer
-pruebas de red para saber si la conectividad entre proveedores es buena, y tendremos costes adicionales en terminos de trafico de red.
+Las soluciones \emph{cloud} tienen un coste indirecto y ligan a un proveedor en concreto. Si se escoge que nuestras \emph{honeypots} se desplieguen en otros proveedores diferentes, se han de hacer
+pruebas de red para saber si la conectividad entre proveedores es buena, y tendrá costes adicionales en términos de tráfico de red.
 
-Los proveedores de servicios de computación en exclusiva (\emph{VPS}, \emph{Housing}) no suelen cobrar el trafico de red a no ser que superemos ciertos umbrales.
+Los proveedores de servicios de computación en exclusiva (como \emph{VPS}, \emph{Housing}) no suelen cobrar el tráfico de red a no ser que se superen ciertos umbrales.
 
 \subsubsection{Notificaciones usando un recolector de \emph{logs}}
 \label{subsubsec:usando-rsyslog}
 
-Podemos considerar esta opción como una hibrida de las anteriores, instalaremos una aplicación de recolector de logs en la sonda. 
-La sonda escribirá eventos en disco cuando estos se produzcan, el sistema de recoleccion de logs monitorizará los \emph{logs} en disco, y
-se encargará de reenviar estos eventos al recolector, preferentemente utilizando un canal seguro para la transmisión.
+Esta opción se puede considerar como un híbrido de las anteriores, en tanto que es la instalación de una aplicación de recolector de \emph{logs} en la sonda. 
+La sonda escribirá eventos en disco cuando estos se produzcan, el sistema de recolección de \emph{logs} los monitorizará en disco y
+se encargará de reenviar estos eventos al recolector, preferentemente, utilizando un canal seguro para la transmisión.
 
-Si hay problemas en la conectividad de red entre la sonda y el recolector, los eventos se guardarán en un \emph{buffer} en disco y se reenviaran cuando la parte servidor este disponible.
+Si hay problemas en la conectividad de red entre la sonda y el recolector, los eventos se guardarán en un \emph{buffer} en disco y se reenviarán cuando la parte servidor esté disponible.
 
-Como ejemplo de estas aplicaciones de recolección de \emph{logs} podemos citar, \emph{rsyslog,logstash,syslog-ng o fluentd}. \emph{rsyslog} y \emph{syslog-ng} son más veteranas, 
-en cuanto \emph{logstash} y \emph{fluentd} más recientes. 
+Como ejemplo de estas aplicaciones de recolección de \emph{logs} podemos citar a \emph{rsyslog,logstash,syslog-ng o fluentd}. \emph{Rsyslog} y \emph{syslog-ng} son más veteranas y \emph{logstash} y \emph{fluentd}, más recientes. 
 
-La diferencia entre las antiguas y recientes radica en que las recientes hacen enfasis en la capacidad de manipulacion de los \emph{logs} antes de su envio, mientras
-que las antiguas estan más probadas y su enfoque es hacia garantizar el envío de \emph{logs} de manera segura.
+La diferencia entre las antiguas y recientes radica en que las recientes hacen énfasis en la capacidad de manipulación de los \emph{logs} antes de su envío, mientras
+que las antiguas están más probadas y su enfoque garantiza el envío de \emph{logs} de manera segura.
 
-El coste computacional de estas soluciones aunque no es negligible es muy bajo, es necesario procesar un volumen muy elevado de logs para que tenga impacto.
-El recolector deberá encargarse de ser capaz de albergar todos los logs recibidos, ya sea porque a su vez reenvia los \emph{logs} a otra ubicación o se encarga de la 
-politica de rotado. 
+El coste computacional de estas soluciones (aunque no es negligible) es muy bajo y es necesario procesar un volumen muy elevado de \emph{logs} para que tenga impacto.
+El recolector deberá encargarse de ser capaz de albergar todos los \emph{logs} recibidos, ya sea porque a su vez reenvía los \emph{logs} a otra ubicación o porque se encarga de la 
+política de rotado. 
 
 \subsubsection{Opción escogida}
 
-Para este proyecto escogemos la opción de utilizar un recolector de \emph{logs} en nuestras sondas y reenviarlos a nuestro recolector de eventos. 
+Para este proyecto, ha sido escogida la opción de utilizar un recolector de \emph{logs} en nuestras sondas y para que los reenvíe a nuestro recolector de eventos. 
 
 \begin{enumerate}
-    \item La opción de notificar mediante peticiones HTTP es la más simple desde el punto de vista de la sonda y la deseable, pero no nos otorga garantias de entrega.
-    \item Utilizar sistemas de colas es lo deseable para escalar la solución, desacopla los productores de eventos de los consumidores,
-     y para la sonda la semantica de entrega es igual de simple que en el caso de la opción HTTP. Sin embargo, el coste economico y la complejidad elevada que introduce no justifica su acogida.
+    \item La opción de notificar mediante peticiones HTTP es la más simple desde el punto de vista de la sonda y la más deseable, pero no otorga garantías de entrega.
+    \item El uso de sistemas de colas es lo deseable para escalar la solución ya que desacopla los productores de eventos de los consumidores,
+     y, para la sonda, la semántica de entrega es igual de simple que en el caso de la opción HTTP. Sin embargo, el coste económico y la complejidad elevada que introduce no justifica su acogida.
      En un estado posterior del proyecto, siempre se puede pivotar a utilizar un sistema de colas.
 \end{enumerate}
 
-En concreto se utilizará \emph{rsyslog} como recolector de \emph{logs} por sus pocas necesidad de memoria y CPU y su estabilidad. Las capacidades de modificación de \emph{logs}
-antes de su envio no son necesarias para este proyecto y \emph{logstash} y \emph{fluentd} tienen un \emph{footprint} de uso de memoria mucho mas elevado.
+En concreto, se utilizará \emph{rsyslog} como recolector de \emph{logs} por su poca necesidad de memoria y CPU y por su estabilidad. Las capacidades de modificación de \emph{logs}
+antes de su envío no son necesarias para este proyecto y \emph{logstash} y \emph{fluentd} tienen un \emph{footprint} de uso de memoria mucho más elevado.
 
 \subsection{Recolección de trazas}
 
-Las trazas generadas por la \emph{honeypot} seran ficheros binarios de un tamaño elevado ($>$ 25 MiB), en el se recogerán todos los eventos del sistema instrumentalizado (\emph{syscalls},datos,\ldots).
-Tendremos que buscar un sistema que nos permita recolectar todas las trazas de todas las sondas. Es importante notar que
-las trazas una vez procesadas no son estrictamente necesarias, aunque es útil mantener un historico de ellas por dos motivos:
+Las trazas generadas por la \emph{honeypot} serán ficheros binarios de un tamaño elevado ($>$ 25 MiB). En él se recogerán todos los eventos del sistema instrumentalizado (\emph{syscalls}, datos,\ldots).
+Se deberá buscar un sistema que permita recolectar todas las trazas de todas las sondas. Es importante notar que
+las trazas una vez procesadas no son estrictamente necesarias, aunque es útil mantener un histórico de ellas por dos motivos:
 
 \begin{enumerate}
-    \item Permitir el estudio analitico en base a un historico.
-    \item Facilitar el reprocesamiento en caso de errores de procesado (\emph{backfilling}). Idealmente nuestro método de extracción de
-    datos deberia ser correcto y tener los suficientes tests y garantias pero aún asi los errores pueden ocurrir.
+    \item Permitir el estudio analítico en base a un histórico.
+    \item Facilitar el reprocesamiento en caso de errores de procesado (\emph{backfilling}). Idealmente, este método de extracción de
+    datos debería ser correcto y tener los suficientes tests y garantías, pero aún así los errores pueden ocurrir.
 \end{enumerate}
 
-\subsubsection{Envio de trazas a almacenamiento en la nube}
+\subsubsection{Envío de trazas a almacenamiento en la nube}
 
-Si decidimos no gestionar las trazas nosotros, podemos optar por almacenar las trazas en la nube en soluciones \emph{cloud}. Para conocer el coste aproximado
-supongamos que queremos almacenar 500GiB de trazas por mes (aprox 18 GiB por dia). En ese caso, el coste en \emph{AWS} y \emph{Google Cloud} para almacenarlos
+Si se decidiera no gestionar las trazas nosotros, se podría optar por almacenar las trazas en la nube en soluciones \emph{cloud}. Para conocer el coste aproximado, se hará con el supuesto de que el almacenaje será de 500GiB de trazas por mes (aprox 18 GiB por día). En ese caso, el coste en \emph{AWS} y \emph{Google Cloud} para almacenarlos
 en una región europea, teniendo en cuenta los costes de tráfico de salida fuera del proveedor sería:
 
 \begin{table}[h]
@@ -538,123 +533,117 @@ en una región europea, teniendo en cuenta los costes de tráfico de salida fuer
     \emph{Google Cloud}, con servidores en mismo proveedor & 10.44 \$ \\
     \hline
     \end{tabular}
-    \caption{\label{tab:almacenamiento-coste} coste aproximado de almacenamiento en la nube para 500 GiB}
+    \caption{\label{tab:almacenamiento-coste} Coste aproximado de almacenamiento en la nube para 500 GiB}
     \end{table}
 
 En el cuadro \ref{tab:almacenamiento-coste} se reflejan los costes mensuales de almacenar 500 GiB. 
-En el se observa que es sensiblemente más barato si no hay transferencia de datos fuera del proveedor. 
 
-Aunque eso obliga a comprar servidores en el mismo proveedor que puede elevar el coste total del proyecto.
+Aunque eso obliga a comprar servidores en el mismo proveedor que puede elevar el coste total del proyecto, en él se observa que es sensiblemente más barato si no hay transferencia de datos fuera del proveedor.
 
 \subsubsection{Sistema de archivos distribuido}
 
-Otra opción es montar un sistema de archivos distribuido dentro del proyecto y no usar sistemas de almacenamiento externos
+Otra opción se basa en montar un sistema de archivos distribuido dentro del proyecto y no usar sistemas de almacenamiento externos
 en la nube. Como ventajas:
 
 \begin{enumerate}
-    \item Para la aplicación el sistema de archivos es infinito e ilimitado en espacio.
+    \item El sistema de archivos es infinito e ilimitado en espacio para la aplicación.
     \item La interfaz de comunicación puede ser como un punto de montaje más en el sistema de archivos o a través de 
-    peticiones HTTP \emph{a la S3}.
-    \item El rotado, eliminación y mantenimiento y ajuste de los archivos dentro del sistema de archivos es responsabilidad de este.
+    peticiones HTTP a la \emph{S3}.
+    \item El rotado, eliminación, mantenimiento y ajuste de los archivos dentro del sistema de archivos es responsabilidad de este mismo.
 \end{enumerate}
 
-Como inconvenientes, podemos enumerar:
+En cambio, como inconvenientes, hay:
 
 % se necesita una buena conexion de red.
 % punto critico si cae
 % sistemas complejos no faciles de mantener
 
 \begin{enumerate}
-    \item Se necesita una buena conexión de red entre los servidores que conformaran el sistema de archivos distribuido, y entre estos y las sondas y el recolector como clientes. 
-    Por la naturaleza del proyecto, nos interesa tener las sondas en diferentes proveedores y diferentes regiones. La conectividad entre diferentes proveedores y regiones es muy irregular, por lo que no podemos contar con una conexión de red estable y/o rapida.
-    \item el sistema de archivos distribuido se convierte en un punto critico (\emph{SPOF, Single Point of Failure}). Aunque intentemos que el sistema de archivos sea distribuido y escalable en caso de error del sistema, el sistema dejara de funcionar en su totalidad.
-    Las sondas dejaran de ser capaces de publicar las trazas en el sistema de archivos, y los procesadores de datos seran incapaces de leer nuevas trazas y procesarlas.
-    \item Son sistemas complejos de optimizar, configurar y mantener y que requieren una inversión inicial y sostenida de esfuerzo para ser operados.
+    \item La necesidad una buena conexión de red entre los servidores que conformaran el sistema de archivos distribuido y entre estos y las sondas y el recolector como clientes. 
+    Por la naturaleza del proyecto, interesa tener las sondas en diferentes proveedores y diferentes regiones. La conectividad entre diferentes proveedores y regiones es muy irregular, por lo que se podría contar con una conexión de red estable y/o rápida.
+    \item El peligro de que el sistema de archivos distribuido se convierta en un punto crítico (\emph{SPOF, Single Point of Failure}). A pesar de intentar que el sistema de archivos sea distribuido y escalable en caso de error del sistema, el sistema dejará de funcionar en su totalidad.
+    Las sondas dejarán de ser capaces de publicar las trazas en el sistema de archivos, y los procesadores de datos serán incapaces de leer nuevas trazas y procesarlas.
+    \item La complejidad de optimizar, configurar y mantener estos sistemas y que requieren una inversión inicial y sostenida de esfuerzo para ser operados.
 \end{enumerate}
 
-Tradicionalmente se ha utilizado \emph{NFS} para configurar y utilizar sistemas de archivos en red (no distirbuidos) en Linux (véase \cite{wiki-nfs}). 
-Si queremos ofrecer a los clientes nuestro sistema de archivos como un punto de montaje extra en el sistema, podremos utilizar
+Tradicionalmente, se ha utilizado \emph{NFS} para configurar y utilizar sistemas de archivos en red (no distribuidos) en Linux (véase \cite{wiki-nfs}). 
+En el caso de existir la posibilidad de ofertar a potenciales clientes nuestro sistema de archivos como un punto de montaje extra en el sistema, se deberá utilizar
 \emph{NFS}, \emph{GlusterFS} (\cite{wiki-glusterfs}) y/o \emph{Ceph} \cite{wiki-ceph}.
 
-La diferencia fundamental del primero con los segundos es que el conjunto de discos duros y almacenamiento en \emph{NFS} esta gestionado de manera local
+La diferencia fundamental del primero con los segundos es que el conjunto de discos duros y almacenamiento en \emph{NFS} está gestionado de manera local
 por cada nodo que forme parte del sistema, en tanto en cuanto en sistemas como \emph{GlusterFS} y \emph{Ceph} los nodos forman parte de un 
-mismo \emph{pool} de discos duros, donde se pueden configurar opciones de replicación para garantizar que los archivos no se pierden si 
-se pierden la conectividad a un nodo.
+mismo \emph{pool} de discos duros donde se pueden configurar opciones de replicación para garantizar que los archivos no se pierden, en el caso de perder la conectividad a un nodo.
 
 \emph{Ceph} y otros poyectos como \emph{\href{https://minio.io/}{Minio}} proveen de una interfaz compatible con \emph{AWS S3}, que puede ser una ventaja importante
-si queremos migrar de un sistema a otro, y que, ademas simplifica la configuración en los clientes.
+si se pretende migrar de un sistema a otro y que, ademas, simplifica la configuración en los clientes.
 
 En lugar de tener que montar el sistema de archivos como cliente de nuestro sistema de archivos distribuido basta 
 realizar peticiones HTTP a un servidor. De esta manera la configuración del sistema es menor y mucho más simple.
 
-\subsubsection{Envio de trazas a un servidor interno de almacenamiento}.
+\subsubsection{Envío de trazas a un servidor interno de almacenamiento}.
 
-Otra opción sera utilizar el almacenamiento local en las sondas y el almacenamiento local en el recolector para guardar las trazas.
-Las sondas escriben las trazas en el disco local, y algun proceso en el recolector se encarga de periodicamente de conectarse a las sondas,
+Otra opción será utilizar el almacenamiento local en las sondas y el almacenamiento local en el recolector para guardar las trazas.
+Las sondas escriben las trazas en el disco local y,a su vez, algún proceso en el recolector se encarga periódicamente de conectarse a las sondas,
 comprobar si hay nuevas trazas y descargarlas.
 
-las ventajas de este enfoque son:
+Las ventajas de este enfoque son:
 \begin{enumerate}
-    \item No incurrimos en costes adicionales, utilizamos el almacenamiento local.
-    \item La estabilidad de la red deja de ser un problema, si la red no esta disponible o es lenta entre las sondas y el recolector se iran almacenando mientras haya espacio.
-    \item es fácil de combinar con uno de los dos enfoques anteriores para almacenamiento de caracter mas permanente.
+    \item La no incursión en costes adicional por utilizar el almacenamiento local.
+    \item La estabilidad de la red deja de ser un problema. Si la red no está disponible o es lenta, entre las sondas y el recolector se irán almacenando las trazas mientras haya espacio.
+    \item La facilidad para combinar con uno de los dos enfoques anteriores para almacenamiento de carácter más permanente.
 \end{enumerate}
 
-Que presenta los siguientes inconvenientes:
+Por otro lado, presenta los siguientes inconvenientes:
 
 \begin{enumerate}
     \item La latencia de entrega de trazas puede ser mayor y en cualquier caso es variable.
-    \item La posibilidad de perder trazas debido a perdidas de conexión de red entre la sonda y el recolector muy prolongadas.
-    \item El almacenamiento es finito y no facilmente ampliable, se han de eliminar trazas para asegurar que las trazas nuevas puedan
+    \item La posibilidad de perder trazas debido a pérdidas de conexión de red entre la sonda y el recolector son muy prolongadas.
+    \item El almacenamiento es finito y no fácilmente ampliable, lo que implica que se han de eliminar trazas para asegurar que las trazas nuevas puedan
     ser procesadas.
 \end{enumerate}
 
-Para implementar éste enfoque necesitamos una herramienta para la transimion eficiente y sincronizada de archivos. Para este fin,
-\emph{rsync} es una herramienta clasica ampliamente utilizada (citada por ejemplo en \cite{Ph.D.200301} y \cite{douglis2004web}).
-
-Deberemos limitar el ancho de banda que \emph{rsync} utilizará para evitar la congestión de la red para otros usos.
+Para implementar este enfoque se necesita una herramienta para la transmisión eficiente y sincronizada de archivos. Para este fin,
+\emph{rsync} es una herramienta clásica ampliamente utilizada (citada por ejemplo en \cite{Ph.D.200301} y \cite{douglis2004web}). Y deberá limitar el ancho de banda que \emph{rsync} utilizará para evitar la congestión de la red para otros usos.
 % rsyslog 
 
 \subsubsection{Opción escogida}
 
-La opción escogida será la tercera. Siempre se puede cambiar e incorporar las otras opciones más adelante cuando el proyecto lo requiera y el gasto economico
-y/o la complejidad añadida supera con mucho las ventajas que aportan.
+La opción escogida será la tercera. Siempre se puede cambiar e incorporar una de las otras opciones más adelante, cuando el proyecto lo requiera y el gasto económico
+y/o la complejidad añadida supere con mucho las ventajas que aportan.
 
-Enviar trazas a través de \emph{rsync} tiene sus propios retos, aceptamos así que se podran perder trazas y que no almacenaremos
-demasiadas trazas para analisis historico y/o para poder reprocesar.
+Enviar trazas a través de \emph{rsync} tiene sus propios retos. Se acepta pues, que se podrán perder trazas y que no se almacenarán
+demasiadas trazas para el análisis histórico y/o para poder reprocesar.
 
-Pero su simplicidad y bajo coste junto a su compatibilidad con otras opciones la convierten en la opción escogida.
+A pesar de lo anterior, su simplicidad y bajo coste -junto a su compatibilidad con otras opciones- la convierten en la opción escogida.
 
 \subsection{Modelo de datos del sistema}
-\label{subsec:modelo-de-datos}
-No se entrará en detalle de que sistema de gestión de bases de datos utilizar, pero si  se ha de analizar cual es el modelo de datos
+
+No se entrará en el detalle de qué sistema de gestión de bases de datos será utilizado, pero sí  se ha de analizar cual es el modelo de datos
 adecuado para el proyecto en el contexto del dominio.
 
-La información extraida es muy relevante cuando es reciente y pierde relevancia en muy poco tiempo, información de un ataque realizando
-hace un año es poco relevante, habran surgido nuevas versiones del \emph{software}, el método de ataque ya habrá sido analizado y el único interes
-que tiene es como aportación para un estudio estadistico.
+La información extraída es muy relevante cuando es reciente y pierde relevancia en muy poco tiempo. Es decir, la información de un ataque realizado
+hace un año es poco relevante porque habrán surgido nuevas versiones del \emph{software}, porque el método de ataque ya habrá sido analizado y porque el único interés
+que tiene es como aportación para un estudio estadístico.
 
-Por ello nuestro modelo de datos será el de una serie temporal con foco en la busqueda. La inserción de datos se realizará muy poco frecuentemente, idealmente una vez
-y posiblemente nuestro modelo no sea relacional o no evidentemente relacional, ya que la integridad de los datos no es relevante y no podemos saber a priori que busquedas
-seran las relevantes, por lo que una base de datos sin esquema seria conveniente.
-
-Si tenemos una alerta sin más información adicional, aunque no tiene tanto valor como una alerta con toda la información es de por si relevante.
+Por ello, nuestro modelo de datos estará modelado como una serie temporal con foco en la búsqueda. La inserción de datos se realizará con poca frecuencia, idealmente una vez,
+y, posiblemente, nuestro modelo no sea relacional o no evidentemente relacional, ya que la integridad de los datos no es tan relevante.
+En el caso de tener una alerta sin más información adicional (aunque no tiene tanto valor como una alerta con toda la información) ya será de por sí relevante.
 
 \section{Análisis de soluciones para la explotación}
 
 \subsection{Generalidades}
 
 De cara a la explotación de datos, debemos presentar a los potenciales usuarios de una interfaz. Esta interfaz puede estar
-orientada a humanos o a aplicaciones. Es evidente que en algun momento hay que representar visualmente la información para que algún usuario pueda explotarla,
-la cuestión es sí debemos enfocar el esfuerzo del proyecto a crear esta visualización o merece más la pena construir
+orientada a humanos o a aplicaciones. Es evidente que, en algún momento, hay que representar visualmente la información para que algún usuario pueda explotarla.
+La cuestión es sí debemos enfocar el esfuerzo del proyecto a crear esta visualización o merece más la pena construir
 una interfaz para aplicaciones y dejar a terceros la construcción de visualizaciones finales.
 
 \begin{enumerate}
-    \item[Informes] Incluyen habitualmente graficas resumen y datos de caracter estadistico, son útiles para reconocer tendencias y patrones, menos útiles para actuar a un ataque en tiempo real.
-    \item[API] una interfaz para aplicaciones que clientes pueden integrar para responder ante incidentes o construir un informe de manera programatica.
+    \item[Informes]: incluyen habitualmente gráficas-resumen y datos de carácter estadístico y son útiles para reconocer tendencias y patrones, pero no lo son para actuar frente un ataque en tiempo real.
+    \item[API]: una interfaz para aplicaciones que los clientes pueden integrar para responder ante incidentes o construir un informe de manera programática.
 \end{enumerate}
 
-hay diversos ejemplos de \emph{Honeypots} que generan informes como metodo de explotación del usuario (enlace a un \href{http://www.nothink.org/honeypot_ssh.php}{ejemplo}, también disponible en figura \ref{fig:informe-honeypot}).
+Hay diversos ejemplos de \emph{Honeypots} que generan informes como método de explotación del usuario (enlace a un \href{http://www.nothink.org/honeypot_ssh.php}{ejemplo}, también disponible en figura \ref{fig:informe-honeypot}).
 
 \begin{figure}[h]
     \centering
@@ -663,47 +652,46 @@ hay diversos ejemplos de \emph{Honeypots} que generan informes como metodo de ex
     \label{fig:informe-honeypot}
   \end{figure}
 
-El informe es vistoso y permite observar y analizar tendencias y patrones, pero si queremos responder a un ataque no es sencillo, si ademas estamos interesados en un subconjunto de los ataques
+El informe es vistoso y permite observar y analizar tendencias y patrones. Pero si queremos responder a un ataque, no es sencillo. Y si, además, estamos interesados en un subconjunto de los ataques,
 en un informe no suelen implementarse los filtros necesarios para analizarlos.
 
-Por ello, como herramienta de explotación de datos se ofrecerá una API que terceros pueden utilizar para generar sus informes o procesar los incidentes y responder
+Por ello, como herramienta de explotación de datos se ofrecerá una API que terceros puedan utilizar para generar sus informes o procesar los incidentes y responder
 en tiempo real.
 
 % 20/08/2017
 \subsection{Objeto de la API}
 
 El objeto de la API es la de proveer una interfaz de datos que sea consumible por aplicaciones y que puede ser expuesta en diversos formatos.
-Es importante que cuando describamos los actores en un incidente lo hagamos siempre en referencia a un marco temporal, los atacantes
-en un incidente no tienen porque ser los promotores del ataque, a menudo, los promotores utilizan maquinas infectadas de sus victimas para ejecutar el ataque
-y por tanto sería contraproducente marcar estas victimas y responder de manera agresiva con un bloqueo por ejemplo.
+Es importante que cuando se describan los actores en un incidente, se haga siempre en referencia a un marco temporal. Los atacantes
+en un incidente no tienen porque ser los promotores del ataque. Es más, a menudo, los promotores utilizan máquinas infectadas de sus víctimas para ejecutar el ataque
+y, por tanto, sería contraproducente marcar estas víctimas y responder de manera agresiva como puede ser un bloqueo, por ejemplo.
 
-El marco temporal ayuda al cliente a determinar si el atacante es recurrente en sus ataques o victima y deja en el cliente la decisión sobre que realizar al respecto en base a 
-las politicas y necesidades de su entorno.
+El marco temporal ayuda al cliente a determinar si el atacante es recurrente en sus ataques o víctima, y deja en el cliente la decisión sobre qué realizar al respecto en base a 
+las políticas y necesidades de su entorno.
 
 \subsection{API}
 
-La API será de consulta, no sé plantea como objetivo la posibilidad de crear incidentes a través de ella. La API será
-de tipo \emph{REST} (véase \cite{rest}). Arquitecturar las APIs usando rest es un estandar defacto, quizás si nuestra API fuese parte de
-un ecosistema complejo y/o que fuese orientado especialmte a moviles, podriamos plantear el uso de \emph{GraphQL} (\cite{graphql}), aunque su madurez
-a nivel de herramientas y adoptación no es comparable al de APIS REST.
+La API será de consulta, no se plantea como objetivo la posibilidad de crear incidentes a través de ella. La API será
+de tipo \emph{REST} (véase \cite{rest}). Arquitecturar las APIs usando \emph{rest} es un estándar de facto, quizás si nuestra API fuese parte de
+un ecosistema complejo y/o que fuese orientado especialmente a móviles, podríamos plantear el uso de \emph{GraphQL} (\cite{graphql}), aunque su madurez
+a nivel de herramientas y adaptación no es comparable al de APIS REST.
 
-\subsubsection{versionado}
+\subsubsection{Versionado}
 
 La definición del contrato de la API no está basado en experiencia de uso de nuestros clientes, es por ello que tendremos que establecer 
-un método que permite la evolución o el cambio de la misma. Existen varios métodos de versionado, entre otros:
+un método que permita la evolución o el cambio de la misma. Existen varios métodos de versionado, entre otros:
 
 \begin{enumerate}
-    \item[Parametro] Se pasa la versión de la API como parametro de la petición, algunos \emph{proxies} pueden eliminar el parametro y conducir a errores.
-    \item[URL] la URL contiene la versión de la API a la que se quiere acceder, su ventaja es que es fácil de saber que versión utilizamos y es fácil de depurar, la desventaja es que afea y puede complicar la
+    \item[Parámetro]: se pasa la versión de la API como parámetro de la petición. Algunos \emph{proxies} pueden eliminar el parámetro y conducir a errores.
+    \item[URL]: la URL contiene la versión de la API a la que se quiere acceder. Su ventaja es que es fácil de saber qué versión se utiliza y es fácil de depurar pero la desventaja es que afea y puede complicar la
     URL.
-    \item[Cabecera HTTP] Se pasa la versión de la API que queremos usar como una cabecera HTTP. La ventaja es que la URL no cambiará con 
+    \item[Cabecera HTTP]: se pasa la versión de la API que se quiere usar como una cabecera HTTP. La ventaja es que la URL no cambiará con 
     cada nueva versión de la API. 
 \end{enumerate}
 
-Según algunas fuentes el versionado por URL es más popular (\cite{3scale-versionado)}, y por ello escogemos este aunque el versionado como cabecera HTTP se adhiera más a \emph{REST}.
+Aunque el versionado como cabecera HTTP se adhiera más a \emph{REST}, según algunas fuentes, el versionado por URL es más popular (\cite{3scale-versionado)} y, por ello, escogemos este método.
 
 \subsubsection{Definición de la API}
-\label{subsubsec:definicion-api}
 
 \begin{table}[h]
     \centering
@@ -719,14 +707,14 @@ Según algunas fuentes el versionado por URL es más popular (\cite{3scale-versi
     \caption{\label{tab:definicion-api} Definicion de API externa, de clientes.}
     \end{table}
 
-    Como puede verse en el cuadro \ref{tab:definicion-api}, solo necesitaremos dos funciones inicialmente para nuestra API, una donde se pidan incidentes. 
-El modelo concreto de que define un incidente y los datos que se han de incluir dependerá de la aplicación, puede ser también interesante ofrecer un 
+    Como puede verse en el cuadro \ref{tab:definicion-api}, inicialmente, solo  se le exigen a la API dos funciones: una donde se pidan incidentes y otra, que proporcione un \emph{feed} de intentos de inicio de sesión. 
+El modelo concreto que define un incidente y los datos que se han de incluir, dependerá de la aplicación. Puede ser también interesante ofrecer un 
 \emph{endpoint} de \emph{feed} que devuelva de manera continua los datos encontrados. La diferencia entre ambos endpoints es que
-el de \emph{incidents} devolvera los datos de los incidentes segun unos criterios mientras el endpoint de \emph{feed} devolverá 
+el de \emph{incidents} devolverá los datos de los incidentes según unos criterios mientras el endpoint de \emph{feed} devolverá 
 de manera continua e ininterrumpida los datos que se vayan encontrando.
 
-Para el \emph{endpoint} de incidentes podremos parametrizar la consulta segun los parametros que pueden verse en el cuadro \ref{tab:parametros-api}, en el caso
-de no especificar ninguno se estableceran por defecto para devolver algun numero de eventos recientes.
+Para el \emph{endpoint} de incidentes se podrá parametrizar la consulta según los parámetros que pueden verse en el cuadro \ref{tab:parametros-api}. En el caso
+de no especificar ninguno, se establecerán por defecto para devolver algún número de eventos recientes.
     \begin{table}[h]
         \centering
         \begin{tabular}[!h]{|l|c|}
@@ -740,33 +728,30 @@ de no especificar ninguno se estableceran por defecto para devolver algun numero
         size & entero natural positivo \\
         \hline
         \end{tabular}
-        \caption{\label{tab:parametros-api} Definicion de parametros la API}
+        \caption{\label{tab:parametros-api} Definición de parámetros la API}
         \end{table}
     
 \subsubsection{Formatos de salida}
 
-El objeto de la API es la de ser utilizada por aplicaciones como formato de salida podremos utilizar \emph{XML} o \emph{JSON}, siendo 
+El objeto de la API es ser utilizada por aplicaciones. Como formato de salida se pueden utilizar \emph{XML} o \emph{JSON}, siendo 
 este último más utilizado en la actualidad.
 
-Como esquema de datos podremos utilizar o basarnos en \emph{STIX} (\cite{oasis-stix}), un lenguaje estructurado para compartir información de seguridad entre organismos
+Como esquema de datos, podremos utilizar o basarnos en \emph{STIX} (\cite{oasis-stix}), un lenguaje estructurado para compartir información de seguridad entre organismos
 desarrollado por el grupo OASIS.
 \clearpage
-
 \chapter{Resultados finales}
 \minitoc{}
-
-
 \section{Arquitectura}
 
 La arquitectura final puede observarse en la figura \ref{fig:arquitectura-general}. En ella se encuentran los siguientes elementos:
 
 \begin{enumerate}
-    \item[Sondas] Desplegadas en varios proveedores y regiones del mundo, instalaremos y configuraremos tantas de ellas como
-    diferentes muestras de datos queramos obtener, es el elemento más dinamico de la arquitectura. El limite del crecimiento lo impone la capacidad
-    del recolector y backend, mientras este sea capaz de absorber y procesar el volumen de datos obtenido en las sondas podremos crear nuevas.
-    \item[PKI y control] Se encarga de las funciones externas como el almacenamiento de secretos (gestiona la \emph{PKI (Public Key Infrastructure)} interna, monitoriza el resto de elementos y lanza el provisionamiento y la configuración).
-    \item[Recolector y Backend] Se encarga de almacenar las trazas de las sondas y de albergar los servicios encargados para el procesado y la explotacion como la API. Este elemento es un \emph{SPOF (Single Point Of Failure)}, si cae el backend y la recoleccion quedan inutilizados.
-    Las razones para éste diseño son puramente economicas y de simplicidad, si queremos un sistema robusto y escalable convendria separar funciones y tener un esuqema que permita el escalado horizontal.
+    \item[Sondas]: desplegadas en varios proveedores y regiones del mundo, serán instaladas y configuradas tantas de ellas como
+    diferentes muestras de datos queramos obtener. Es el elemento más dinámico de la arquitectura. El límite del crecimiento lo impone la capacidad
+    del recolector y \emph{backend} ya que mientras este sea capaz de absorber y procesar el volumen de datos obtenido en las sondas podremos crear nuevas.
+    \item[PKI y control]: se encarga de las funciones externas como el almacenamiento de secretos (gestiona la \emph{PKI, Public Key Infrastructure,} interna, monitoriza el resto de elementos y lanza el provisionamiento y la configuración.
+    \item[Recolector y Backend]: se encarga de almacenar las trazas de las sondas y de albergar los servicios encargados para el procesado y la explotación como la API. Este elemento es un \emph{SPOF, Single Point Of Failure,}, si cae el \emph{backend} y la recoleccion quedan inutilizados.
+    Las razones para este diseño son puramente económicas y de simplicidad, si queremos un sistema robusto y escalable convendría separar funciones y tener un esquema que permita el escalado horizontal.
 \end{enumerate}
 
 \begin{figure}[h]
@@ -783,60 +768,60 @@ Uno de las mitigaciones explicadas en \ref{subsec:riesgos} es tener la capacidad
 los siguientes pasos:
 
 \begin{enumerate}
-    \item[Provisión] Solicitar al proveedor un nuevo servidor de unas caracteristicas (o ponerlo en marcha en nuestros datacenters).
-    \item[Configuración] Instalación de los paquetes de herramientas, software y configuración necesarios para que la sonda pueda funcionar.
-    \item[Operación] Realizar cambios post-configuración tales como actualizacion de paquetes de seguridad.
+    \item[Provisión]: solicitar al proveedor un nuevo servidor de unas características determinadas (o ponerlo en marcha en nuestros \emph{datacenters}).
+    \item[Configuración]: instalación de los paquetes de herramientas, \emph{software} y configuración necesarios para que la sonda pueda funcionar.
+    \item[Operación]: realizar cambios post-configuración tales como la actualización de paquetes de seguridad.
 \end{enumerate}
 
-Todos estos pasos pueden ser ejecutados por un operador humano y a menudo lo son, pero si queremos un proceso repetible, rapido y automatizado
-no podemos permitirnos que estos procesos sean manuales, ya que imposibilitan crear un nuevo servidor en el orden de minutos.
+Todos estos pasos pueden ser ejecutados por un operador humano, tal y como a menudo son. Pero si, en nuestro caso, queremos un proceso repetible, rápido y automatizado,
+no podemos permitirnos que estos procesos sean manuales ya que imposibilitan crear un nuevo servidor en el orden de minutos.
 
-\subsubsection{Infrastructura como codigo}
+\subsubsection{Infrastructura como código}
 \label{subsec:infra-as-code}
 
-Un enfoque que nos acerca al objetivo de ser capaces de desplegar nuevas maquinas en minutos, necesaria en un entorno dinamico, es adoptar la practica
-de infrastructura como codigo (véase \cite{fowler-infra-as-code}). Dicha practica se basa en:
+Un enfoque que nos acerca al objetivo de ser capaces de desplegar nuevas máquinas necesarias en un entorno dinámico en minutos, es adoptando la práctica
+de infrastructura como código (véase \cite{fowler-infra-as-code}). Dicha práctica se basa en:
 
 \begin{itemize}
-    \item Definición en ficheros. Toda la configuracion se recoge en ficheros ejecutables, ninguna persona deberia entrar en el servidor
-    y realizar cambios de configuracion manualmente, de hacerlo, estaria creando servidores unicos fragiles (\emph{Snowflake Servers}).
-    \item Autodocumentacion.El código documenta el proceso seguido para la configuracion sin necesidad de una documentacion externa orientada a un humano (aunque la documentacion pueda y es aconsejable que exista en algunos casos), esto evita que la documentacion quede anticuada.
-    \item Versionado. El código fuente que define la infrastructura se mantiene en un sistema de control de versiones de código,lo que permite ser auditado y lanzar ejecuciones reproducibles (lanzar una versión especifica).
-    \item Cambios pequeños. Si se realizan cambios pequeños en código es facil diagnosticar cuando se introducen errores.
+    \item Definición en ficheros. Toda la configuración se recoge en ficheros ejecutables, ninguna persona debería entrar en el servidor
+    y realizar cambios de configuración manualmente, de hacerlo, estaría creando servidores únicos frágiles (\emph{Snowflake Servers}).
+    \item Autodocumentacion. El código documenta el proceso seguido para la configuración sin necesidad de una documentación externa orientada a un humano. Aunque la documentación pueda existir y es aconsejable que en algunos casos exista), esto evita que la documentacion quede anticuada.
+    \item Versionado. El código fuente que define la infrastructura se mantiene en un sistema de control de versiones de código, lo que permite ser auditado y lanzar ejecuciones reproducibles (lanzar una versión específica).
+    \item Cambios pequeños. Si se realizan cambios pequeños en código es fácil diagnosticar cuando se introducen errores.
 \end{itemize}
  
-Este enfoque requiere que haya algun proceso de \emph{Continuous Integration} o \emph{Continous Delivery} o la definicion de los ficheros
-de la configuración no se corresponderá con la configuración que se encuentra en los servidores (\emph{Configuration Drift}). Si construimos 
+Este enfoque requiere que haya algún proceso de \emph{Continuous Integration} o \emph{Continous Delivery}. De no ser así, la definición de los ficheros
+de la configuración no se correspondería con la configuración que se encuentra en los servidores (\emph{Configuration Drift}). Si construímos 
 un proceso de aplicación de la configuración que se lance desde algún cambio del código podremos conseguir:
 
 \begin{itemize}
-    \item Cambios \emph{in-place}. Aplicaremos los cambios sobre los servidores que ya se ejecuten, cambiando configuración en caliente de los servicios que corren.
-    Se corre el riesgo de dejar el servidor con una configuración incompleta, pero para servidores que manejan datos y/o estado es normalmente la opción más sencilla. Si la configuración
-    está suficientemente proabada en un entorno identico al de producción y es correcta los servidores convergeran a la configuración descrita. 
+    \item Cambios \emph{in-place}. Se aplicarán los cambios sobre los servidores que ya se ejecuten, cambiando la configuración en caliente de los servicios que corren.
+    Se corre el riesgo de dejar el servidor con una configuración incompleta pero, para servidores que manejan datos y/o estado, es normalmente la opción más sencilla. Si la configuración
+    está suficientemente probada en un entorno identico al de producción y es correcta los servidores convergerán a la configuración descrita. 
     \item \emph{Phoenix servers}. Cada cambio de configuración involucra crear un servidor de nuevo y configurarlo completamente desde la configuración almacenada.
-    Requiere que exista algun mecanismo de promoción entre servidores, asi la versión antigua se ejecuta a la vez que la nueva. De otra manera, habría caida del servicio. Los costes pueden ser más elevados que si seguimos una estrategia \emph{in-place}
-    puesto que un cambio implica la creación de un nuevo servidor y su configuración completa. Si el proceso de configuración falla a la mitad del proceso, la configuración será inestable y el servidor tendrá malfuncionamiento.
-    \item \emph{Immutable servers}.Es un refinamiento de la estrategia anterior, en lugar de crear servidores nuevos y configurarlos desde la configuración almacenada, nuestro proceso crea una imagén del servidor que será el artefacto que desplegamos en el proveedor.
-    El proveedor tiene que ser capaz de soportar este enfoque, \emph{AWS} soporta \emph{AMIs} imagenes de servidores descritos como maquinas virtuales.  
+    Requiere que exista algún mecanismo de promoción entre servidores, así la versión antigua se ejecuta a la vez que la nueva. De otra manera, habría caida del servicio. Los costes pueden ser más elevados que si se sigue una estrategia \emph{in-place}
+    puesto que un cambio implica la creación de un nuevo servidor y su configuración completa. Si el proceso de configuración falla a la mitad del proceso, la configuración será inestable y el servidor tendrá un mal funcionamiento.
+    \item \emph{Immutable servers}. Es un refinamiento de la estrategia anterior: en lugar de crear servidores nuevos y configurarlos desde la configuración almacenada, el proceso crea una imagen del servidor que será el artefacto a desplegar en el proveedor.
+    El proveedor tiene que ser capaz de soportar este enfoque, \emph{AWS} soporta \emph{AMIs} imágenes de servidores descritos como máquinas virtuales.  
 \end{itemize}
 
 A no ser que escojamos proveedores que soporten algún tipo de imágenes inmutables de servidores como \emph{AWS o Google Cloud}, tendremos que utilizar \emph{Phoenix Servers} o cambios \emph{in-place}.
-En el contexto de nuestra arquitectura, las sondas seguiran un enfoque \emph{Phoenix Servers} pudiendo ser recreadas completamente desde la configuración almacenada.
+En el contexto de nuestra arquitectura, las sondas seguirán un enfoque \emph{Phoenix Servers} pudiendo ser recreadas completamente desde la configuración almacenada.
 
-El recolector y el servidor de PKI y control serguirán una estrategia \emph{in-place} puesto que ambos guardan estado y/o datos. Seguir una estrategia \emph{Phoenix} en estos
-significaria replicar estados y/o datos previamente al despliegue lo que aumentaria la complejidad del sistema.
+El recolector y el servidor de PKI y control seguirán una estrategia \emph{in-place} puesto que ambos guardan estado y/o datos. Seguir una estrategia \emph{Phoenix} en estos
+significaría replicar estados y/o datos previamente al despliegue, lo que aumentaría la complejidad del sistema.
 
-\subsubsection{Eleccion de herramienta de gestión de la configuración}
+\subsubsection{Elección de herramienta de gestión de la configuración}
 
-Para implementar infrastructura como código se necesita utilizar una herramienta que defina como almacenar la configuración
-como ejecutarla en servidores e idealmente bibliotecas de funciones y modulos que faciliten la descripción de servicios.
+Para implementar infrastructura como código se necesita utilizar una herramienta que defina cómo almacenar la configuración,
+cómo ejecutarla en servidores e -idealmente-, bibliotecas de funciones y módulos que faciliten la descripción de servicios.
 
-Existen varias herramientas de este tipo, aunque la industria utiliza cuatro utilidades de facto para gestión de la configuración, \emph{Ansible},\emph{Puppet},\emph{Chef}
-y  \emph{SaltStack}. Como puede verse en la figura \ref{fig:configmanagement1} cualquiera de esas opciones tiene una comunidad importante, muchos usuarios y pocas diferencias
+Existen varias herramientas de este tipo, aunque la industria utiliza cuatro utilidades ``de facto'' para la gestión de la configuración: \emph{Ansible},\emph{Puppet},\emph{Chef}
+y  \emph{SaltStack}. Como puede verse en la figura \ref{fig:configmanagement1}, cualquiera de esas opciones tiene una comunidad importante, muchos usuarios y pocas diferencias
 fundamentales. \emph{Saltstack} y \emph{Ansible} se desarrollan en \emph{Python} y son más recientes que \emph{Puppet} y \emph{Chef}.
 
 En este proyecto se decide utilizar \emph{Ansible} como herramienta de gestión de la configuración por ser \emph{Python} un lenguaje conocido, tener una barrera de entrada muy baja
-y cumplir de sobra con los requisitos para este proyecto (es capaz de provisionar maquinas en algunos proveedores, configurarlas y lanzar ordenes una sola vez atendiendo a filtros).
+y cumplir de sobra con los requisitos para este proyecto. Es decir, es capaz de provisionar máquinas en algunos proveedores, configurarlas y lanzar ordenes una sola vez atendiendo a filtros.
 
 \begin{figure}[h]
     \centering
@@ -847,7 +832,7 @@ y cumplir de sobra con los requisitos para este proyecto (es capaz de provisiona
 
 \section{Arquitectura de la sonda}
 
-A continuación incluimos la arquitectura final de la sonda, que puede observarse en la figura \ref{fig:arquitectura-sonda}.
+A continuación, se incluye la arquitectura final de la sonda, que puede observarse en la figura \ref{fig:arquitectura-sonda}.
 
 \begin{figure}[h]
     \centering
@@ -859,23 +844,19 @@ A continuación incluimos la arquitectura final de la sonda, que puede observars
 \subsection{Elección del sistema operativo de la sonda}
 \label{subsec:sonda-so}
   
-La eleccion del sistema operativo tiene una componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securizacion,
+La elección del sistema operativo tiene un componente en la que tendremos que tener en cuenta las capacidades del sistema operativo para su securización,
 la existencia o no de actualizaciones de seguridad y las herramientas que incluye en su repositorio.
 
-Para este proyecto se ha escogido GNU/Linux como sistema operativo por las herramientas que nos provee para gestionar nuestra \emph{honeypot} y su mejor soporte
-para \emph{containers}, tendremos que escoger una distribución del sistema operativo que nos provea de actualizaciones de seguridad. 
-Se ha escogido Debian como distribución por ser la opción de referencia para servidores y mantener software testado, con actualizaciones de seguridad, 
-\emph{builds} reproducibles y por ser la distribución que más conoce y prefiere el autor,
- la opción podria haber incluido \emph{CentOS, Container Linux, RHEL \ldots} o cualquier distribución con soporte. 
+Para este proyecto se ha escogido GNU/Linux como sistema operativo por las herramientas que provee para gestionar nuestra \emph{honeypot} y su mejor soporte
+para \emph{containers}. Así, habrá que escoger una distribución del sistema operativo que provea de actualizaciones de seguridad. Aunque la opción podría haber incluído \emph{CentOS, Container Linux, RHEL \ldots} o cualquier distribución con soporte, se ha escogido \emph{Debian} como distribución por ser la opción de referencia para servidores y mantener \emph{software} testado, con actualizaciones de seguridad, 
+\emph{builds} reproducibles y por ser la distribución que más conoce y prefiere el autor.
 
 
-\subsection{Creacion del servicio expuesto}
+\subsection{Creación del servicio expuesto}
 
-Para la creación del servicio expuesto existen varias alternativas, uno de los objetivos de éste proyecto es la de utilizar
-containers para describir nuestro servicio.
+Para la creación del servicio expuesto existen varias alternativas, pero no se puede olvidar que uno de los objetivos de este proyecto es el de utilizar \emph{containers} para describir nuestro servicio.
 
-Como se explico en \ref{sec:analisis-sonda} hay diversas tecnologias de \emph{containerizacion} siendo Docker la escogida
-por su madurez y conjunto de herramientas. 
+Como se explicó en 2.7, hay diversas tecnologías de ``contaneirización'', siendo \emph{Docker} la escogida por su madurez y conjunto de herramientas. 
 
 \subsubsection{Elección del servicio a exponer}
 
@@ -883,14 +864,14 @@ La \emph{honeypot} puede albergar cualquier aplicación que se ejecute en un sis
 web, servidores FTP o cualquier otro tipo de servicio.
 
 No todos los servicios tienen el mismo volumen de ataques ni el mismo interés, por ello, se escoge un servicio atractivo como SSH que 
-expone el acceso a un servidor y capacita al atacante a realizar multiples tipos de ataques.
+expone el acceso a un servidor y capacita al atacante a realizar múltiples tipos de ataques.
 
 \subsubsection{Gestionando el servicio expuesto en el \emph{container}}
 
-Para gestionar el servicio expuesto crearemos un \emph{daemon} que se encargará de monitorizar que el container esta siempre levantado, construir
-la imagen y otras configuraciones. Para lanzar y mantener el estado del \emph{daemon} usaremos la funcionalidad existente en el gestor de procesos \emph{systemd}.
+Para gestionar el servicio expuesto, se ha creado un \emph{daemon} que se encargará de monitorizar que el \emph{container} esté siempre levantado, construir
+la imagen y otras configuraciones. Para lanzar y mantener el estado del \emph{daemon}, se usa la funcionalidad existente en el gestor de procesos \emph{systemd}.
 
-\emph{systemd} es un sistema de arranque diseñado para reemplazar \emph{sysinit V} y \emph{upstart} los sistemas de arranque clasicos, que ha sido adoptado
+\emph{Systemd} es un sistema de arranque diseñado para reemplazar \emph{sysinit V} y \emph{upstart} (los sistemas de arranque clásicos) que ha sido adoptado
 por las distribuciones principales tras generar resistencia y controversia.
 
     \begin{minted}[fontsize=\footnotesize]{console}
@@ -912,12 +893,12 @@ por las distribuciones principales tras generar resistencia y controversia.
     \captionof{listing}{Unidad de \emph{systemd} que gestiona el servicio \emph{containersvc} \label{listing:containersvc-systemd}
     }
 
-Definiremos la unidad de \emph{systemd} (véase \cite{wiki-systemd}) listada como código \ref{listing:containersvc-systemd}, en ella se define el servicio \emph{containersvc} que requiere
-que el servicio Docker este levantado (véase la directiva \emph{Requires}) y que será reiniciado siempre y cuando el servicio no exista (directiva \emph{Restart}). 
-\emph{systemd} conocerá el estado del servicio monitorizando el estado del proceso cuyo \emph{PID} se almacena en la ruta descrita en la directiva \emph{PIDFile}.
+Definiremos la unidad de \emph{systemd} (véase \cite{wiki-systemd}) listada como código \ref{listing:containersvc-systemd}. En ella se define el servicio \emph{containersvc} que requiere
+que el servicio \emph{Docker} esté levantado (véase la directiva \emph{Requires}) y que será reiniciado siempre y cuando el servicio no exista (directiva \emph{Restart}). 
+\emph{Systemd} conocerá el estado del servicio monitorizando el estado del proceso cuyo \emph{PID} se almacena en la ruta descrita en la directiva \emph{PIDFile}.
 
-El servicio básicamente lanzará un script, listado como código \ref{listing:containersvc-bash}, al que le pasara \emph{start} como argumento cuando arranque y \emph{stop}
-cuando se pare.\ \\
+Básicamente, el servicio lanzará un \emph{script}, listado como código \ref{listing:containersvc-bash}, al que le pasará \emph{start} como argumento cuando arranque y, \emph{stop}
+cuando pare.\ \\
 
     \begin{minted}[fontsize=\scriptsize]{console}
         #!/bin/bash
@@ -992,23 +973,23 @@ cuando se pare.\ \\
     \captionof{listing}{Listado del servicio \emph{containersvc}      \label{listing:containersvc-bash}}
 
     
-El script, descrito como código \ref{listing:containersvc-bash}, realizará las siguientes acciones:
+El \emph{script}, descrito como código \ref{listing:containersvc-bash}, realizará las siguientes acciones:
 
 \begin{enumerate}
     \item Crear el fichero donde se almacenará el PID si no existe.
-    \item Limpiar viejas imagenes y volumenes antes de crear nuevos.
+    \item Limpiar viejas imágenes y volúmenes antes de crear nuevos.
     \item Escoger una contraseña aleatoria como contraseña para los usuarios del servicio. Dicha
     contraseña se escoge de un listado de las 100 contraseñas más inseguras y reutilizadas, lo que aumenta
-    el ratio de exito para los atacantes en la explotación y podemos aprender más.
-    \item Escoger un nombre aleatorio como nombre de máquina, esto hace que el \emph{container} parezca un servicio
-    más creible y que atacantes no descarten la intrusión por detectar que estan en un entorno construido para atraparles.
-    \item Lanza un proceso (\emph{docker-compose}, un orquestrador de ordenes de Docker con un DSL propio) que crea la imágen del container, una red propia para ese container y lanza el container. 
-    \item Lanza un proceso que limita el ancho de banda de red, se hablará más de ello en la sección \ref{subsec:securizacion-sonda}.
+    la ratio de éxito para los atacantes en la explotación y permite aprender más.
+    \item Escoger un nombre aleatorio como nomenclatura de máquina. Esto hace que el \emph{container} parezca un servicio
+    más creible y que los atacantes no descarten la intrusión por detectar que están en un entorno construído para atraparles.
+    \item Lanzar un proceso (\emph{docker-compose}, un orquestrador de órdenes de \emph{Docker} con un DSL propio) que crea la imagen del \emph{container}, una red propia para ese container y lo lanza. 
+    \item Lanza un proceso que limita el ancho de banda de red (se hablará más de ello en la sección \ref{subsec:securizacion-sonda}).
 \end{enumerate}
 
-la definición del \emph{docker-compose} se incluye como código \ref{listing:ssh-docker-compose}, en el fichero se puede ver que se expone el puerto
+La definición del \emph{docker-compose} se incluye como código \ref{listing:ssh-docker-compose}. En el fichero se puede ver que se expone el puerto
 22 (puerto bien conocido para SSH), y que se le pasa el directorio actual para construir el \emph{container} y algunas variables de entorno 
-creadas en el script listado como código \ref{listing:containersvc-bash}.
+creadas en el \emph{script} listado como código \ref{listing:containersvc-bash}.
 
     \begin{minted}[fontsize=\footnotesize]{console}
         version: "2"
@@ -1032,19 +1013,17 @@ creadas en el script listado como código \ref{listing:containersvc-bash}.
     \end{minted}
     \captionof{listing}{\emph{docker-compose} que crea el container \emph{servicebase}     \label{listing:ssh-docker-compose}}
 
-El fichero Dockerfile que define la imagen, listado como \ref{listing:Dockerfile}, recoge la variable 
-\emph{PASSWORD\_GENERATED} pasada como argumento al \emph{build} y la utiliza para cambiar la contraseña
+El fichero \emph{Dockerfile} que define la imagen, listado como 4, recoge la variable \emph{PASSWORD\_GENERATED} pasada como argumento al \emph{build} y utilizada para cambiar la contraseña
 de dos usuarios del sistema. 
 
-Como punto de entrada se levanta el servicio SSH y se deja un proceso sin fin
-corriendo (\emph{sleep infinity}) que es el que utilizará docker para monitorizar el container y será proceso
-número 1, como no acaba nunca, el container se ejecutará de manera continua. 
+Como punto de entrada, se levanta el servicio SSH y se deja un proceso sin fin
+corriendo (\emph{sleep infinity}) que es el que utilizará \emph{docker} para monitorizar el \emph{container} y será el proceso
+número 1. Como no acaba nunca, el \emph{container} se ejecutará de manera continua. 
+Esta imagen depende de otra, llamada \emph{servicebase}, cuya definición puede verse en el código \ref{listing:Dockerfile-base}. 
+Esta permite que la creación de nuevos \emph{containers} sea muy rápida (aproximadamente de 1 segundo), ya que 
+la imagen base contiene el sistema operativo y todas las utilidades ya descargadas y preparadas.
 
-Esta imágen depende de otra, llamada \emph{servicebase}, cuya definición puede verse en código \ref{listing:Dockerfile-base}, 
-esto permite que la creación de nuevos \emph{containers} sea muy rapida (aproximadamente 1 segundo), ya que 
-la imágen base contiene el sistema operativo y todas las utilidades ya descargadas y preparadas.
-
-Si se quiere actualizar o cambiar la versión o incluir alguna utilidad sólo hemos de modificar el Dockerfile
+Si se quiere actualizar o cambiar la versión y/o incluir alguna utilidad, solo se ha de modificar el \emph{Dockerfile}
 de la imagen base, cuya construcción será más lenta (del orden de minutos).
 
     \begin{minted}[fontsize=\footnotesize]{console}
@@ -1057,7 +1036,7 @@ de la imagen base, cuya construcción será más lenta (del orden de minutos).
         ENTRYPOINT /etc/init.d/ssh start && sleep infinity
         
     \end{minted}
-    \captionof{listing}{Dockerfile para SSH \label{listing:Dockerfile}}
+    \captionof{listing}{\emph{Dockerfile} para SSH \label{listing:Dockerfile}}
     
 
 
@@ -1074,20 +1053,20 @@ de la imagen base, cuya construcción será más lenta (del orden de minutos).
     CMD /etc/init.d/ssh start && sleep infinity
     ENTRYPOINT /etc/init.d/ssh start && sleep infinity
 \end{minted}
-\captionof {listing}{Dockerfile base para imagen \label{listing:Dockerfile-base}}
+\captionof {listing}{\emph{Dockerfile} base para imagen \label{listing:Dockerfile-base}}
 
 
 
 
 \clearpage
-\subsection{Obtencion de trazas usando sysdig}
+\subsection{Obtención de trazas usando \emph{sysdig}}
 
-Para obtener las trazas, lanzaremos otro \emph{daemon} encargado de levantar \emph{sysdig} y mantenerlo.
+Para obtener las trazas, se lanzará otro \emph{daemon} encargado de levantar \emph{sysdig} y de mantenerlo.
 La definición de la unidad de \emph{systemd} se encuentra en el código \ref{listing:sysdig-systemd}. 
 
-Básicamente se lanza un script llamado \emph{sysdigd} (\emph{sysdig daemon}) que se monitoriza a través
-del PID almacenado en el fichero descrito en la directiva \emph{PIDFile}, y siempre que el servicio
-este parado se reiniciará como describe la directiva \emph{Restart}.
+En resumen, se basa en lanzar un \emph{script} llamado \emph{sysdigd} (\emph{sysdig daemon}) que se monitoriza a través
+del PID almacenado en el fichero descrito en la directiva \emph{PIDFile} y, siempre que el servicio
+esté parado, se reiniciará como describe la directiva \emph{Restart}.
 
     \begin{minted}[fontsize=\footnotesize]{console}
         [Unit]
@@ -1107,7 +1086,7 @@ este parado se reiniciará como describe la directiva \emph{Restart}.
     \captionof{listing}{Unidad de \emph{systemd} para controlar el \emph{daemon} de \emph{sysdig}   \label{listing:sysdig-systemd}}
 \bigskip
 
-El script en si, se lista como código \ref{listing:sysdig-bash}, lo más relevante quizá
+El \emph{script} en sí, se lista como código \ref{listing:sysdig-bash}. Lo más relevante quizá
 son las opciones que se pasan a \emph{sysdig}. Se hará una breve explicación de estas:
  \begin{minted}[fontsize=\footnotesize]{console}
         #!/bin/bash
@@ -1176,33 +1155,33 @@ son las opciones que se pasan a \emph{sysdig}. Se hará una breve explicación d
         
         exit 0
     \end{minted}
-    \captionof{listing}{script que controla sysdig  \label{listing:sysdig-bash}}
+    \captionof{listing}{\emph{Script} que controla \emph{sysdig}  \label{listing:sysdig-bash}}
 
 \begin{itemize}
-    \item[\textbf{-s 4096}] Define el espacio de almacenamiento de datos, muchas \emph{syscalls} como conexiones, escritura de ficheros guardarán datos, este parametro define 
-    cuantos datos guardaremos. Lo ideal para tener toda la información para su análisis sería guardar todos los datos, pero esto generaria trazas de longitud variable 
-    y posiblemente de un tamaño que por su longitud sea complejo de gestionar (quizás se llenarian los discos de la sonda, se tardaría mucho tiempo en recolectar la traza o procesarla ). 
-    Definimos 4KiB por ser un tamaño adecuado para captar la mayoría de datos intercambiados y de los obtenidos parcialmente quizá obtener cierto conocimiento sobre ellos. 
-    \item[\textbf{-pc}] La salida incluirá información acerca de containers, como la imagen del \emph{container}.
-    \item[\textbf{-F}] Incluye todos los eventos, genera trazas más grandes pero más precisas.
-    \item[\textbf{-C 200}] Rotar el fichero de traza si el tamaño es superior a $200 * 10^6$ bytes.
-    \item[\textbf{-G 300}] Rotar el fichero de traza si el fichero actual es más antiguo de 300 segundos.
-    \item[\textbf{-W 5}] Mantener 5 ficheros de rotado. Junto a la opción \emph{-C} y \emph{G} nos aseguramos que en caso
-    de recibir muchos eventos, las trazas seguiran siendo gestionables.
-    \item[\textbf{-z}] Comprimir el fichero de traza.
-    \item[\textbf{-w \emph{ruta}}] En que ruta se almacenan las trazas.
+    \item[\textbf{-s 4096}]: define el espacio de almacenamiento de datos. Muchas \emph{syscalls} (como conexiones, escritura de ficheros) guardarán datos. Este parámetro define 
+    cuantos datos se guardarán. Lo ideal para tener toda la información para su análisis sería guardar todos los datos, pero esto generaría trazas de longitud variable 
+    y, posiblemente, de un tamaño que por su longitud sea complejo de gestionar (quizás se llenarían los discos de la sonda y se tardaría mucho tiempo en recolectar la traza o procesarla). 
+    Definimos 4KiB por ser un tamaño adecuado para captar la mayoría de datos intercambiados y, de los obtenidos parcialmente, quizá capten también cierto conocimiento sobre ellos. 
+    \item[\textbf{-pc}]: incluye en la salida información acerca de \emph{containers}, como la imagen del \emph{container}.
+    \item[\textbf{-F}]: incluye todos los eventos, generando trazas más grandes pero más precisas.
+    \item[\textbf{-C 200}]: rota el fichero de traza si el tamaño es superior a $200 * 10^6$ bytes.
+    \item[\textbf{-G 300}]: rota el fichero de traza si el fichero actual es más antiguo de 300 segundos.
+    \item[\textbf{-W 5}]: mantiene 5 ficheros de rotado. Junto a la opción \emph{-C} y \emph{G}, asegura que, en caso
+    de recibir muchos eventos, las trazas seguirán siendo gestionables.
+    \item[\textbf{-z}]: comprime el fichero de traza.
+    \item[\textbf{-w \emph{ruta}}]: informa de en qué ruta se almacenan las trazas.
 \end{itemize}
 
    
 
-\subsubsection{Gestionar espacio de la sonda y eliminar trazas}
+\subsubsection{Gestión del espacio de la sonda y eliminación de trazas}
 
-Pese a que nuestro objetivo es mantener todas las trazas posibles, por razones puramente fisicas,
-el almacenamiento se acabará. Necesitamos algún proceso (listado como código \ref{listing:sysdig-cleanup-traces-script}) que se encargue de limpiar las trazas más antiguas, haciendo
-hueco a las nuevas. Este proceso se debe lanzar con frecuencia, se ha configurado para ser lanzado cada 2 minutos en un \emph{Cronjob}.
+Pese a que nuestro objetivo es mantener todas las trazas posibles, por razones puramente físicas,
+el almacenamiento se acabará. Se necesita de algún proceso (listado como código \ref{listing:sysdig-cleanup-traces-script}) que se encargue de limpiar las trazas más antiguas, haciendo espacio
+a las nuevas. Este proceso se debe lanzar con frecuencia, se ha configurado para ser lanzado cada 2 minutos en un \emph{Cronjob}.
 
-Este proceso normalmente no hará nada, pero si el espacio del punto de montaje seleccionado es menor del 10\%, en ese caso
-se preservan las trazas mas recientes (60 minutos desde que se ejecute, para dar margen al proceso de recoleccion de trazas) y se elimina el resto.
+Normalmente, este proceso no hará nada, pero si el espacio del punto de montaje seleccionado es menor del 10\%,
+se preservarán las trazas más recientes (60 minutos desde que se ejecute, para dar margen al proceso de recolección de trazas) y se eliminarán el resto.
 
     \begin{minted}[fontsize=\footnotesize]{console}
         #!/usr/bin/env bash
@@ -1230,13 +1209,12 @@ se preservan las trazas mas recientes (60 minutos desde que se ejecute, para dar
         get_free_disk_left
         check_if_cleanup_is_needed
     \end{minted}
-    \captionof{listing}{script que se lanza periodicamente para limpiar trazas. \label{listing:sysdig-cleanup-traces-script}    }
+    \captionof{listing}{\emph{Script} que se lanza periódicamente para limpiar trazas. \label{listing:sysdig-cleanup-traces-script}    }
     
 
-\subsection{Notificaciones usando falco}
-\label{subsec:notificaciones-falco}
+\subsection{Notificaciones usando \emph{falco}}
 
-\emph{Falco} es una herramienta desarrollada por \emph{sysdig} que se encarga de monitorizar el comportamiento del sistema y notificar en 
+\emph{Falco} es una herramienta desarrollada por \emph{sysdig} que se encarga de monitorizar el comportamiento del sistema y de elaborar las notificaciones pertinentes en 
 caso de que el sistema cumpla la regla descrita.
 
 Sirva como ejemplo la siguiente regla:
@@ -1255,44 +1233,44 @@ Sirva como ejemplo la siguiente regla:
 \captionof{listing}{Extracto de reglas de \emph{Falco}. \label{listing:extracto-falco}}
 \bigskip
 
-En ella se describe el titulo de la regla \emph{Run shell in a container}, una descripción de la regla y una condición que disparará la regla.
-Si en un \emph{container } monitorizado se crea un proceso que no sea una shell, el binario de docker o algunas herramientas conocidas
-la condición se cumple y se dispara una notificación con la prioridad descrita (ALERTA).
+En ella se describe el título de la regla \emph{Run shell in a container}, una descripción de la regla y una condición que disparará la regla.
+Si en un \emph{container } monitorizado se crea un proceso que no sea una \emph{shell} (el binario de \emph{docker}) o algunas herramientas conocidas
+la condición se cumple y se dispará una notificación con la prioridad descrita (ALERTA).
 
-Esta regla nos sirve para identificar cuando nuestra \emph{honeypot} de SSH ha sido vulnerada. Esta regla es un ejemplo de muchas
+Esta regla sirve para identificar cuando nuestra \emph{honeypot} de SSH ha sido vulnerada. Esta regla es un ejemplo de muchas
 que ya vienen en el paquete de reglas base de \emph{Falco}. 
 
-Para éste proyecto se han realizado las siguientes modificaciones al conjunto de reglas base:
+Para este proyecto se han realizado las siguientes modificaciones al conjunto de reglas base:
 
 \begin{itemize}
-    \item Identificar que reglas  marcan claramente que la \emph{honeypot} ha sido vulnerada
+    \item La identificación de las reglas que  marcan claramente que la \emph{honeypot} ha sido vulnerada
     y cambiar su prioridad al nivel maximo de ALERTA.
-    \item Modificar las macros y las reglas para escuchar eventos únicamente de los containers que exponen servicios vulnerables.
+    \item La modificación de las macros y las reglas para escuchar eventos únicamente de los \emph{containers} que exponen servicios vulnerables.
 \end{itemize}
 
 Con estos cambios, \emph{Falco} se encarga de notificarnos cuando alguna de las condiciones descritas en estas reglas se cumplen.
 Lo siguiente a realizar será actuar en base a estas notificaciones. En concreto necesitaremos las siguientes actuaciones:
 
 \begin{enumerate}
-    \item Registraremos las alertas en un fichero de log, que posteriormente sera recolectado por el recolector vía \emph{rsyslog}.
-    \item Necesitamos que una vez detectada la intrusión, permitir al atacante actuar durante algún tiempo para obtener trazas, pero
-    pasado este tiempo se ha de parar el container, borrarlo y crear uno nuevo desde una imagen limpia.
+    \item Registraremos las alertas en un fichero de \emph{log} que, posteriormente, será recolectado por el recolector vía \emph{rsyslog}.
+    \item Necesitamos que, una vez detectada la intrusión, el atacante pueda actuar durante algún tiempo para obtener trazas pero,
+    pasado este tiempo, se ha de parar el \emph{container}, borrarlo y crear uno nuevo desde una imagen limpia.
 \end{enumerate}
 
-Para la primera accion tenemos todas las herramientas necesarias, sólo utilizando \emph{rsyslog} conseguimos el objetivo (véase \ref{subsubsec:usando-rsyslog}).
-La segunda acción, sin embargo, es más compleja y necesitaremos algún proceso que se encargue de por un lado escuchar las notificaciones de falco y 
-actuar en consecuencia, parando el container en ejecución tras pasar el tiempo de exposición. 
+Para la primera accion tenemos todas las herramientas necesarias porque solo utilizando \emph{rsyslog} ya se consigue el objetivo (véase \ref{subsubsec:usando-rsyslog}).
+La segunda acción, sin embargo, es más compleja y exige de algún proceso que se encargue de, por un lado, escuchar las notificaciones de \emph{falco} y, por otro, de 
+actuar en consecuencia, parando el \emph{container} en ejecución tras pasar el tiempo de exposición. 
 
-\subsection{Gestor de containers comprometidos en la sonda}
+\subsection{Gestor de \emph{containers} comprometidos en la sonda}
 
 
 Para implementarlo, se crea una aplicación en \emph{Go} que realice estas funciones. Las razones para escoger \emph{Go} como lenguaje son:
 
 \begin{enumerate}
-    \item Soporta la concurrencia de una manera muy elegante y facil a través de \emph{gorutinas} y canales.
-    \item El compilador genera un binario estatico que no requiere dependencias, en un entorno de seguridad como éste proyecto esto
-    tiene un gran valor ya que al no depender de bibliotecas dinamicas del sistema reducimos la superficie de ataque.
-    \item El hecho de que genere un unico binario facilita la distribución e instalación de la aplicación que se reduce a copiar el fichero binario y darle permisos de ejecución.
+    \item La concurrencia es soportada de una manera muy elegante y fácil a través de \emph{gorutinas} y canales.
+    \item El compilador genera un binario estático que no requiere dependencias. En un entorno de seguridad como es este proyecto, esto
+    tiene un gran valor ya que al no depender de bibliotecas dinámicas del sistema, reducimos la superficie de ataque.
+    \item El hecho de que genere un único binario facilita la distribución e instalación de la aplicación que se reduce a copiar el fichero binario y darle permisos de ejecución.
 \end{enumerate}
 
 En el anexo \ref{subsec:containe-recycler-src-code} se listan algunos trozos de código de la aplicación. El encargado de lanzar el proceso será el propio
@@ -1307,11 +1285,10 @@ En el anexo \ref{subsec:containe-recycler-src-code} se listan algunos trozos de 
 \bigskip
 
 
-Cuando se recibe una notificación de tipo ALERT, el proceso deja el container vivo durante algún tiempo (10 minutos) y tras ese tiempo
-mata el container.
+Cuando se recibe una notificación de tipo ALERT, el proceso deja el \emph{container} vivo durante algún tiempo (10 minutos) y tras ese tiempo, lo mata.
 
 El servicio de \emph{containersvc}, descrito anteriormente (véase código \ref{listing:containersvc-bash}), detectará que el proceso ha sido matado
-y creará un nuevo container.
+y creará un nuevo \emph{container}.
 
 \begin{minted}[fontsize=\tiny]{console}
     time="2017-08-29T21:55:59Z" level=debug msg="ParseFalcoNotifications: received a falco notification" 
@@ -1333,27 +1310,27 @@ y creará un nuevo container.
     time="2017-08-29T22:06:09Z" level=info msg="container ssh has been stopped" 
     time="2017-08-29T22:06:09Z" level=debug msg="ScheduleContainerStop: Lambda function DONE"     
 \end{minted}
-\captionof{listing}{Extracto de log de \emph{container\_recycler}. \label{listing:container-recycler}}
+\captionof{listing}{Extracto de \emph{log} de \emph{container\_recycler}. \label{listing:container-recycler}}
 \bigskip
 
-\subsection{Securizacion de la sonda}
+\subsection{Securización de la sonda}
 \label{subsec:securizacion-sonda}
-Hay diversas medidas de seguridad a aplicar en la sonda. Si seguimos el principio de defensa en profundidad \cite{wikipedia-defense-in-depth}, aplicaremos diversas capas de proteccion en diferentes sistemas.
+Hay diversas medidas de seguridad a aplicar en la sonda. Siguiendo el principio de defensa en profundidad \cite{wikipedia-defense-in-depth}, aplicaremos diversas capas de protección en diferentes sistemas.
 
-\subsubsection{Securizacion del sistema operativo}
+\subsubsection{Securización del sistema operativo}
 
-En nuestro caso al escoger \emph{Debian} podremos utilizar capacidades como el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando 
+En nuestro caso, la elección de \emph{Debian} permite utilizar capacidades como el sistema de \emph{unattended-upgrades} para actualizar paquetes del sistema cuando 
 se publiquen actualizaciones de seguridad. 
 
-Es recomendable seguir los estandares de la industria, como las guias de securización del \emph{CIS} o del 
-\emph{NIST} (véase \cite{ovh-debian-cis} como ejemplo aplicado), que proporcionan guias de securizacion
-para la mayoria de distribuciones y que son utilizadas para el cumplimiento de legislación para poder
-gestionar datos sensibles como tarjeta de credito (PCI-DSS) (véase \cite{wiki-pci-dss}). 
+Es recomendable seguir los estándares de la industria, como las guías de securización del \emph{CIS} o del 
+\emph{NIST} (véase \cite{ovh-debian-cis} como ejemplo aplicado), que proporcionan guías de securización
+para la mayoría de distribuciones y que son utilizadas para el cumplimiento de legislación que
+gestiona datos sensibles como las tarjetas de crédito (PCI-DSS) (véase \cite{wiki-pci-dss}). 
 
 \subsection{Reducción de la superficie de ataque}
 
-Para ello debemos eliminar servicios innecesarios de nuestro sistema, y limitar el acceso a la red configurando un cortafuegos, que permita
-el acceso sólo a los puertos que nosotros deseamos desde los origenes que deseamos.
+Para ello, se deben eliminar servicios innecesarios de nuestro sistema y limitar el acceso a la red configurando un cortafuegos, que permita
+el acceso solo a los puertos que deseamos desde los orígenes que deseamos.
 
 \begin{minted}[fontsize=\scriptsize]{console}
     # {{ansible_managed}}
@@ -1392,89 +1369,86 @@ el acceso sólo a los puertos que nosotros deseamos desde los origenes que desea
 
 \subsection{Configuración del SSH de gestión}
 
-Nuestra sonda expone el puerto tradicional de SSH para que sea atacado, pero aun se necesita conectarse via SSH para configurar el servidor,
+Nuestra sonda expone el puerto tradicional de SSH para que sea atacado, pero aún necesita conectarse vía SSH para configurar el servidor,
 instalar paquetes, etc.
 
-Utilizamos \href{https://github.com/dev-sec/ansible-ssh-hardening}{un modulo de Ansible} para securizar el servicio SSH. 
-Dicho modulo se encarga de:
+Utilizamos \href{https://github.com/dev-sec/ansible-ssh-hardening}{un módulo de Ansible} para securizar el servicio SSH. 
+Dicho módulo se encarga de:
 
 \begin{itemize}
-    \item Configurar el servicio para levantarse en otro puerto, en nuestro caso el 30009. 
+    \item Configurar el servicio para levantarse en otro puerto; en nuestro caso, el 30009. 
     La seguridad por oscuridad no aporta valor añadido pero reduce el número de ataques que recibimos. 
-    \item Deshabilita el uso de agentes SSH.
-    \item Deshabilita el inicio de sesion para root.
-    \item Deshabilita el reenvio de tráfico a traves de tuneles TCP.
-    \item Deshabilita SFTP como servicio de transferencia, ya que puede ser usado para explorar el sistema de archivos del servidor.
-    \item Configura SSH para no usar algoritmos de cifrado debiles. 
+    \item Deshabilitar el uso de agentes SSH.
+    \item Deshabilitar el inicio de sesión para \emph{root}.
+    \item Deshabilitar el reenvío de tráfico a través de túneles TCP.
+    \item Deshabilitar SFTP como servicio de transferencia, ya que puede ser usado para explorar el sistema de archivos del servidor.
+    \item Configurar SSH para no usar algoritmos de cifrado débiles. 
 \end{itemize}
 
-\subsection{Securizacion del sistema de containers}
+\subsection{Securización del sistema de containers}
 
-Las opciones de securización vienen condicionadas por haber escogido \emph{Docker} como sistema ejecución de containers
+Las opciones de securización vienen condicionadas por haber escogido \emph{Docker} como sistema de ejecución de \emph{containers}
 y \emph{Debian} como sistema operativo. 
 
-En Linux podemos usar varios modulos del kernel que implementan un sistema \emph{MAC (Mandatory Access Control)} en lugar de \emph{DAC (Discretionary Access Control)}. 
-Basicamente si el acceso es de tipo DAC, como el tradicional en sistemas unix, la capacidad o no de realizar una acción viene determinado por el actor que inicia la acción y las comprobaciones
-para saber si puede ejercer la accion el objeto sobre el que actua se limitan a comprobar que sea dueño del mismo o el grupo al que pertenece el actor lo sea.
+En Linux podemos usar varios módulos del \emph{kernel} que implementan un sistema \emph{MAC (Mandatory Access Control)} en lugar de \emph{DAC (Discretionary Access Control)}. 
+Básicamente, si el acceso es de tipo DAC (como el tradicional en sistemas unix) la capacidad o no de realizar una acción viene determinada por el actor que inicia la acción. Y las comprobaciones
+para saber si puede ejercer la acción, el objeto sobre el que actua se limitan a comprobar que sea dueño del mismo o el grupo al que pertenece el actor lo sea.
+En un sistema \emph{MAC}, las políticas de qué está permitido o no involucran a los actores que inician la acción y los objetos sobre los que estos actuan -pudiendo limitar incluso al dueño del objeto a realizar ciertas acciones.
 
-En un sistema \emph{MAC}, las politicas de que está permitido o no involucran a los actores que inician la acción y los objetos sobre los que estos actuan, pudiendo
-limitar incluso al dueño del objeto a realizar ciertas acciones.
-
-De los sistemas que implementan un control tipo MAC en linux, podemos enumerar las principales alternativas:
+De los sistemas que implementan un control tipo MAC en linux, podemos enumerar como las principales alternativas:
 
 \begin{itemize}
-    \item[\emph{SELinux}] desarrollado por la \emph{NSA} pero mantenido principalmente por \emph{Redhat}, aunque esta integrado como modulo de kernel,
-    las herramientas y politicas solo se desarrollan y mantiene para distribuciones tipo \emph{Redhat} como \emph{RHEL,Fedora o CentOS} y derivadas de estas.
-    El soporte de \emph{Debian} para \emph{SELinux} aunque existe no esta mantenido oficialmente, lo que hace inviable ésta opción. En SELinux los objetos (ficheros, conexiones de red) se identifican por
+    \item[\emph{SELinux}]: desarrollado por la \emph{NSA} pero mantenido principalmente por \emph{Redhat}. Aunque está integrado como módulo de \emph{kernel},
+    las herramientas y políticas solo se desarrollan y mantienen para distribuciones tipo \emph{Redhat} como \emph{RHEL,Fedora o CentOS} y derivadas de estas.
+    El soporte de \emph{Debian} para \emph{SELinux}, aunque existe, no está mantenido oficialmente, lo que hace inviable esta opción. En SELinux los objetos (ficheros, conexiones de red) se identifican por
     un identificador que es invariable aunque la ruta al fichero cambie. 
-    \item[\emph{AppArmor}] desarrollado principalmente por \emph{SuSE Linux} y \emph{Canonical}, está integrado en el kernel pero al igual que \emph{SELinux} 
-    el soporte de herramientas y politicas existe principalmente en distribuciones \emph{SuSE}, \emph{Ubuntu} y \emph{Debian}. En AppArmor las politicas hacen referencia a rutas y no 
+    \item[\emph{AppArmor}]: desarrollado principalmente por \emph{SuSE Linux} y \emph{Canonical}, está integrado en el \emph{kernel} pero, al igual que \emph{SELinux}, 
+    el soporte de herramientas y políticas existe principalmente en distribuciones \emph{SuSE}, \emph{Ubuntu} y \emph{Debian}. En AppArmor las políticas hacen referencia a rutas y no 
     a identificadores de fichero, lo que es una merma en las capacidades de securizar de \emph{AppArmor}.
-    \item[\emph{TOMOYO}] Desarrollado por \emph{NTT Group}, parece que su uso y comunidad es muy pequeña comparado con las alternativas y que no está activamente mantenido. Similar a \emph{AppArmor} en filosofía.
-    \item[\emph{grsecurity}] Es un conjunto de parches para el kernel desarrollado por Brad Spengler de \emph{Open Source Security, inc} hasta septiembre de 2015 se ofrecian parches al publico de versiones estables y de pruebas del kernel. 
-    Despues de septiembre de 2015, sólo se ofrecian parches para versiones de prueba al público en general y para versiones estables para suscriptores de pago. En abril de 2017 también cerraron la descarga de parches
-    para versiones de prueba. grsecurity ofrece el conjunto de parches y herramientas más completa y controvertida de las opciones a escoger. Instalar los parches de grsecurity en un kernel
-    no garantizan compatibilidad con aplicaciones existentes, sin embargo su control \emph{MAC} basado en roles y el conjunto de mejoras de seguridad al kernel, la convierten en una opción atractiva de no ser por su modelo de distribución y sus problemas de compatibilidad.
+    \item[\emph{TOMOYO}]: desarrollado por \emph{NTT Group}, parece que su uso y comunidad es muy pequeña, en comparación con las alternativas. Además, no está activamente mantenido. Similar a \emph{AppArmor} en filosofía.
+    \item[\emph{grsecurity}]: es un conjunto de parches para el \emph{kernel} desarrollado por Brad Spengler de \emph{Open Source Security, inc}. Hasta septiembre de 2015, se ofrecían parches al público de versiones estables y de pruebas del \emph{kernel}. 
+    Despues de septiembre de 2015, solo se ofrecían parches para versiones de prueba al público en general y para versiones estables para suscriptores de pago. En abril de 2017, también cerraron la descarga de parches
+    para versiones de prueba. \emph{Grsecurity} ofrece el conjunto de parches y herramientas más completa y controvertida de las opciones a escoger. Instalar los parches de \emph{grsecurity} en un \emph{kernel}
+    no garantiza la compatibilidad con aplicaciones existentes, sin embargo su control \emph{MAC} basado en roles y el conjunto de mejoras de seguridad al \emph{kernel}, la convierten en una opción atractiva de no ser por su modelo de distribución y sus problemas de compatibilidad.
 \end{itemize}
 
-Como resultado, escogeremos \emph{AppArmor} \cite{wiki-apparmor} para implementar nuestras politicas \emph{MAC}. \emph{Docker} soporta ser lanzado con perfiles de \emph{AppArmor} \cite{docker-doc-apparmor}, que permiten
-limitar el conjunto de acciones que las aplicaciones podran realizar \textbf{dentro} del container. Existiran otros perfiles de \emph{AppArmor} que permiten limitar el comportamiento
-de Docker con el sistema que aloja \emph{containers}.
+Como resultado, escogeremos \emph{AppArmor} \cite{wiki-apparmor} para implementar nuestras políticas \emph{MAC}. \emph{Docker} soporta ser lanzado con perfiles de \emph{AppArmor} \cite{docker-doc-apparmor}, que permiten
+limitar el conjunto de acciones que las aplicaciones podrán realizar \textbf{dentro} del \emph{container}. Existirán otros perfiles de \emph{AppArmor} que permiten limitar el comportamiento
+de \emph{Docker} con el sistema que aloja \emph{containers}.
 \ \\
-\emph{Seccomp} \cite{wiki-seccomp} es una capacidad del kernel, que permite a procesos descartar privilegios de acceso a \emph{syscalls} 
-que no necesitan. En el contexto de limitación de \emph{containers}, \emph{AppArmor} da un control más granular sobre que se permite 
-o no ejecutar a un container mientras que seccomp complementa 
-la proteccion para acciones que no tengan sentido para ese container.
+\emph{Seccomp} \cite{wiki-seccomp} es una capacidad del \emph{kernel} que permite a procesos descartar privilegios de acceso a \emph{syscalls} 
+que no necesitan. En el contexto de limitación de \emph{containers}, \emph{AppArmor} da un control más granular sobre qué se permite 
+o no ejecutar a un \emph{container} mientras que \emph{seccomp} complementa 
+la proteccion para acciones que no tengan sentido para ese \emph{container}.
 
 \ \\
-Por ejemplo, podemos restringir la syscall \emph{sethostname} para un \emph{container} 
-que ejecute un servidor web que dificilmente necesitará realizar esa operación.
+Por ejemplo, podemos restringir la \emph{syscall} \emph{sethostname} para un \emph{container} 
+que ejecute un servidor web que difícilmente necesitará realizar esa operación.
 
 \subsubsection{Limitación del ancho de banda usado por procesos que se ejecutan en \emph{containers}}
 
 Cuando creamos el \emph{container} con el servicio expuesto, creamos una red propia para este \emph{container}. Puede verse
 en el listado del código \ref{listing:ssh-docker-compose} en el apartado \emph{networks}.
-Docker crea un dispositivo de red virtual al que asocia un dispositivo \emph{bridge} virtual, esto es necesario para que el 
+\emph{Docker} crea un dispositivo de red virtual al que asocia un dispositivo \emph{bridge} virtual. Esto es necesario para que el 
 \emph{container} tenga un \emph{namespace} \cite{wiki-namespaces} de red propio. Por defecto, a no ser que configuremos \emph{Docker}
-de otra manera, se crearan reglas en \emph{iptables} para que este \emph{bridge} pueda salir a internet, y de esta manera los 
+de otra manera, se crearán reglas en \emph{iptables} para que este \emph{bridge} pueda salir a internet, y de esta manera los 
 \emph{containers} que utilicen esta red tengan conexión a internet.
-Esto es conveniente, los \emph{containers} suelen necesitar acceso a la red, especialmente si son servicios expuestos a clientes, pero en el caso de la \emph{honeypot} pese a que deseamos que el atacante tenga
-conexión a internet (muchos scripts de atacantes si detectan que no hay conexión a internet, simplemente no hacen nada porque sospechan 
-de estar en una \emph{honeypot}), no queremos colaborar de manera activa con el ataque que se este llevando a cabo.
+Esto es conveniente porque los \emph{containers} suelen necesitar acceso a la red -especialmente- si son servicios expuestos a clientes; pero en el caso de la \emph{honeypot}, pese a que deseamos que el atacante tenga
+conexión a internet (muchos \emph{scripts} de atacantes si detectan que no hay conexión a internet, simplemente no hacen nada porque sospechan que 
+están en una \emph{honeypot}), no queremos colaborar de manera activa con el ataque que se esté llevando a cabo.
 La solución a esta aparente contradicción, es permitir el acceso a internet pero limitando la velocidad de la conexión a una tan baja que un ataque
-de tipo \emph{DDoS}.
+dé tipo \emph{DDoS}.
 
-Para ello utilizaremos una herramienta llamada \emph{traffic control (tc)} (véase \cite{man-tc}) que nos permite manipular la gestión de trafico del kernel
+Para ello, utilizaremos una herramienta llamada \emph{traffic control (tc)} (véase \cite{man-tc}) que nos permite manipular la gestión de trafico del \emph{kernel}
 para nuestros dispositivos de red.
 
-Como puede verse en el script listado como código \ref{listing:tc-manager-script}, que se lanza desde el \emph{daemon} de gestión de containers (código \ref{listing:containersvc-bash})
-con la red de docker del \emph{container} como argumento. La primera función del script que gestiona \emph{tc} es a partir del
-nombre de red de Docker, averiguar a que dispositivo \emph{bridge} pertenece y modificar las politicas de tráfico de dicho \emph{bridge}.
-
-Respecto a las politicas de tráfico en concreto, reducimos el ancho de banda de descarga y subida a 56KiB y añadimos una latencia
+Como puede verse en el \emph{script} listado como código \ref{listing:tc-manager-script}, que se lanza desde el \emph{daemon} de gestión de \emph{containers} (código \ref{listing:containersvc-bash})
+con la red de \emph{docker} del \emph{container} como argumento. La primera función del \emph{script} que gestiona \emph{tc} es (a partir de \emph{Docker}
+averiguar a qué dispositivo \emph{bridge} pertenece y modificar las políticas de tráfico de dicho \emph{bridge}.
+Respecto a las políticas de tráfico en concreto, reducimos el ancho de banda de descarga, y es subida a 56KiB y añadimos una latencia
 de 50ms a la red. 
 
-Se crean clases de tráfico, donde el tráfico SSH y el tráfico de diagnosis (ICMP) se marca como prioritario (priorizamos la conexión del servicio expuesto),
+Se crean clases de tráfico, donde el tráfico SSH y el tráfico de diagnosis (ICMP) se marca como prioritario (priorizando la conexión del servicio expuesto),
 el resto del tráfico se entregará con el ancho de banda disponible.
 
 
@@ -1641,23 +1615,22 @@ el resto del tráfico se entregará con el ancho de banda disponible.
     
     exit 0    
 \end{minted}
-\captionof{listing}{\emph{tc\_manager} script que controla ancho de banda usado en \emph{Docker} \label{listing:tc-manager-script}}
+\captionof{listing}{\emph{tc\_manager} \emph{script} que controla ancho de banda usado en \emph{Docker} \label{listing:tc-manager-script}}
 \bigskip
 
 
 \section{Arquitectura del colector}
-\label{sec:arquitecura-del-colector}
 
 El servidor que realiza las funciones de recolector, también realiza las funciones
 de \emph{backend} y \emph{frontend} de la API de clientes. La razón principal
-es economica, y si la carga de la API o el almacenamiento disponible se queda pequeño
+es económica y, si la carga de la API o el almacenamiento disponible se queda pequeño,
 habría que incorporar más servidores para la sostenibilidad del proyecto.
 
-Igualmente ésta situación provoca una situación en la que éste servidor se convierte en un 
-punto de fallo, si el servidor cae, la recolección de trazas y la API dejarán de funcionar.
+Igualmente, esta situación provoca una situación en la que este servidor se convierte en un 
+punto de fallo y, si el servidor cae, la recolección de trazas y la API dejarán de funcionar.
 
 Sin embargo, en el diagrama \ref{fig:arquitectura-general}, se recogen todos los procesos involucrados
-en la recolección y la API y su interacción con las sondas. Dicha interacción y relación no cambiaria pese
+en la recolección y la API, y su interacción con las sondas. Dicha interacción y relación no cambiaría pese
 a que añadamos más servidores por razones de escalabilidad y resiliencia.
 
 \begin{figure}[h]
@@ -1671,32 +1644,32 @@ a que añadamos más servidores por razones de escalabilidad y resiliencia.
 
 El conjunto \textbf{NO} sigue una arquitectura de microservicios \cite{fowler-microservices}, pero sigue una arquitectura
 orientada a servicios (SoA). En general cada elemento del diagrama \ref{fig:arquitectura-recolector} reune las siguientes
-caracteristicas:
+características:
 
 \begin{itemize}
-    \item Son desplegados en un \emph{container}, y tiene un ciclo de vida independiente. Por ejemplo, se puede desplegar una nueva
-    versión de \emph{metadata\_extractor}, el procesador de trazas, sin tener que desplegar otros componentes de la arquitectura
+    \item Son desplegados en un \emph{container} y tiene un ciclo de vida independiente. Por ejemplo, se puede desplegar una nueva
+    versión de \emph{metadata\_extractor} (el procesador de trazas) sin tener que desplegar otros componentes de la arquitectura
     siempre y cuando no haya cambios en la interfaz común entre componentes.
     \item Realizan una sola función o un número limitado de funciones bien definidas.
-    \item Se asume que cada elemento puede compartir la red con otro elemento. Esto es asi porque se lanzan en la misma maquina, y ayuda
+    \item Se asume que cada elemento puede compartir la red con otro elemento. Esto es así porque se lanzan en la misma máquina, y ayuda
     a simplificar la diagnosis en caso de problemas a costa de aumentar el acoplamiento.
-    \item Existe acoplamiento entre elementos, esto va en contra de la arquitectura de microservicios.
-    \item Se comparten bases de datos, esto va en contra de la arquitectura de microservicios.
+    \item Existe acoplamiento entre elementos y esto va en contra de la arquitectura de microservicios.
+    \item Se comparten bases de datos y esto también va en contra de la arquitectura de microservicios.
 \end{itemize}
 
-No utilizar una arquitectura de microservicios creemos que es una decisión correcta para este caso, puesto que cambiar la arquitectura
-actual a una de microservicios requeriria la introducción posiblemente de un \emph{backbone} de eventos o un sistema de colas y del despiece de la
+Creemos que no utilizar una arquitectura de microservicios es una decisión correcta para este caso, puesto que cambiar la arquitectura
+actual a una de microservicios requeriría, posiblemente, la introducción de un \emph{backbone} de eventos o un sistema de colas y del despiece de la
 base de datos y replicación para dotar a cada microservicio con su base de datos independiente.
 
 Además, esto solo tendría sentido si el equipo técnico a cargo del proyecto fuese tan elevado que el coste de asumir esta arquitectura
-(proceso de construcción independiente para cada servicio, test, definición de interfaces \ldots) lo justificase y no es el caso.
+(proceso de construcción independiente para cada servicio, test, definición de interfaces \ldots) lo justificase; y no es el caso.
 
 \subsection{API de registro para las sondas}
 \label{subsec:sinker-registry-api}
 
-Como se comentaba en la descripción de riesgos de la sonda \ref{fig:riesgo_sonda}, las sondas son maquinas efimeras que se
+Como se comentaba en la descripción de riesgos de la sonda \ref{fig:riesgo_sonda}, las sondas son máquinas efímeras que se
 crean y destruyen con cierta frecuencia, pero de las que necesitamos metadatos tales como el proveedor del servidor, 
-la región geografica en la que se encuentra o la dirección IP.
+la región geográfica en la que se encuentra o la dirección IP.
 
 Por ello, necesitamos una API de registro donde se almacenen los datos de estas sondas. 
 
@@ -1712,22 +1685,22 @@ Por ello, necesitamos una API de registro donde se almacenen los datos de estas 
     \hline
     GET & /v1/probe/:id  & Listado de sondas que tengan el ID :id. \\
     \hline
-    GET & /v1/probe/ssh/:id & Lista de claves SSH de la sonda con ID :id \\
+    GET & /v1/probe/ssh/:id & Listado de claves SSH de la sonda con ID :id \\
     \hline
-    GET & /v1/probe/name/:fqdn & Lista de sondas con el nombre DNS :fqdn \\
+    GET & /v1/probe/name/:fqdn & Listado de sondas con el nombre DNS :fqdn \\
     \hline
     POST & /v1/probe & Crear una nueva sonda, el \emph{payload} puede verse en código \ref{listing:json-api-sinker} \\
     \hline
-    PUT & /v1/probe/disable/:id & Deshabilita la sonda con ID :id, no sale en listados \\
+    PUT & /v1/probe/disable/:id & Deshabilitar la sonda con ID :id, no sale en listados \\
     \hline
-    PUT & /v1/probe/enable/:id & habilita la sonda con ID :id \\
+    PUT & /v1/probe/enable/:id & Habilitar la sonda con ID :id \\
     \hline
-    PUT & /v1/probe/tracespath/:id & Modifica directorio de trazas para sonda con ID :id \\
+    PUT & /v1/probe/tracespath/:id & Modificar directorio de trazas para sonda con ID :id \\
     \hline
-    DELETE & /v1/probe/delete/:id & Elimina sonda del registro con ID :id \\
+    DELETE & /v1/probe/delete/:id & Eliminar sonda del registro con ID :id \\
     \hline
     \end{tabular}
-    \captionof{table}{\label{tab:definicion-sinker-api} Definicion de la api}
+    \captionof{table}{\label{tab:definicion-sinker-api} Definición de la api}
     
 
     \begin{minted}[fontsize=\footnotesize]{json}
@@ -1754,18 +1727,18 @@ Por ello, necesitamos una API de registro donde se almacenen los datos de estas 
 La API realiza las siguientes convenciones:
 
 \begin{itemize}
-    \item Cada identificador es unico, no habrá dos sondas con el mismo identificador.
-    \item Cada IP estará registrada a una sonda y a un nombre DNS, un mismo servidor no puede ofrecer más de una sonda (aunque si multiples servicios).
-    \item Aunque no está implementado, si añadiesemos la componente temporal se podrian habilitar, deshabilitar y consultar las sondas existentes por fecha además
+    \item Cada identificador es único, no habrán dos sondas con el mismo identificador.
+    \item Cada IP estará registrada a una sonda y a un nombre DNS, un mismo servidor no puede ofrecer más de una sonda (aunque sí, múltiples servicios).
+    \item Aunque no está implementado, si se añadiera componente temporal se podrían habilitar, deshabilitar y consultar las sondas existentes por fecha además
     de por identificador, IP o nombre DNS.
 \end{itemize}
 
 \subsubsection{Clientes de \emph{Sinker Registry API}}
 
-La API es de uso interno, no es visible desde el exterior, sólo es visible para las sondas y para el servicio de \emph{metadata\_extractor}.
-Cuando vía \emph{Ansible} se crea y se configura una nueva sonda, como parte del \emph{playbook} , listado de pasos para crear la sonda , se
+La API es de uso interno, es decir, no es visible desde el exterior, sino que solo es visible para las sondas y para el servicio de \emph{metadata\_extractor}.
+Cuando la vía \emph{Ansible} se crea y se configura una nueva sonda, como parte del \emph{playbook} (listado de pasos para crear la sonda) se
 realiza una llamada a la API para registrarla. Dicho proceso puede verse en detalle en el diagrama de secuencia UML \ref{fig:uml-sequence-post-probe}.
-Si el registro ha sido exitoso la API devolverá un código 201 y un \emph{JSON} que incluye el ID de la sonda recien creada.
+Si el registro ha sido exitoso la API devolverá un código 201 y un \emph{JSON} que incluye el ID de la sonda recién creada.
 
 El diagrama de secuencia UML \ref{fig:uml-sequence-get-probe} muestra como se obtiene el listado de sondas a traves de su IP y la interacción
 de diversos objetos.
@@ -1785,37 +1758,24 @@ de diversos objetos.
 \end{figure}
 
 \subsubsection{Implementación de la API}
-\label{subsubsec:sinkers-registry-api-implementacion}
+\label{sinkers-regeistry-api-implementacion}
 
-la API sigue el patrón MVC y se diseña como API REST, se escoge \emph{Go} como lenguaje de programación para implementarla, se escoge \emph{Go} 
-como lenguaje para implementarla para mantener la homogeneidad con otras herramientas del proyecto, facilitar la reutilización de código,
-por ser fácil de distribuir y desplegar (acaba siendo un binario estatico), tener un muy buen soporte a la concurrencia y una biblioteca
-estandar de HTTP muy versatil y potente.
+La API sigue el patrón MVC y se diseña como API REST, escogiendo \emph{Go} como lenguaje de programación para implementarla. Se escoge \emph{Go} 
+como lenguaje para mantener la homogeneidad con otras herramientas del proyecto, para facilitar la reutilización de código,
+por ser fácil de distribuir y desplegar (acaba siendo un binario estático) y por tener un muy buen soporte a la concurrencia y una biblioteca
+estándar de HTTP muy versátil y potente.
 
-Aunque la biblioteca estandar de \emph{Go} ya incluye un paquete de HTTP potente que podemos utilizar, se decide utilizar un \emph{framework} 
-que permita la creación de la API de manera más rapida. Escogemos \emph{Beego} como \emph{framework} por ofrecer un \emph{ORM},
-\emph{routers HTTP} y una \emph{CLI} para probar y desplegar la API entre otras funcionalidades y ser simple y completo para nuestros
-propositos.
+Aunque la biblioteca estándar de \emph{Go} ya incluye un paquete de HTTP potente que se puede utilizar, se decide utilizar un \emph{framework} 
+que permita la creación de la API de manera más rápida. Escogemos \emph{Beego} como \emph{framework} por ofrecer un \emph{ORM},
+\emph{routers HTTP} y una \emph{CLI} para probar y desplegar la API entre otras funcionalidades y por ser simple y completo para nuestros
+propósitos.
 
-\subsection{Base de datos.}
-
-Como se analizo en \ref{subsec:modelo-de-datos}, nuestra base de datos ha de reunir las siguientes caracteristicas:
-
-\begin{itemize}
-    \item Orientada a busquedas. La inserción se realizará muy poco frecuentemente, idealmente una sola vez (salvo reprocesados).
-    \item Escalable y particionada. Como analizamos previamente, la información es menos relevante cuanto menos reciente sea, por lo tanto es importante
-    ser capaces de particionar nuestra base de datos para albergarla completa por interes estadistico y ser capaz de eliminar una partición sin afectar al rendimiento del conjunto.
-\end{itemize}
-
-Por estas razones se escoge \emph{Elasticsearch} como base de datos. \emph{Elasticsearch} es una base de datos orientada a busqueda que permite
-busquedas rapidas de texto y que permite también la creación de series temporales.
-
-\subsection{Recolección y procesado de trazas}
+\subsection{Extracción de datos y recolección de trazas}
 \label{subsec:extraccion-trazas}
 
 El servicio \emph{metadata\_extractor} se encarga de la recolección de trazas y de la extracción de datos de las mismas.
-\emph{metadata\_extractor} es una aplicación de consola escrita en \emph{Go}, depende de la API de sondas y aunque puede prescindir de ella
-en el proceso habitual también depende de \emph{Elasticsearch}.
+\emph{Metadata\_extractor} es una aplicación de consola escrita en \emph{Go} que depende de la API de sondas y, aunque puede prescindir de ella
+en el proceso habitual, también depende de \emph{Elasticsearch}.
 
 \begin{minted}[fontsize=\scriptsize]{console}
     ./metadata_extractor -h
@@ -1831,10 +1791,9 @@ en el proceso habitual también depende de \emph{Elasticsearch}.
       file        sync files from ssh potted containers
       ssh         extracts metadata from ssh potted containers
     
-      Flags:
-      -b, --bandwidthlimit string       Amount of bandwidth in KiB used for syncing files (default "1024")
+    Flags:
       -c, --config string               config file (default is $PWD/.metadata_extractor.yaml 
-                                        and $HOME/.metadata_extractor.yaml)
+                                            and $HOME/.metadata_extractor.yaml)
           --elasticsearch_host string   host to connect to elasticsearch
           --elasticsearch_port string   port to connect to elasticsearch
       -f, --follow                      follow traces created on fs, needs -i parameter
@@ -1843,10 +1802,12 @@ en el proceso habitual también depende de \emph{Elasticsearch}.
       -s, --sinker_api_url string       sinker_api_url (default "http://main01.superprivyhosting.com:38080")
       -d, --tracebasepath string        Where the traces are stored  (default "/var/log/traces")
       -v, --verbose                     gives detailed logging
+    
+    Use "metadata_extractor [command] --help" for more information about a command.
 \end{minted}
-\captionof{listing}{texto de ayuda de \emph{metadata\_extractor} \label{listing:metadata-extractor}}
+\captionof{listing}{Texto de ayuda de \emph{metadata\_extractor} \label{listing:metadata-extractor}}
 \bigskip
-\emph{metadata\_extractor} puede leer de un fichero de configuración en lugar de ser pasado como uno de los argumentos descritos en la ayuda, en caso
+\emph{Metadata\_extractor} puede leer de un fichero de configuración en lugar de ser pasado como uno de los argumentos descritos en la ayuda. En caso
 de proporcionar ambos el argumento siempre tendrá prioridad.
 
 
@@ -1855,6 +1816,9 @@ de proporcionar ambos el argumento siempre tendrá prioridad.
 % dos funciones principales, recoge trazas usando rsync, para eso consulta a la Sinker registry API donde hay
 % claves ssh que puede usar para acceder al directorio de trazas.
 
+% el otro es procesar las trazas, tienes dos modos o se le pasa como argumento una ruta y procesara los ficheros que encuentre
+% o se le pasa u -f y procesara los ficheros que se vayan escribiendo en un directorio que escucha.
+% los ficheros llegan a traves de fsnotify.
 
 \subsubsection{Recolección de trazas}
 
