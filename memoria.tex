@@ -2496,22 +2496,23 @@ En esta etapa se decide:
 
 \subsection{Tercera iteración: construcción del recolector.}
 
-Con las sondas funcionando, el siguiente paso es la extracción,almacenamiento y procesado de la información que capturan. En esta iteración
+Con las sondas funcionando, el siguiente paso es la extracción, almacenamiento y procesado de la información que capturan. En esta iteración
 se decide utilizar \emph{Elasticsearch} como motor base de datos, se desarrollan \emph{metadata\_extractor} para recolectar y procesar las trazas, y 
-la API de registro de sondas (\emph{Sinker Registry API}), también se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
+la API de registro de sondas (\emph{Sinker Registry API}). 
+También se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
 con \emph{Filebeat} y \emph{Logstash}.
 
 En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
 
 \subsection{Cuarta iteración: construcción de la API.}
 
-Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotacion y visualización de la misma. En esta iteración
+Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotación y visualización de la misma. En esta iteración
 el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
 una descripción completa del sistema.
 
 \subsection{Quinta iteración: redacción de la memoria del proyecto.}
 
-Como dirian los anglosajones \emph{last, but not least} con el sistema funcionando y en producción solo queda la redacción de esta memoria
+Como dirían los anglosajones \emph{last, but not least}. Con el sistema funcionando y en producción solo queda la redacción de esta memoria
 para dar por acabado el presente PFC.
 
 \section{Calendarización}
@@ -2520,7 +2521,7 @@ En el cuadro \ref{tab:calendarizacion-pfc} puede verse el tiempo invertido en ca
 entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, solo se ha estimado la complejidad
 de las mismas.
 
-Atendiendo a ese criterio la calendarizacion cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
+Atendiendo a ese criterio, la calendarización cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
 de la sonda serían las más complejas puesto que se alejan más del dominio de conocimiento del desarrollador del proyecto.
 
 \begin{table}[h]
@@ -2594,16 +2595,16 @@ Para el presupuesto debemos desglosar dos conceptos fundamentales:
 Si consideramos el desarrollo \emph{acabado}, se necesitará un número de horas del personal para el mantenimiento del proyecto, 
 incluyendo actualizaciones de seguridad de los servidores, gestión de incidentes, arreglo de errores etc.
 
-En cuanto al personal tanto para el desarrollo y mantenimiento del mismo necesitamos un perfil \emph{DevSecOps}, dicho de otro modo
+En cuanto al personal. tanto para el desarrollo como para el mantenimiento del mismo necesitamos un perfil \emph{DevSecOps}. Dicho de otro modo
 alguien capaz de involucrarse indistintamente en tareas de codificación, administración de servidores y tareas de seguridad. 
 
 En el convenio colectivo de empresas de ingeniería (véase \cite{boe-convenio}) se detalla que un licenciado y/o analista cobrará un sueldo bruto de 
-23.618,28 € al año. El perfil previamente descrito entraría dentro de dicha categoría profesional cifrandose el precio/hora en
+23.618,28 € al año. El perfil previamente descrito entraría dentro de dicha categoría profesional cifrándose el precio/hora en
 14 € / hora. 
 
 El cuadro \ref{tab:costes-totales} incluye los costes totales del proyecto y sus conceptos hasta la fecha de redacción de la presente
 memoria, no se incluye el coste de mantenimiento por parte del personal. Es el alumno el que desarrolla las labores de personal, se incluyen
-los costes aproximados para valorar la dimensión economica de ampliar el equipo tecnico.
+los costes aproximados para valorar la dimensión económica de ampliar el equipo técnico.
 
 \begin{table}[h]
     \centering
