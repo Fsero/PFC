@@ -73,10 +73,10 @@ Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principio
 \nopagebreak
 \printbibheading[title={Normas y referencias},heading=subbibnumbered]
 \subsection{Disposiciones legales y normas aplicadas}
-\subsubsection{Licencia FDL aplicable a ésta memoria}
+\subsubsection{Licencia FDL aplicable a esta memoria}
 \input{./fdl.tex}
 \subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el código fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Todo el código fuente listado en esta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
 Se puede consultar los términos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
 \subsection{Bibliografia}
@@ -2446,7 +2446,7 @@ pero proporcionaría información muy relevante dado que muchos sistemas critico
 \subsubsection{Monetización}
 
 Es posible la monetización del proyecto, quizás vendiendo \emph{feeds} personalizados a instituciones relevantes. Sin embargo, en el estado actual de desarrollo del proyecto
-sería más fácil intentar integrar el proyecto en soluciones de inteligencia de seguridad informatica ya disponibles, que ya incorporen las partes que faltan a este proyecto
+sería más fácil intentar integrar el proyecto en soluciones de inteligencia de seguridad informática ya disponibles, que ya incorporen las partes que faltan a este proyecto
 (visualizaciones atractivas vía dashboard, gestión de clientes y otros \ldots).
 
 \section{Conclusiones}
@@ -2455,35 +2455,35 @@ El presente proyecto en su estado actual cumple los requisitos de diseño enumer
 las lineas descritas en la sección \ref{sec:trabajo-futuro} para seguir explorandolo, si se contase con la financiación adecuada.
 
 Es además un proyecto de estas características que cubren el espectro completo (de captación a visualización) y se ha liberado su código fuente, permitiendo a terceros desarrollar sobre esta idea, algo
-poco común en el area de la seguridad informatica. 
+poco común en el area de la seguridad informática. 
 
 Este proyecto ha sido un enorme proceso de aprendizaje personal para este autor que ha aplicado para su consecución además de conocimiento técnico, todo lo aprendido
 en gestión de proyectos, gestión de expectativas y entrega continua asumidos en el mundo laboral.
 
 
 \chapter{Planificación y presupuesto.}
-\section{Metodologia de desarrollo}
+\section{Metodología de desarrollo}
 
 Para la realización del proyecto se ha utilizado un modelo iterativo incremental como enfoque general. Era importante definir
-muy bien el conjunto de funcionalidad a incluir y la calidad minima en cada iteración sin atender a una estimación en fechas. 
+muy bien el conjunto de funcionalidad a incluir y la calidad mínima en cada iteración sin atender a una estimación en fechas. 
 Cualquier estimación se realizaba en tallas de camiseta o puntos de historia que miden la complejidad y no la duración de una tarea.
 
 Cabe reseñar que el alumno y desarrollador del proyecto no tiene una dedicación completa al mismo, pudiendo dedicar unas 10 horas semanales
-de media al proyecto. Esto tiene impacto en la duración del proyecto puesto que al tiempo inherente a cada tarea hay un tiempo
-invertido en recuperar el contexto de la última sesión de trabajo que incrementa la duración del desarrollo del proyecto.
+de media al proyecto. Esto tiene impacto en la duración del mismo, puesto que al tiempo inherente a cada tarea hay un tiempo
+invertido en recuperar el contexto de la última sesión de trabajo lo cual incrementa la duración del desarrollo del proyecto.
 
 
 \subsection{Primera iteración: construcción del prototipo.}
 
-En la primera iteración se basa en validar la idea del proyecto y evaluar las herramientas que utilizaremos. Para ello se construye
-un prototipo creando una sonda manualmente y evaluar como se extraería información de la misma de manera automatizada.
+La primera iteración se basa en validar la idea del proyecto y evaluar las herramientas que utilizaremos. Para ello se construye
+un prototipo creando manualmente una sonda  y se evalua como se extraería información de la misma de manera automatizada.
 
-También se exploran tecnologías para realizar la recolección y construir la API. El resultado de ésta iteración se describe en
-el capitulo \ref{chapter:analisis-de-soluciones}.
+También se exploran tecnologías para realizar la recolección y construir la API. El resultado de esta iteración se describe en
+el capítulo \ref{chapter:analisis-de-soluciones}.
 
 \subsection{Segunda iteración: construcción de las sondas.}
 
-El objetivo de ésta iteración es construir las sondas de manera repetible y automatizada asegurando que son estables,
+El objetivo de esta iteración es construir las sondas de manera repetible y automatizada asegurando que son estables,
 seguras y resistentes y que tenemos los mecanismos necesarios para extraer información de ellas.
 
 En esta etapa se decide:
@@ -2491,7 +2491,7 @@ En esta etapa se decide:
 \begin{itemize}
     \item Construir un sistema similar para las notificaciones de alertas hasta descubrir que \emph{Falco} es liberado, cuando se descarta.
     \item Utilizar \emph{Ansible} para la creación y configuración de las sondas y el resto de servicios de manera automatizada.
-    \item Como se securizará la sonda de ataques y el modelo de riesgo de la sonda.
+    \item Securizar la sonda de ataques y definir el modelo de riesgo de la sonda.
 \end{itemize}
 
 \subsection{Tercera iteración: construcción del recolector.}
@@ -2505,7 +2505,7 @@ En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el pr
 
 \subsection{Cuarta iteración: construcción de la API.}
 
-Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotacion y visualización de la misma. En ésta iteración
+Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotacion y visualización de la misma. En esta iteración
 el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
 una descripción completa del sistema.
 
