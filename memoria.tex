@@ -13,7 +13,7 @@ una utilización de recursos en términos de CPU, RAM (en definitiva, en coste e
 y seguridad) tiene altas posibilidades de no desplegarse exactamente en el mismo entorno que el resto de aplicaciones de negocio de una organización y, en caso de hacerlo,
 la gestión del riesgo y de las medidas de seguridad aumentaran considerablemente.
 
-Por ello, el despliegue y mantenimiento de \emph{honeypots}  de alta interacción es difícil. Desde la introducción de LXC (Linux Containers) en el kernel de Linux que los hizo posible, y
+Por ello, el despliegue y mantenimiento de \emph{honeypots}  de alta interacción es difícil. Desde la introducción de LXC (Linux Containers) en el \emph{kernel} de Linux que los hizo posible, y
 especialmente desde la aparición de Docker, que le dio popularidad y facilito su adopción y explotación.
 
 Un \emph{container} es un método de virtualización para ejecutar múltiples sistemas linux aislados (\emph{containers}) en un servidor que comparte un mismo \emph{kernel} de Linux. Técnicamente, se basa en la utilización
@@ -47,12 +47,12 @@ El objetivo de una \emph{honyepot} es el de aprender y conocer técnicas de los 
 Debido al coste y complejidad de las \emph{honeypots} de alta interacción, la mayoría de ellas son de baja interacción. A continuación, se examinarán brevemente algunas de ellas:
 
 \begin{enumerate}
-    \item[\emph{Kippo}] (\cite{honeynet-kippo}): una \emph{honeypot} de SSH de baja interacción, implementa el protocolo SSH en un servidor en Python
+    \item \emph{Kippo} (\cite{honeynet-kippo}): una \emph{honeypot} de SSH de baja interacción, implementa el protocolo SSH en un servidor en Python
     lo que le permite extraer información del atacante (contraseña, IP, órdenes ejecutadas...), aunque intenta simular un servidor de SSH real
     se puede diagnosticar que el servidor es una \emph{honeypot} simplemente ejecutando órdenes de sistema.
-    \item[\emph{Dionaea}] (\cite{honeynet-dionaea}): una \emph{honeypot} de baja interacción que simula varias aplicaciones como servidores TFTP, MySQL, HTTP, Memcache etc y expone sus puertos.
-    \item[\emph{honeyd}] (\cite{honeynet-lowinteraction}): una de las primeras \emph{honeypots open source} de baja interacción que puede exponer varios servicios aunque su desarrollo no está activo.
-    \item[\emph{Dockerpot}] (\cite{honeynet-dockpot}): una \emph{honeypot} de alta interacción, basada en \emph{containers} Docker que persigue un objetivo similar al de este proyecto.
+    \item \emph{Dionaea} (\cite{honeynet-dionaea}): una \emph{honeypot} de baja interacción que simula varias aplicaciones como servidores TFTP, MySQL, HTTP, Memcache etc y expone sus puertos.
+    \item \emph{honeyd} (\cite{honeynet-lowinteraction}): una de las primeras \emph{honeypots open source} de baja interacción que puede exponer varios servicios aunque su desarrollo no está activo.
+    \item \emph{Dockerpot} (\cite{honeynet-dockpot}): una \emph{honeypot} de alta interacción, basada en \emph{containers} Docker que persigue un objetivo similar al de este proyecto.
     Sin embargo, no se expone directamente un \emph{container}, sino que expone un \emph{proxy} (a lo \emph{kippo}) que implementa el protocolo SSH. Pero a diferencia de \emph{kippo}, se abre otra conexión
     a un servidor SSH real que se ejecuta en un \emph{container}. El \emph{proxy} se encarga de levantar o de parar el \emph{container}, pero solo se para el \emph{container} cuando no hay ninguna conexión activa. Y, si el \emph{container} es comprometido, siguiendo este enfoque, no se parará.
     De manera similar a \emph{Kippo}, es fácil descubrir  que se está atacando una \emph{honeypot} de este tipo, ya que la latencia entre que se inicia la comunicación
@@ -76,8 +76,8 @@ Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principio
 \subsubsection{Licencia FDL aplicable a ésta memoria}
 \input{./fdl.tex}
 \subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el codigo fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
-Se puede consultar los terminos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
+Todo el código fuente listado en ésta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Se puede consultar los términos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
 \subsection{Bibliografia}
 \printbibliography[title={Referencias},heading=none]
@@ -85,27 +85,32 @@ Se puede consultar los terminos de la licencia en la página de Apache \url{http
 \section{Definiciones y abreviaturas}
 
 \begin{itemize}
-    \item[\textbf{API}] \emph{Application program interface}.
-    \item[\textbf{LTS}] \emph{Application program interface}.
-    \item[\textbf{CLI}] \emph{Application program interface}.
+    \item[\textbf{API}] \emph{Application program interface}. interfaz desarrollada para ser utilizada por \emph{software} y no directamente para humanos.
+    \item[\textbf{LTS}] \emph{Long Term Support}. Una distribución de \emph{software} en la que se actualiza y mantiene aunque se hayan publicado nuevas versiones del \emph{software}.
+    \item[\textbf{CLI}] \emph{Command Line Interface}.
     \item[\textbf{NFS}] \emph{Application program interface}.
-    \item[\textbf{XML}] \emph{Application program interface}.
-    \item[\textbf{JSON}] \emph{Application program interface}.
-    \item[\textbf{PID}] \emph{Application program interface}.
-    \item[\textbf{CI}] \emph{Application program interface}.
-    \item[\textbf{CD}] \emph{Application program interface}.
-    \item[\textbf{pipeline}] \emph{Application program interface}.
+    \item[\textbf{XML}] \emph{eXtensible Markup Language}.
+    \item[\textbf{JSON}] \emph{Javascript Object Notation}.
+    \item[\textbf{CI}] \emph{Continuous Integration}.
+    \item[\textbf{CD}] \emph{Continuous Delivery}.
+    \item[\textbf{pipeline}] .
+    \item[\textbf{honeypot}] .
+    \item[\textbf{kernel}] .
+    \item[\textbf{container}] .
+    
+    
+    
     
     
     
 \end{itemize}
 
-\chapter{Análisis de soluciones}
+\chapter{An\'alisis de soluciones}
 \label{chapter:analisis-de-soluciones}
 \minitoc{}
 
 
-\section{Análisis de soluciones para la sonda}
+\section{An\'alisis de soluciones para la sonda}
 \label{sec:analisis-sonda}
 
 
@@ -135,19 +140,19 @@ y hay muchísimas herramientas disponibles que, al final, suponen la utilizació
 
 Cuando se habla de instrumentación de procesos en Linux, generalmente, lo que se persigue es obtener información de:
 \begin{enumerate}
-    \item[\emph{System calls}]: peticiones que realiza nuestro proceso al \emph{kernel} como leer un fichero o abrir una conexión.
-    \item[\emph{kernel function calls}]: funciones que se reclamarán en el \emph{kernel} para satisfacer una \emph{syscall}.
-    \item[\emph{eventos}]: eventos que se han definido en \emph{userspace} o dentro del \emph{kernel}.
+    \item \emph{System calls}: peticiones que realiza nuestro proceso al \emph{kernel} como leer un fichero o abrir una conexión.
+    \item \emph{Kernel function calls}:funciones que se reclamarán en el \emph{kernel} para satisfacer una \emph{syscall}.
+    \item \emph{Eventos}: eventos que se han definido en \emph{userspace} o dentro del \emph{kernel}.
 \end{enumerate}
 
 Para obtener esta información hay diversas fuentes dentro del \emph{kernel}:
 
 \begin{enumerate}
-    \item[\emph{kprobes}]: el \emph{kernel} modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si se trata
+    \item \emph{kprobes}: el \emph{kernel} modifica las instrucciones en ensamblador en tiempo de ejecución para activar la instrumentación. Si se trata
     de \emph{kprobes}, las funciones a instrumentar son parte del \emph{kernel}. 
-    \item[\emph{uprobes}]: similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
-    \item[\emph{tracepoints}]: a diferencia de un \emph{kprobe} o \emph{uprobe}, un \emph{tracepoint} se define en el código fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extrayendo la información de ese \emph{tracepoint}.
-    \item[\emph{ptrace}]: a través de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
+    \item \emph{uprobes}: similar a \emph{kprobes} pero para funciones en espacio de usuario como \emph{malloc}.
+    \item \emph{tracepoints}: a diferencia de un \emph{kprobe} o \emph{uprobe}, un \emph{tracepoint} se define en el código fuente y se genera en tiempo de compilación, pudiendo ser activados en tiempo de ejecución cuando se requiera y extrayendo la información de ese \emph{tracepoint}.
+    \item \emph{ptrace}: a través de la \emph{syscall ptrace (process trace)}, se le otorga a un proceso la capacidad de inspeccionar y modificar el comportamiento del proceso instrumentado. 
 \end{enumerate}
 
 Lo que se persigue en este proyecto es intentar obtener la máxima información modificando lo mínimo posible la aplicación instrumentada. Sería posible
@@ -166,7 +171,7 @@ utilidades como \emph{perf} no serán útiles y, como posibilidades válidas, se
 Están disponibles desde el kernel 2.6 y proporcionan información acerca de qué \emph{syscalls}
 se llaman desde los procesos del sistema. 
 Es un componente maduro que se utiliza extensivamente (como prueba, mencionar que es parte de las recomendaciones del CIS y NIST para guías de bastionado)
-y que, en base a un fichero de configuración, permite definir qué \emph{syscalls} se monitorizaran
+y que, en base a un fichero de configuración, permite definir qué \emph{syscalls} se monitorizarán
 \emph{Audit} generando un fichero de \emph{log} que puede guardarse en disco, enviar eventos a un recolector remoto o ser expuesto vía una conexión
 \emph{netlink} (véase \cite{wiki-netlink})
 
@@ -176,7 +181,7 @@ y guardar cualquier \emph{syscall} recibida.
 Este enfoque puede ser costoso tanto a nivel de rendimiento, ya que depende del número de eventos generados (el tráfico / las operaciones del \emph{container}) a la hora de la coleccionarlos, como también
 a la hora de extraer la información relevante.
 
-La idea inicial es configurar \emph{Audit} para volcar la información en un fichero y, tras una prueba inicial, se encuentraron los siguientes problemas a resolver:
+La idea inicial es configurar \emph{Audit} para volcar la información en un fichero y, tras una prueba inicial, se encontraron los siguientes problemas a resolver:
 
 \begin{enumerate}
     \item La necesidad de reducir el numero de \emph{syscalls} a instrumentar en \emph{Auditd}. Esto es debido a que si solo se instrumentan unas cuantas \emph{syscalls}, el volumen de eventos es mucho menor que si
@@ -184,7 +189,7 @@ La idea inicial es configurar \emph{Audit} para volcar la información en un fic
     deseable para tener que procesar menos después y para el almacenaje de los eventos.
     \item La gestión del fichero de \emph{log}. El fichero crecerá y, por ello, hay que rotarlo para que no llene el almacenamiento del servidor. Si el volumen de eventos es alto y superior 
     al \emph{buffer} disponible, es posible o bien que haya una pérdida de eventos antes de escribir a fichero, o bien que llegue la recepción de eventos con demasiada posterioridad.
-    \item La optimización del fichero de \emph{log} para extraer información una vez se haya parseado. Este paso implica leer el fichero de disco/parsearlo y guardar la información. El hecho de tener que escribir a disco puede inducir una latencia además de aumentar la carga de la sonda si parseamos el fichero alli.
+    \item La optimización del fichero de \emph{log} para extraer información una vez se haya parseado. Este paso implica leer el fichero de disco/parsearlo y guardar la información. El hecho de tener que escribir a disco puede inducir una latencia además de aumentar la carga de la sonda si parseamos el fichero allí.
     \item Para mitigar el punto anterior, una posibilidad es la configuración  \emph{Auditd} para enviar eventos a un \emph{Auditd} central y que este se encargue de volcar en ficheros los eventos de varias sondas. Sin embargo, esto sería aplazar el problema
     comentado anteriormente.
     \item Otra posibilidad para mejorar la latencia es utilizar una conexión \emph{netlink},
@@ -202,7 +207,7 @@ La idea inicial es configurar \emph{Audit} para volcar la información en un fic
 \end{enumerate}
 
 Tras realizar una implementación inicial como prueba, no queda más que descartar la opción del \emph{buffer} de eventos de  \emph{Auditd} por no estar preparado para grandes volúmenes.
-Si una sonda \emph{Auditd} pierde conectividad con un \emph{Auditd} que actua como recolector central, los eventos de este se pierden.
+Si una sonda \emph{Auditd} pierde conectividad con un \emph{Auditd} que actúa como recolector central, los eventos de este se pierden.
 
 Y para paliar esta deficiencia, se puede utilizar la interfaz \emph{netlink}. Existen varias librerías en diversos lenguajes para implementar un cliente de \emph{netlink} y de entre ellas
 se han probado: (\cite{netlink-glnpy,netlink-audit-go,netlink-go-audit}).
@@ -294,12 +299,12 @@ Sin embargo, el soporte a subsistemas ha sido introducido de manera paulatina, d
 
 Si se utiliza \emph{eBPF}, se encuentran diferencias notables respecto a otras opciones. Las diferentes ventajas e incovenientes más importantes con respecto a \emph{Auditd} y otras opciones son:
 \begin{enumerate}
-    \item[Eficiencia]: el procesado de eventos y filtrado se hace dentro del \emph{kernel} en un entorno aislado, lo que es mucho más
+    \item \textbf{Eficiencia}: el procesado de eventos y filtrado se hace dentro del \emph{kernel} en un entorno aislado, lo que es mucho más
     rápido y menos costoso que copiar el evento a espacio de usuario y filtrarlo allí.
-    \item[Prometedor]: aunque \emph{eBPF} es de incorporación reciente, utiliza una tecnología existente en el \emph{kernel} desde hace más de 20 años.
-    \item[Falta de soporte]: no se puede olvidar que lo que se persigue es instrumentar una \emph{honeypot} y que aunque es viable escribir aplicaciones \emph{eBPF} capaces de instrumentar, no hay demasiada documentación al respecto
+    \item \textbf{Prometedor}: aunque \emph{eBPF} es de incorporación reciente, utiliza una tecnología existente en el \emph{kernel} desde hace más de 20 años.
+    \item \textbf{Falta de soporte}: no se puede olvidar que lo que se persigue es instrumentar una \emph{honeypot} y que aunque es viable escribir aplicaciones \emph{eBPF} capaces de instrumentar, no hay demasiada documentación al respecto
     y quizá ese objetivo sea merecedor de un proyecto por sí solo.
-    \item[Soporte reciente]: si se pretende utilizar todas las capacidades de \emph{eBPF} es necesario, al menos, un \emph{kernel 4.10} que no está disponible aún en todas las distribuciones y que suelen instalar en
+    \item \textbf{Soporte reciente}: si se pretende utilizar todas las capacidades de \emph{eBPF} es necesario, al menos, un \emph{kernel 4.10} que no está disponible aún en todas las distribuciones y que suelen instalar en
     versiones \emph{LTS} (4.4 actualmente), no estando disponible en la mayoría de proveedores de servidores como \emph{AWS, Digital Ocean \ldots}. Aunque no es imposible instalar nuevas versiones del \emph{kernel},
     supone un esfuerzo extra y un coste para el proyecto.
 \end{enumerate}
@@ -327,10 +332,10 @@ licenciado con GPLv2, lo que supone un encaje perfecto para las necesidades del 
 Ventajas e inconvenientes de este enfoque son:
 
 \begin{enumerate}
-    \item[Coste]: \emph{sysding} obtiene los eventos en el espacio del \emph{kernel} pero los copia a espacio de usuario para ser
+    \item \textbf{Coste}:\emph{sysding} obtiene los eventos en el espacio del \emph{kernel} pero los copia a espacio de usuario para ser
     filtrados y procesados. Si el filtro que escogemos es suficientemente amplio se necesitará una importante cantidad de recursos de CPU y de memoria para el filtrado y procesado de eventos.
-    \item[Flexibilidad]: \emph{sysdig} como cliente del módulo del \emph{kernel}, proporciona una enorme flexibilidad a la hora de definir filtros y varios formatos de salida (JSON, formato variable \emph{a la printf},\ldots).
-    \item[Almacenaje]: \emph{sysdig} guarda a disco las trazas en fichero en un formato binario propio que es posible leer y filtrar con posterioridad. Proporciona además opciones para el rotado automático por tamaño y/o fecha,
+    \item \textbf{Flexibilidad}:\emph{sysdig} como cliente del módulo del \emph{kernel}, proporciona una enorme flexibilidad a la hora de definir filtros y varios formatos de salida (JSON, formato variable \emph{a la printf},\ldots).
+    \item \textbf{Almacenaje}:\emph{sysdig} guarda a disco las trazas en fichero en un formato binario propio que es posible leer y filtrar con posterioridad. Proporciona además opciones para el rotado automático por tamaño y/o fecha,
     lo que permite el almacenaje y gestión de ficheros de trazas directamente desde \emph{sysdig} y la capacidad de reprocesar eventos si los filtros originales son generalistas. 
 \end{enumerate}
 
@@ -372,20 +377,20 @@ El objetivo de una  \emph{honeypot} es el de engañar a atacantes para que reali
 
 Listado de riesgos analizados sobre la figura \ref{fig:riesgo_sonda}:
 \begin{enumerate}
-    \item[\emph{Naranja 1}]: elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
-    \item[\emph{Naranja 2}]: riesgo de que la \emph{honeypot} sea reconocible o listada. La \emph{honeypot} es conocida por alguna característica (\emph{IP del servidor, versión del servicio,\ldots}) marcándola como \emph{honeypot} y permitiendo a los atacantes simplemente ignorarla.
-    \item[\emph{Azul}]: el atacante escapa desde el \emph{container}. Hay una elevación de privilegios que rompe el aislamiento del \emph{kernel} y el atacante gana acceso a otros \emph{containers} o al servidor.
-    \item[\emph{Verde}]: \emph{spoofing} de la información enviada al recolector. Una vez el atacante gana acceso al servidor, puede enviar al recolector la información falseada.
-    \item[\emph{Rojo}]: elevación de privilegios de un atacante que ya ha conseguido acceso al recolector. El recolector y la sonda mantendrán una conexión y, si alguien ataca al recolector y gana privilegios, puede atacar a las sondas. Pese a que es un riesgo, si el recolector ha sido vulnerado, que ataquen las sondas no es tan grave.
+    \item \emph{Naranja 1}: elevación de privilegios atacando a un servicio expuesto que no pertenece a la \emph{honeypot}. Un atacante puede explotar un servicio de soporte como un servidor SSH de administración o un servicio interno expuesto por mala configuración.
+    \item \emph{Naranja 2}: riesgo de que la \emph{honeypot} sea reconocible o listada. La \emph{honeypot} es conocida por alguna característica (\emph{IP del servidor, versión del servicio,\ldots}) marcándola como \emph{honeypot} y permitiendo a los atacantes simplemente ignorarla.
+    \item \emph{Azul}: el atacante escapa desde el \emph{container}. Hay una elevación de privilegios que rompe el aislamiento del \emph{kernel} y el atacante gana acceso a otros \emph{containers} o al servidor.
+    \item \emph{Verde}: \emph{spoofing} de la información enviada al recolector. Una vez el atacante gana acceso al servidor, puede enviar al recolector la información falseada.
+    \item \emph{Rojo}: elevación de privilegios de un atacante que ya ha conseguido acceso al recolector. El recolector y la sonda mantendrán una conexión y, si alguien ataca al recolector y gana privilegios, puede atacar a las sondas. Pese a que es un riesgo, si el recolector ha sido vulnerado, que ataquen las sondas no es tan grave.
 \end{enumerate}
 
 Listado de mitigaciones para los riesgos analizados:
 \begin{enumerate}
-    \item[\emph{Naranja 1}]: reducción de la superficie de ataque, eliminación de los servicios expuestos que no pertenezcan a la \emph{honeypot} o limitación del acceso a ciertas direcciones \emph{ip} conocidas.
-    \item[\emph{Naranja 2}]: para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. La mejor alternativa para mitigarlo es reciclar las sondas y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automático, se pueden crear nuevas sondas con frecuencia diaria u horaria.
-    \item[\emph{Azul}]: aceptación del riesgo que supone que el \emph{container} siempre tendrá acceso al \emph{kernel} que se comparte con otros \emph{containers} y el servidor. Como mitigación, podemos restringir los privilegios del \emph{container} para que solo pueda utilizar algunas \emph{syscalls} pero -en cualquier caso- el riesgo de compromiso de un servidor a través de un \emph{container} siempre estará presente. 
-    \item[\emph{Verde}]: la comunicacion entre sonda y recolector se realizará a través de un canal cifrado con clave asimétrica. En el lado del recolector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
-    \item[\emph{Rojo}]: de todos los riesgos listados, este es el menos grave. Si el recolector ha sido atacado y vulnerado, tendremos problemas mayores que nuestra sonda sea atacada. La mitigación en este caso es si se ha vulnerado: cerrar el entorno, apagar los servidores, guardar periódicamente la información obtenida en un almacenamiento diferente y externo, hacer una auditoria de seguridad y realizar el análisis de qué provocó el ataque para repararlo y recrear el entorno desde cero para tener la seguridad de que el atacante no tiene acceso a él.
+    \item \emph{Naranja 1}: reducción de la superficie de ataque, eliminación de los servicios expuestos que no pertenezcan a la \emph{honeypot} o limitación del acceso a ciertas direcciones \emph{ip} conocidas.
+    \item \emph{Naranja 2}: para mitigar este riesgo, las versiones de las aplicaciones expuestas deben estar ocultas o ser indistinguibles. La mejor alternativa para mitigarlo es reciclar las sondas y crear sondas nuevas con suficiente frecuencia. Si el sistema de provisionamiento y configuración de sondas es automático, se pueden crear nuevas sondas con frecuencia diaria u horaria.
+    \item \emph{Azul}: aceptación del riesgo que supone que el \emph{container} siempre tendrá acceso al \emph{kernel} que se comparte con otros \emph{containers} y el servidor. Como mitigación, podemos restringir los privilegios del \emph{container} para que solo pueda utilizar algunas \emph{syscalls} pero -en cualquier caso- el riesgo de compromiso de un servidor a través de un \emph{container} siempre estará presente. 
+    \item \emph{Verde}: la comunicacion entre sonda y recolector se realizará a través de un canal cifrado con clave asimétrica. En el lado del recolector se pueden realizar validaciones de entrada antes de guardar en base de datos o actuar sobre los eventos recibidos.
+    \item \emph{Rojo}: de todos los riesgos listados, este es el menos grave. Si el recolector ha sido atacado y vulnerado, tendremos problemas mayores que nuestra sonda sea atacada. La mitigación en este caso es si se ha vulnerado: cerrar el entorno, apagar los servidores, guardar periódicamente la información obtenida en un almacenamiento diferente y externo, hacer una auditoria de seguridad y realizar el análisis de qué provocó el ataque para repararlo y recrear el entorno desde cero para tener la seguridad de que el atacante no tiene acceso a él.
 \end{enumerate}
 
 Tendremos que tener en cuenta estos riesgos a la hora de modelar la arquitectura y diseñar las protecciones, en general los riesgos \emph{Naranja 1}, \emph{Naranja 2} y \emph{Azul} son mas prioritarios que los riesgos \emph{Verde} y \emph{Rojo}. Las posibles acciones a tomar estan listadas en las mitigaciones del mismo color y creemos que son suficientes para equilibrar los riesgos.
@@ -409,7 +414,7 @@ En definitiva, las preguntas a resolver son: ¿cómo se realizará el registro d
     cuales son las sondas y su estado para obtener las trazas.
 \end{enumerate}
 
-\subsection{Recolección de notificaciones de la \emph{honeypot}}
+\subsection{Recolecci\'on de notificaciones de la \emph{honeypot}}
 
 Las alertas generadas por la \emph{honeypot} serán eventos en formato textual o binario de un tamaño pequeño ( $<$ 1MiB). 
 Es importante que dichos eventos no se pierdan y que sean recolectados con la mayor celeridad posible incluso si las trazas disponibles
@@ -639,8 +644,8 @@ La cuestión es sí debemos enfocar el esfuerzo del proyecto a crear esta visual
 una interfaz para aplicaciones y dejar a terceros la construcción de visualizaciones finales.
 
 \begin{enumerate}
-    \item[Informes]: incluyen habitualmente gráficas-resumen y datos de carácter estadístico y son útiles para reconocer tendencias y patrones, pero no lo son para actuar frente un ataque en tiempo real.
-    \item[API]: una interfaz para aplicaciones que los clientes pueden integrar para responder ante incidentes o construir un informe de manera programática.
+    \item \textbf{Informes}: incluyen habitualmente gráficas-resumen y datos de carácter estadístico y son útiles para reconocer tendencias y patrones, pero no lo son para actuar frente un ataque en tiempo real.
+    \item \textbf{API}: una interfaz para aplicaciones que los clientes pueden integrar para responder ante incidentes o construir un informe de manera programática.
 \end{enumerate}
 
 Hay diversos ejemplos de \emph{Honeypots} que generan informes como método de explotación del usuario (enlace a un \href{http://www.nothink.org/honeypot_ssh.php}{ejemplo}, también disponible en figura \ref{fig:informe-honeypot}).
@@ -682,10 +687,10 @@ La definición del contrato de la API no está basado en experiencia de uso de n
 un método que permita la evolución o el cambio de la misma. Existen varios métodos de versionado, entre otros:
 
 \begin{enumerate}
-    \item[Parámetro]: se pasa la versión de la API como parámetro de la petición. Algunos \emph{proxies} pueden eliminar el parámetro y conducir a errores.
-    \item[URL]: la URL contiene la versión de la API a la que se quiere acceder. Su ventaja es que es fácil de saber qué versión se utiliza y es fácil de depurar pero la desventaja es que afea y puede complicar la
+    \item \textbf{Parámetro}: se pasa la versión de la API como parámetro de la petición. Algunos \emph{proxies} pueden eliminar el parámetro y conducir a errores.
+    \item \textbf{URL}: la URL contiene la versión de la API a la que se quiere acceder. Su ventaja es que es fácil de saber qué versión se utiliza y es fácil de depurar pero la desventaja es que afea y puede complicar la
     URL.
-    \item[Cabecera HTTP]: se pasa la versión de la API que se quiere usar como una cabecera HTTP. La ventaja es que la URL no cambiará con 
+    \item \textbf{Cabecera HTTP}: se pasa la versión de la API que se quiere usar como una cabecera HTTP. La ventaja es que la URL no cambiará con 
     cada nueva versión de la API. 
 \end{enumerate}
 
@@ -746,11 +751,11 @@ desarrollado por el grupo OASIS.
 La arquitectura final puede observarse en la figura \ref{fig:arquitectura-general}. En ella se encuentran los siguientes elementos:
 
 \begin{enumerate}
-    \item[Sondas]: desplegadas en varios proveedores y regiones del mundo, serán instaladas y configuradas tantas de ellas como
+    \item \textbf{Sondas}: desplegadas en varios proveedores y regiones del mundo, serán instaladas y configuradas tantas de ellas como
     diferentes muestras de datos queramos obtener. Es el elemento más dinámico de la arquitectura. El límite del crecimiento lo impone la capacidad
     del recolector y \emph{backend} ya que mientras este sea capaz de absorber y procesar el volumen de datos obtenido en las sondas podremos crear nuevas.
-    \item[PKI y control]: se encarga de las funciones externas como el almacenamiento de secretos (gestiona la \emph{PKI, Public Key Infrastructure,} interna, monitoriza el resto de elementos y lanza el provisionamiento y la configuración.
-    \item[Recolector y Backend]: se encarga de almacenar las trazas de las sondas y de albergar los servicios encargados para el procesado y la explotación como la API. Este elemento es un \emph{SPOF, Single Point Of Failure,}, si cae el \emph{backend} y la recoleccion quedan inutilizados.
+    \item \textbf{PKI y control}: se encarga de las funciones externas como el almacenamiento de secretos (gestiona la \emph{PKI, Public Key Infrastructure,} interna, monitoriza el resto de elementos y lanza el provisionamiento y la configuración.
+    \item \textbf{Recolector y \emph{backend}}:se encarga de almacenar las trazas de las sondas y de albergar los servicios encargados para el procesado y la explotación como la API. Este elemento es un \emph{SPOF, Single Point Of Failure,}, si cae el \emph{backend} y la recoleccion quedan inutilizados.
     Las razones para este diseño son puramente económicas y de simplicidad, si queremos un sistema robusto y escalable convendría separar funciones y tener un esquema que permita el escalado horizontal.
 \end{enumerate}
 
@@ -768,9 +773,9 @@ Uno de las mitigaciones explicadas en \ref{subsec:riesgos} es tener la capacidad
 los siguientes pasos:
 
 \begin{enumerate}
-    \item[Provisión]: solicitar al proveedor un nuevo servidor de unas características determinadas (o ponerlo en marcha en nuestros \emph{datacenters}).
-    \item[Configuración]: instalación de los paquetes de herramientas, \emph{software} y configuración necesarios para que la sonda pueda funcionar.
-    \item[Operación]: realizar cambios post-configuración tales como la actualización de paquetes de seguridad.
+    \item \textbf{Provisión}: solicitar al proveedor un nuevo servidor de unas características determinadas (o ponerlo en marcha en nuestros \emph{datacenters}).
+    \item \textbf{Configuración}: instalación de los paquetes de herramientas, \emph{software} y configuración necesarios para que la sonda pueda funcionar.
+    \item \textbf{Operación}: realizar cambios post-configuración tales como la actualización de paquetes de seguridad.
 \end{enumerate}
 
 Todos estos pasos pueden ser ejecutados por un operador humano, tal y como a menudo son. Pero si, en nuestro caso, queremos un proceso repetible, rápido y automatizado,
@@ -826,7 +831,7 @@ y cumplir de sobra con los requisitos para este proyecto. Es decir, es capaz de 
 \begin{figure}[h]
     \centering
       \includegraphics[scale=0.5]{images/configmanagement_tools1}
-    \caption{Comparativa de herramientas de configuración, extraido de \href{https://www.slideshare.net/DanielKrook/caps-whats-best-for-deploying-and-managing-openstack-chef-vs-ansible-vs-puppet-vs-salt}{una charla de IBM}}
+    \caption{Comparativa de herramientas de configuración, extraído de \href{https://www.slideshare.net/DanielKrook/caps-whats-best-for-deploying-and-managing-openstack-chef-vs-ansible-vs-puppet-vs-salt}{una charla de IBM}}
     \label{fig:configmanagement1}
   \end{figure}
 
@@ -983,7 +988,7 @@ El \emph{script}, descrito como código \ref{listing:containersvc-bash}, realiza
     la ratio de éxito para los atacantes en la explotación y permite aprender más.
     \item Escoger un nombre aleatorio como nomenclatura de máquina. Esto hace que el \emph{container} parezca un servicio
     más creible y que los atacantes no descarten la intrusión por detectar que están en un entorno construído para atraparles.
-    \item Lanzar un proceso (\emph{docker-compose}, un orquestrador de órdenes de \emph{Docker} con un DSL propio) que crea la imagen del \emph{container}, una red propia para ese container y lo lanza. 
+    \item Lanzar un proceso (\emph{docker-compose}, un orquestrador de órdenes de \emph{Docker} con un DSL propio) que crea la imagen del \emph{container}, una red propia para ese \emph{container} y lo lanza. 
     \item Lanza un proceso que limita el ancho de banda de red (se hablará más de ello en la sección \ref{subsec:securizacion-sonda}).
 \end{enumerate}
 
@@ -1011,7 +1016,7 @@ creadas en el \emph{script} listado como código \ref{listing:containersvc-bash}
           ssh:
             driver: bridge
     \end{minted}
-    \captionof{listing}{\emph{docker-compose} que crea el container \emph{servicebase}     \label{listing:ssh-docker-compose}}
+    \captionof{listing}{\emph{docker-compose} que crea el \emph{container} \emph{servicebase}     \label{listing:ssh-docker-compose}}
 
 El fichero \emph{Dockerfile} que define la imagen, listado como 4, recoge la variable \emph{PASSWORD\_GENERATED} pasada como argumento al \emph{build} y utilizada para cambiar la contraseña
 de dos usuarios del sistema. 
@@ -1158,18 +1163,18 @@ son las opciones que se pasan a \emph{sysdig}. Se hará una breve explicación d
     \captionof{listing}{\emph{Script} que controla \emph{sysdig}  \label{listing:sysdig-bash}}
 
 \begin{itemize}
-    \item[\textbf{-s 4096}]: define el espacio de almacenamiento de datos. Muchas \emph{syscalls} (como conexiones, escritura de ficheros) guardarán datos. Este parámetro define 
+    \item \textbf{-s 4096}: define el espacio de almacenamiento de datos. Muchas \emph{syscalls} (como conexiones, escritura de ficheros) guardarán datos. Este parámetro define 
     cuantos datos se guardarán. Lo ideal para tener toda la información para su análisis sería guardar todos los datos, pero esto generaría trazas de longitud variable 
     y, posiblemente, de un tamaño que por su longitud sea complejo de gestionar (quizás se llenarían los discos de la sonda y se tardaría mucho tiempo en recolectar la traza o procesarla). 
     Definimos 4KiB por ser un tamaño adecuado para captar la mayoría de datos intercambiados y, de los obtenidos parcialmente, quizá capten también cierto conocimiento sobre ellos. 
-    \item[\textbf{-pc}]: incluye en la salida información acerca de \emph{containers}, como la imagen del \emph{container}.
-    \item[\textbf{-F}]: incluye todos los eventos, generando trazas más grandes pero más precisas.
-    \item[\textbf{-C 200}]: rota el fichero de traza si el tamaño es superior a $200 * 10^6$ bytes.
-    \item[\textbf{-G 300}]: rota el fichero de traza si el fichero actual es más antiguo de 300 segundos.
-    \item[\textbf{-W 5}]: mantiene 5 ficheros de rotado. Junto a la opción \emph{-C} y \emph{G}, asegura que, en caso
+    \item \textbf{-pc}: incluye en la salida información acerca de \emph{containers}, como la imagen del \emph{container}.
+    \item \textbf{-F}: incluye todos los eventos, generando trazas más grandes pero más precisas.
+    \item \textbf{-C 200}: rota el fichero de traza si el tamaño es superior a $200 * 10^6$ bytes.
+    \item \textbf{-G 300}: rota el fichero de traza si el fichero actual es más antiguo de 300 segundos.
+    \item \textbf{-W 5}: mantiene 5 ficheros de rotado. Junto a la opción \emph{-C} y \emph{G}, asegura que, en caso
     de recibir muchos eventos, las trazas seguirán siendo gestionables.
-    \item[\textbf{-z}]: comprime el fichero de traza.
-    \item[\textbf{-w \emph{ruta}}]: informa de en qué ruta se almacenan las trazas.
+    \item \textbf{-z}: comprime el fichero de traza.
+    \item \textbf{-w \emph{ruta}}: informa de en qué ruta se almacenan las trazas.
 \end{itemize}
 
    
@@ -1392,22 +1397,22 @@ y \emph{Debian} como sistema operativo.
 
 En Linux podemos usar varios módulos del \emph{kernel} que implementan un sistema \emph{MAC (Mandatory Access Control)} en lugar de \emph{DAC (Discretionary Access Control)}. 
 Básicamente, si el acceso es de tipo DAC (como el tradicional en sistemas unix) la capacidad o no de realizar una acción viene determinada por el actor que inicia la acción. Y las comprobaciones
-para saber si puede ejercer la acción, el objeto sobre el que actua se limitan a comprobar que sea dueño del mismo o el grupo al que pertenece el actor lo sea.
+para saber si puede ejercer la acción, el objeto sobre el que actúa se limitan a comprobar que sea dueño del mismo o el grupo al que pertenece el actor lo sea.
 En un sistema \emph{MAC}, las políticas de qué está permitido o no involucran a los actores que inician la acción y los objetos sobre los que estos actuan -pudiendo limitar incluso al dueño del objeto a realizar ciertas acciones.
 
 De los sistemas que implementan un control tipo MAC en linux, podemos enumerar como las principales alternativas:
 
 \begin{itemize}
-    \item[\emph{SELinux}]: desarrollado por la \emph{NSA} pero mantenido principalmente por \emph{Redhat}. Aunque está integrado como módulo de \emph{kernel},
+    \item \emph{SELinux}: desarrollado por la \emph{NSA} pero mantenido principalmente por \emph{Redhat}. Aunque está integrado como módulo de \emph{kernel},
     las herramientas y políticas solo se desarrollan y mantienen para distribuciones tipo \emph{Redhat} como \emph{RHEL,Fedora o CentOS} y derivadas de estas.
     El soporte de \emph{Debian} para \emph{SELinux}, aunque existe, no está mantenido oficialmente, lo que hace inviable esta opción. En SELinux los objetos (ficheros, conexiones de red) se identifican por
     un identificador que es invariable aunque la ruta al fichero cambie. 
-    \item[\emph{AppArmor}]: desarrollado principalmente por \emph{SuSE Linux} y \emph{Canonical}, está integrado en el \emph{kernel} pero, al igual que \emph{SELinux}, 
+    \item \emph{AppArmor}: desarrollado principalmente por \emph{SuSE Linux} y \emph{Canonical}, está integrado en el \emph{kernel} pero, al igual que \emph{SELinux}, 
     el soporte de herramientas y políticas existe principalmente en distribuciones \emph{SuSE}, \emph{Ubuntu} y \emph{Debian}. En AppArmor las políticas hacen referencia a rutas y no 
     a identificadores de fichero, lo que es una merma en las capacidades de securizar de \emph{AppArmor}.
-    \item[\emph{TOMOYO}]: desarrollado por \emph{NTT Group}, parece que su uso y comunidad es muy pequeña, en comparación con las alternativas. Además, no está activamente mantenido. Similar a \emph{AppArmor} en filosofía.
-    \item[\emph{grsecurity}]: es un conjunto de parches para el \emph{kernel} desarrollado por Brad Spengler de \emph{Open Source Security, inc}. Hasta septiembre de 2015, se ofrecían parches al público de versiones estables y de pruebas del \emph{kernel}. 
-    Despues de septiembre de 2015, solo se ofrecían parches para versiones de prueba al público en general y para versiones estables para suscriptores de pago. En abril de 2017, también cerraron la descarga de parches
+    \item \emph{TOMOYO}: desarrollado por \emph{NTT Group}, parece que su uso y comunidad es muy pequeña, en comparación con las alternativas. Además, no está activamente mantenido. Similar a \emph{AppArmor} en filosofía.
+    \item \emph{grsecurity}: es un conjunto de parches para el \emph{kernel} desarrollado por Brad Spengler de \emph{Open Source Security, inc}. Hasta Septiembre de 2015, se ofrecían parches al público de versiones estables y de pruebas del \emph{kernel}. 
+    Despues de Septiembre de 2015, solo se ofrecían parches para versiones de prueba al público en general y para versiones estables para suscriptores de pago. En abril de 2017, también cerraron la descarga de parches
     para versiones de prueba. \emph{Grsecurity} ofrece el conjunto de parches y herramientas más completa y controvertida de las opciones a escoger. Instalar los parches de \emph{grsecurity} en un \emph{kernel}
     no garantiza la compatibilidad con aplicaciones existentes, sin embargo su control \emph{MAC} basado en roles y el conjunto de mejoras de seguridad al \emph{kernel}, la convierten en una opción atractiva de no ser por su modelo de distribución y sus problemas de compatibilidad.
 \end{itemize}
@@ -1770,6 +1775,20 @@ que permita la creación de la API de manera más rápida. Escogemos \emph{Beego
 \emph{routers HTTP} y una \emph{CLI} para probar y desplegar la API entre otras funcionalidades y por ser simple y completo para nuestros
 propósitos.
 
+\subsection{Base de datos.}
+
+Como se analizó en \ref{subsec:modelo-de-datos}, nuestra base de datos ha de reunir las siguientes características:
+
+\begin{itemize}
+    \item Orientada a búsquedas. La inserción se realizará con poco frecuencia, idealmente una sola vez (salvo reprocesados).
+    \item Escalable y particionada. Como se analizó previamente, la información es menos relevante cuanto menos reciente sea, por lo tanto es importante
+    ser capaces de particionar nuestra base de datos para albergarla completa por interés estadístico y ser capaz de eliminar una partición sin afectar al rendimiento del conjunto.
+\end{itemize}
+
+Por estas razones se escoge \emph{Elasticsearch} como base de datos. \emph{Elasticsearch} es una base de datos orientada a la búsqueda que permite
+busquedas rápidas de texto y, la creación de series temporales.
+
+
 \subsection{Extracción de datos y recolección de trazas}
 \label{subsec:extraccion-trazas}
 
@@ -1823,22 +1842,22 @@ de proporcionar ambos el argumento siempre tendrá prioridad.
 \subsubsection{Recolección de trazas}
 
 \emph{metadata\_extractor} recolectará trazas si se le pasa como argumento el comando \emph{file}. Necesitará los siguientes
-parametros:
+parámetros:
 
 \begin{itemize}
-    \item[\textbf{-i}] Ya que cada sonda puede almacenar trazas en una ruta diferente, necesitamos pasarle el 
-                       id de la sonda para que \emph{metadata\_extractor} consulte en \emph{Sinker Registry API}
-                       la ruta indicada la ruta, y la clave SSH que utilizará para descargar las trazas. Para este fin
+    \item \textbf{-i}: Ya que cada sonda puede almacenar trazas en una ruta diferente, es necesario pasarle el 
+                       identificador de la sonda para que \emph{metadata\_extractor} consulte en \emph{Sinker Registry API}
+                       la ruta indicada y la clave SSH que utilizará para descargar las trazas. Para este fin,
                        las sondas crean un usuario denominado \emph{file} con únicamente permisos para leer trazas en las sondas, y
                        se crean claves SSH para dicho usuario que se publican en la API.
-    \item[\textbf{-s}] La URL donde la API de \emph{Sinker Registry} se encuentra, tiene un valor por defecto pero puede ser modificando
+    \item \textbf{-s}: La URL donde la API de \emph{Sinker Registry} se encuentra, tiene un valor por defecto pero puede ser modificando
                        para realizar pruebas y/o para tener diversos entornos.
-    \item[\textbf{-d}] La ruta donde \emph{metadata\_extractor} escribirá las trazas recolectadas, para guardarlas en el recolector
+    \item \textbf{-d}: La ruta donde \emph{metadata\_extractor} escribirá las trazas recolectadas. Para guardarlas en el recolector
                        montamos un directorio del \emph{host} como volumen en \emph{Docker} (véase Código \ref{listing:metadata-extractor-docker-compose})
-    \item[\textbf{-b}] Limite de ancho de banda utilizado para descargar trazas.
+    \item \textbf{-b}: Límite de ancho de banda utilizado para descargar trazas.
 \end{itemize}
 
-En el diagrama de secuencia \ref{fig:uml-sequence-file-metadata-extractor} se describe la operación de recolección y la interacción con la API de \emph{Sinker Registry}.
+En el diagrama de secuencia \ref{fig:uml-sequence-file-metadata-extractor}, se describe la operación de recolección y la interacción con la API de \emph{Sinker Registry}.
 
 \begin{figure}[htp]
     \centering
@@ -1849,44 +1868,44 @@ En el diagrama de secuencia \ref{fig:uml-sequence-file-metadata-extractor} se de
 
 \subsubsection{Procesando trazas de \emph{containers} \emph{SSH}}
 
-El otro comando implementado en \emph{metadata\_extractor} es el procesado de trazas para extraer información relativa abre
-SSH, que es el protocolo que tenemos implementado en la \emph{honeypot}. El comando SSH utiliza los siguientes parametros:
+El otro comando implementado en \emph{metadata\_extractor} es el procesado de trazas para extraer información relativa sobre
+SSH, que es el protocolo que tenemos implementado en la \emph{honeypot}. El comando SSH utiliza los siguientes parámetros:
 
 \begin{itemize}
-    \item[\textbf{-s}] Al igual que en para ficheros la URL donde se encuentra desplegada la API.
-    \item[\textbf{-i}] El id de la sonda de la que procesaremos las trazas, se necesita para consultar la API y obtener metadatos
+    \item \textbf{-s}: Al igual que en para ficheros, la URL donde se encuentra desplegada la API.
+    \item \textbf{-i}: El identificador de la sonda de la que procesaremos las trazas. Se necesita para consultar la API y obtener metadatos
     sobre la sonda que serán incluidos en el formato de salida de la traza. 
-    \item[\textbf{-f}] Este parametro activa la escucha continua de eventos de creación de ficheros en la ruta definida por el parametro \textbf{-d}. Básicamente 
-    se utiliza el subsistema \emph{inotify} (véase \cite{wiki-inotify}) del kernel para recibir eventos de modificaciones en el sistema de archivos. Para cada
-    evento de creación recibido se intenta procesar la traza. Si no se pasa este parametro, sólo se procesaran los ficheros pasados como argumento.
-    \item[\textbf{-o}] Donde se escribiran los datos extraidos, actualmente se implementan dos modulos de escritura, escritura a consola textual
-    y escritura a la base de datos \emph{Elasticsearch}, en el caso de seleccionar esta última hay que indicar donde se encuentra la interfaz HTTP de \emph{Elasticsearch} y
-    en que puerto (\emph{--elasticsearch\_host} y  \emph{--elasticsearch\_port}). 
+    \item \textbf{-f}: Este parámetro activa la escucha continua de eventos de creación de ficheros en la ruta definida por el parámetro \textbf{-d}. Básicamente, 
+    se utiliza el subsistema \emph{inotify} (véase \cite{wiki-inotify}) del \emph{kernel} para recibir eventos de modificaciones en el sistema de archivos. Para cada
+    evento de creación recibido, se intenta procesar la traza. Si no se pasa este parámetro, solo se procesarán los ficheros pasados como argumento.
+    \item \textbf{-o}: donde se escribirán los datos extraídos, actualmente se implementan dos módulos de escritura, escritura a consola textual
+    y escritura a la base de datos \emph{Elasticsearch}. En el caso de seleccionar esta última, hay que indicar dónde se encuentra la interfaz HTTP de \emph{Elasticsearch} y
+    en qué puerto (\emph{--elasticsearch\_host} y  \emph{--elasticsearch\_port}). 
 \end{itemize}
 
 El detalle de la operación de extracción puede observarse en el diagrama de secuencia \ref{fig:uml-sequence-ssh-metadata-extractor} y en el código \ref{listing:metadata-extractor-handlers-ssh} listado en el anexo. 
-El proceso de extracción de datos se basa en explorar la salida del proceso \emph{SSH}, \emph{SSH} es un protocolo de secreto perfecto (véase \cite{wiki-fsecrecy}) y
-por tanto es imposible para nosotros inteceptar la comunicacion entre cliente y servidor. La única opción para obtener la información de la comunicación es a través
+El proceso de extracción de datos se basa en explorar la salida del proceso \emph{SSH}. \emph{SSH} es un protocolo de secreto perfecto (véase \cite{wiki-fsecrecy}) y
+por tanto es imposible para nosotros interceptar la comunicacion entre cliente y servidor. La única opción para obtener la información de la comunicación es a través
 de la memoria del proceso que realiza la función de servidor, el handicap de este enfoque es que no tenemos el contexto de la comunicación y no siempre podremos
-mantener el orden cronologico de eventos.
+mantener el orden cronológico de eventos.
 
-Afortunadamente, podemos utilizar el orden cronologico de eventos de la CPU como indicador cronologico y la salida del proceso SSH que nos da información contextual. Lamentablamente,
+Afortunadamente, podemos utilizar el orden cronológico de eventos de la CPU como indicador cronológico y la salida del proceso SSH que nos da información contextual. Lamentablamente,
 esto implica que en un contexto determinado podemos superponer eventos y ordenarlos de manera incorrecta. El proceso que seguimos es:
 
 \begin{enumerate}
     \item Ejecutamos \emph{sysdig} sobre la traza con un filtro más concreto para extraer la información que nos interesa. Por ejemplo, para extraer la información
-    del intento de \emph{login} en el servicio \emph{SSH} (línea 230 del código \ref{listing:metadata-extractor-handlers-ssh})o las ordenes ejecutadas en una sesión \emph{SSH} (línea 348 del código (línea 230 del código \ref{listing:metadata-extractor-handlers-ssh}).
+    del intento de \emph{login} en el servicio \emph{SSH} (línea 230 del código \ref{listing:metadata-extractor-handlers-ssh}) o las ordenes ejecutadas en una sesión \emph{SSH} (línea 348 del código \ref{listing:metadata-extractor-handlers-ssh}).
     \item Analizamos la salida de \emph{sysdig} y obtenemos un listado de bloques de actividad y de \emph{login}. En el caso del \emph{login}, la salida nos devuelve
-    el evento del intento de \emph{login}, su estado (si pudo iniciar sesión o no) y el nombre del usuario que realizó el intento, sin embargo, la contraseña se lee de manera independiente puesto que el cliente 
+    el evento del intento de \emph{login}, su estado (si pudo iniciar sesión o no) y el nombre del usuario que realizó el intento. Sin embargo, la contraseña se lee de manera independiente puesto que el cliente 
     envia el \emph{challenge} usuario y contraseña, el servidor los comprueba y registra el resultado del intento de inicio de sesión. Al poder existir varios intentos de conexión de manera concurrente,
-    tenemos que asegurarnos que no asociamos una contraseña a un usuario que intenta otra conexión. Para \emph{intentar} conseguir esto, ordenamos los eventos de \emph{login} por fecha e ID del hilo (línea 38 a 48 del código \ref{listing:metadata-extractor-handlers-ssh-models}) agrupandolos por el identificador del hilo del proceso (línea 93 a 103 del código \ref{listing:metadata-extractor-handlers-ssh}), 
-    y analizamos los eventos recibidos intentando asociar contraseña con el usuario que realiza el intento. A veces, el usuario no envia contraseña, esto será marcado como `NOTPASSWORD` a la hora del analisis.
+    tenemos que asegurarnos que no asociamos una contraseña a un usuario que intenta otra conexión. Para \emph{intentar} conseguir esto, ordenamos los eventos de \emph{login} por fecha e ID del hilo (línea 38 a 48 del código \ref{listing:metadata-extractor-handlers-ssh-models}) agrupándolos por el identificador del hilo del proceso (línea 93 a 103 del código \ref{listing:metadata-extractor-handlers-ssh}), 
+    y analizamos los eventos recibidos intentando asociar contraseña con el usuario que realiza el intento. A veces, el usuario no envía contraseña: esto será marcado como `NOTPASSWORD` a la hora del análisis.
 \end{enumerate}
 
 Pese a que el proceso descrito puede parecer complejo, tiene la ventaja de que podemos analizar cualquier servidor SSH sin modificar el código del servidor SSH
-lo que hace que este metodo, con sus limitaciones (no se obtienen las claves SSH que se intentan, a veces se pierde la contraseña del intento \ldots), sea potente y proporcione datos de interés.
+lo que hace que este método, con sus limitaciones (no se obtienen las claves SSH que se intentan, a veces se pierde la contraseña del intento \ldots), sea potente y proporcione datos de interés.
 
-Los datos extraidos se guardan en \emph{Elasticsearch} donde podrán ser consultados por otros servicios, en dos indices diferentes, uno para \emph{logins}
+Los datos extraídos se guardan en \emph{Elasticsearch} donde podrán ser consultados por otros servicios, en dos índices diferentes, uno para \emph{logins}
 y otro para \emph{actividades}.
 
 \begin{sidewaysfigure}[htp]
@@ -1898,12 +1917,11 @@ y otro para \emph{actividades}.
 
 \subsubsection{Despliegue de metadata\_extractor}
 
+Como en otros servicios ya explicados, creamos un \emph{daemon} que se encargará de lanzar los \emph{containers} del servicio \emph{metadata\_extractor}. Se ejecutan dos \emph{containers}
+por cada sonda, uno que recolecta trazas y otro que las procesa. También se puede lanzar un \emph{container} de manera manual para reprocesar algunas trazas.
 
-Como en otros servicios ya explicados, creamos un \emph{daemon} que se encargará de lanzar los \emph{containers} del servicio \emph{metadata\_extractor}. Se ejecutan dos containers
-por cada sonda, uno que recolecta trazas y otro que las procesa. También se puede lanzar un container de manera manual para reprocesar algunas trazas.
-
-En el código \ref{listing:metadata-extractor-systemd} puede verse la unidad de \emph{systemd} que define al \emph{daemon} y sus dependencias,
-el \emph{daemon} se encarga de lanzar un script similar al descrito en el código \ref{listing:containersvc-bash} que inicia el \emph{docker-compose}
+En el código \ref{listing:metadata-extractor-systemd}, puede verse la unidad de \emph{systemd} que define al \emph{daemon} y sus dependencias.
+El \emph{daemon} se encarga de lanzar un \emph{script} similar al descrito en el código \ref{listing:containersvc-bash} que inicia el \emph{docker-compose}
 descrito en el código \ref{listing:metadata-extractor-docker-compose}.
 
 
@@ -1965,7 +1983,7 @@ descrito en el código \ref{listing:metadata-extractor-docker-compose}.
           - /var/log/traces:/var/log/traces
          
 \end{minted}
-\captionof{listing}{\emph{docker-compose} de \emph{metadata\_extractor} \label{listing:metadata-extractor-docker-compose}}
+\captionof{listing}{\emph{Docker-compose} de \emph{metadata\_extractor} \label{listing:metadata-extractor-docker-compose}}
 \bigskip
 
 \subsection{Recolección de \emph{logs} y procesado de alertas}
@@ -2010,9 +2028,9 @@ Una visión general del proceso puede verse en el diagrama \ref{fig:alert-log-ar
 \captionof{listing}{Configuración de \emph{rsyslog} como servidor. \label{listing:rsyslog-server}}
 \bigskip
 
-En el lado del cliente, en las sondas como puede verse en el código \ref{listing:rsyslog-cliente}, se reenvian todos los logs
-al recolector y sólo a través del canal cifrado TLS. Se configura además un fichero en disco como almacenamiento temporal
-para evitar perdidas de alertas si hay problemas en la conexión de red.
+Desde el lado del cliente, en las sondas (como puede verse en el código \ref{listing:rsyslog-cliente}), se reenvían todos los logs
+al recolector y solo a través del canal cifrado TLS. Se configura además un fichero en disco como almacenamiento temporal
+para evitar pérdidas de alertas si hay problemas en la conexión de red.
 
 \begin{minted}[fontsize=\footnotesize]{console}
     # make gtls driver the default
@@ -2035,11 +2053,11 @@ para evitar perdidas de alertas si hay problemas en la conexión de red.
 \bigskip
 
 Con ambas configuraciones conseguimos que los \emph{logs} de las sondas acaben en el \emph{rsyslog} del servidor.
-El siguiente paso será filtar los eventos por sonda en ficheros diferentes, de otra manera, tendremos todos los eventos
+El siguiente paso será filtar los eventos por sonda en ficheros diferentes. De otra manera, tendremos todos los eventos
 en un unico log agregado en \code{/var/log/syslog}.
 
 Para discriminar los \emph{logs} por servidor, utilizamos una funcionalidad de \emph{rsyslog} que nos permite
-segregar los eventos por fichero en base a algunos parametros, como puede verse en el codigo \ref{listing:rsyslog-split}.
+segregar los eventos por fichero en base a algunos parámetros, como puede verse en el código \ref{listing:rsyslog-split}.
 
 \begin{minted}[fontsize=\footnotesize]{console}
      $ModLoad imuxsock.so
@@ -2109,87 +2127,86 @@ segregar los eventos por fichero en base a algunos parametros, como puede verse 
 \captionof{listing}{Configuración de \emph{rsyslog} para segregar por fuente y servidor de origen. \label{listing:rsyslog-split}}
 \bigskip
 
-Con estas configuraciones conseguimos tener las alertas guardadas en disco en la ruta \code{/var/log/[SERVER\_NAME]/falco.log}, necesitamos
-ahora de alguna manera enviar estas alertas a \emph{Elasticsearch} donde pueden ser correladas con los datos extraidos de las trazas.
+Con estas configuraciones, se consigue tener las alertas guardadas en disco en la ruta \code{/var/log/[SERVER\_NAME]/falco.log}. De modo que ahora, lo necesario será encontrar alguna manera enviar estas alertas a \emph{Elasticsearch} donde pueden ser correladas con los datos extraídos de las trazas.
 
-\subsubsection{Envio de alertas a \emph{Elasticsearch}.}
+\subsubsection{Envío de alertas a \emph{Elasticsearch}.}
 
 Se necesita alguna aplicación que sea capaz de leer el fichero previamente mencionado que guarda \emph{rsyslog} y sea capaz de guardarlo
-en \emph{Elasticsearch} lidiando con caidas de la base de datos, actualizaciones del fichero de \emph{log} y rotados.
+en \emph{Elasticsearch} lidiando con caídas de la base de datos, actualizaciones del fichero de \emph{log} y rotados.
 
-Dicha aplicación no es especialmente compleja pero si sensible, afortunadamente \emph{Elastic}, la compañia que desarrolla principalmente
+Dicha aplicación no es especialmente compleja pero sí sensible. Afortunadamente, \emph{Elastic} la compañia que desarrolla principalmente
 \emph{Elasticsearch} ya nos proporciona aplicaciones que realizan esta tarea:
 
 \begin{itemize}
-    \item[\emph{Filebeat}] Se encarga de comprobar periodicamente si un conjunto de ficheros de origen ha sido modificado, y si lo han sido
-    es capaz de enviar las modificaciones a \emph{Logstash} o directamente a \emph{Elasticsearch} entre otras opciones (véase \cite{elastic-filebeat}). Implementa 
+    \item \emph{Filebeat}: Se encarga de comprobar periódicamente si un conjunto de ficheros de origen ha sido modificado y, si lo han sido,
+    enviar las modificaciones a \emph{Logstash} o directamente a \emph{Elasticsearch} entre otras opciones (véase \cite{elastic-filebeat}). Implementa 
     \emph{back-pressure}, si \emph{Logstash} o la salida seleccionada no confirma la escritura de nuevos eventos bajará paulatinamente la velocidad de envío. 
-    Al enviarlas vía \emph{rsylog}, se añaden cabeceras a las alertas, como necesitamos filtrar estas cabeceras para acceder a las alertas necesitamos \emph{Logstash} para 
+    Al enviarlas vía \emph{rsylog}, se añaden cabeceras a las alertas y, como necesitamos filtrar estas cabeceras para acceder a las alertas, necesitamos \emph{Logstash} para 
     guardarlas en \emph{Elasticsearch}.
-    \item[\emph{Logstash}] Se encarga de analizar el evento enviado por \emph{Filebeat}, eliminar sobrantes añadidos por syslog y realizar la escritura en
+    \item \emph{Logstash}: Se encarga de analizar el evento enviado por \emph{Filebeat}, de eliminar los sobrantes añadidos por \emph{syslog} y de realizar la inserción en
     \emph{Elasticsearch}.
 \end{itemize}
 
 \section{Arquitectura de la API de clientes}
 \label{sec:arquitectura-api-clientes}
 
-Con las sondas y el recolector funcionando, la siguiente tarea a realizar es poner en marcha la \emph{API} de clientes, 
-la \emph{API} que se usará para extraer información de incidentes de manera correlada.
+Con las sondas y el recolector funcionando, la siguiente tarea a realizar es poner en marcha la API de clientes, 
+la API que se usará para extraer información de incidentes de manera correlada.
 
 La API es sencilla y su contrato ya fue descrito en \ref{subsubsec:definicion-api}. En este caso, por falta de tiempo no se implementa
-la función de \code{/feed} y sólo se oferta el protocolo SSH.
+la función de \code{/feed} y solo se oferta el protocolo SSH.
 
-La API depende de \emph{Elasticsearch}, si \emph{Elasticsearch} no funciona la \emph{API} no puede obtener las alertas ni los datos de capturas y no funcionará. Para reducir el acoplamiento entre la base de datos y la API, habría que implementar una cache 
+La API depende de \emph{Elasticsearch}. Si \emph{Elasticsearch} no funciona la API no puede obtener las alertas ni los datos de capturas y no funcionará. Para reducir el acoplamiento entre la base de datos y la API, habría que implementar una caché 
 en la API y/o incluir una base de datos propia del servicio para seguir una arquitectura de microservicios. Ninguna de estas opciones se ha implementado en la versión actual.
 
 
-La API esta abierta a Internet, y por lo tanto es susceptible a ataques del exterior ya sea de denegación del servicio o intentos de intrusión. 
-Para mitigar el riesgo de intrusión sería conveniente aislar la API en un servidor propio, pero esto aumentaría el coste economico del proyecto, dado 
-que la \emph{API} es sencilla e implementada en \emph{Go}, se asume el riesgo de intrusión.
+La API está abierta a Internet y, por lo tanto es susceptible a ataques del exterior ya sea de denegación del servicio o de intentos de intrusión. 
+Para mitigar el riesgo de intrusión sería conveniente aislar la API en un servidor propio, pero esto aumentaría el coste económico del proyecto, dado 
+que la API es sencilla e implementada en \emph{Go}, se asume el riesgo de intrusión.
 
-El riesgo de denegación de servicio sigue presente, y la manera de mitigarlo es implementar politicas de contención de tráfico.
+El riesgo de denegación de servicio sigue presente y la manera de mitigarlo es implementar políticas de contención de tráfico.
 
 
 \subsection{Inclusión de un \emph{API Gateway} }
 
-Aunque podriamos implementar politicas de \emph{rate-limiting} en la propia \emph{API}, se decide externalizar a un \emph{API gateway}, una API para APIs que nos ofrecen funciones genericas como
-autenticación, control de trafico, cuotas, cacheo y otros. 
+Aunque podríamos implementar políticas de \emph{rate-limiting} en la propia API, se decide externalizar a un \emph{API Gateway}, una API para APIs que ofrece funciones genéricas como
+autenticación, control de tráfico, cuotas, cacheo y otros. 
 
-Utilizar un \emph{API Gateway} tambien nos permite separar nuestra \emph{API} en diversos servicios si necesitamos especializar alguna de las funciones
-de la \emph{API}. Por ejemplo, externalizar la función de \code{/feed} de la \emph{API} a otro servicio. 
+Utilizar un \emph{API Gateway} también permite separar nuestra API en diversos servicios cuando sea necesario especializar alguna de las funciones
+. Por ejemplo, externalizar la función de \code{/feed} de la API a otro servicio. 
 
-Se decide usar \emph{krakend} (\href{http://www.krakend.io/}{http://www.krakend.io/}) como \emph{API Gateway} por ser simple, \emph{Open Source} y útil para este proposito aunque se podria utilizar cualquier otra. En concreto, 
+Se decide usar \emph{krakend} (\href{http://www.krakend.io/}{http://www.krakend.io/}) como \emph{API Gateway} por ser simple, \emph{Open Source} y útil para este propósito aunque se podría utilizar cualquier otra. En concreto, 
 \emph{krakend} se encargará del \emph{rate-limit} y de la terminación \emph{SSL}. Para obtener los certificados hacemos uso de la iniciativa del Internet Security Research Group \emph{Let's Encrypt} que nos
-ofrece certificados \emph{SSL} validados por una \emph{CA} publica de manera gratuita.
+ofrece certificados \emph{TLS} validados por una \emph{CA} pública de manera gratuita.
 
-\subsection{diseño de la API}
+\subsection{Diseño de la API}
 
-la \emph{API} se implementa en \emph{Go} utilizando el \emph{framework Beego} al igual que la API de registro de sondas descrita en el apartado \ref{subsubsec:sinkers-registry-api-implementacion}, 
-por las razones allí expuestas y para reaprovechar codigo entre ellas.
+La API se implementa en \emph{Go} utilizando el \emph{framework Beego} al igual que la API de registro de sondas descrita en el apartado \ref{subsubsec:sinkers-registry-api-implementacion}, 
+por las razones allí expuestas y para reaprovechar código entre ellas.
 
-Por razones de tiempo, sólo se ha podido implementar el \emph{endpoint} de incidentes, se trata basicamente de crear un objeto
+Por razones de tiempo, solo se ha podido implementar el \emph{endpoint} de incidentes. Se trata fundamentalmente de crear un objeto
 que relacione alertas recibidas con intentos de \emph{login} y actividades detectadas en la sonda si existen. El código \ref{listing:beekeeper-api-models-ssh-incident}, 
-líneas 117 a 127, muestra como se construye dicho objeto combinando tres indices de \emph{Elasticsearch}, el indice de alertas con el de \emph{activities} y \emph{login-attempts}.
+líneas 117 a 127, muestra cómo se construye dicho objeto combinando tres índices de \emph{Elasticsearch}: el índice de alertas, con el de \emph{activities} y, por último, el \emph{login-attempts}.
 con información de la sonda utilizando la API de registro de sondas.
 
-\subsection{Salida de la \emph{API}}
+\subsection{Salida de la API}
 
 El código \ref{listing:api-incident-json} muestra un ejemplo del JSON que devuelve la API que representa un incidente. En la estructura se 
 incluyen los siguientes campos:
 
 \begin{itemize}
-    \item[\code{started\_at}] Fecha de inicio del incidente.
-    \item[\code{finished\_at}] Fecha de fin del incidente, a veces es imposible de determinar y se establece a la fecha nula (\code{0000-00-00T00:00:01Z}).
-    \item[\code{ID}] ID del incidente.
-    \item[\code{Activities}] Listado de actividades (ordenes lanzadas) detectadas en la sonda.
-    \item[\code{Offenders}] Listado de atacantes que intentaron y/o consiguieron iniciar sesión en la sonda en la ventana de tiempo del incidente, se incluye además la IP de atacantes y geolocalización.
-    \item[\code{Provider}] Proveedor donde esta instalada la sonda.
-    \item[\code{Triggered}] Mensaje de la alerta que inicia el incidente.
+    \item \code{started\_at}: fecha de inicio del incidente.
+    \item \code{finished\_at}: fecha de fin del incidente, a veces es imposible de determinar y se establece a la fecha nula (\code{0000-00-00T00:00:01Z}).
+    \item \code{ID}: identificador del incidente.
+    \item \code{Activities}: Listado de actividades (órdenes lanzadas) detectadas en la sonda.
+    \item \code{Offenders}: Listado de atacantes que intentaron y/o consiguieron iniciar sesión en la sonda en la ventana de tiempo del incidente. Se incluye además la IP de atacantes y geolocalización.
+    \item \code{Provider}: Proveedor en qué esta instalada la sonda.
+    \item \code{Triggered}: Mensaje de la alerta que inicia el incidente.
 \end{itemize}
 
-Con esta información expuesta, los clientes pueden crear sus propias herramientas de visualización y respuesta a incidentes, es importante destacar que 
-el incidente tiene un marco temporal y que se debe actuar teniendolo en cuenta. Por ejemplo, una determinada IP puede realizar una actividad maliciosa en un 
-periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botnet}, porque el servidor infectado ha sido destruido y la IP asignada a otro servidor, etc).
+Con esta información expuesta, los clientes pueden crear sus propias herramientas de visualización y respuesta a incidentes. Es importante destacar que 
+el incidente tiene un marco temporal y que se debe actuar teniéndolo en cuenta. Por ejemplo, una determinada IP puede realizar una actividad maliciosa en un 
+periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botnet}, porque el servidor infectado ha sido destruído y la IP asignada a otro servidor, etc).
 
 \begin{minted}[fontsize=\footnotesize]{json}    
 {
@@ -2232,34 +2249,34 @@ periodo de tiempo y ser legitima posteriormente (por ser parte de una \emph{botn
 \bigskip
 
 
-\section{Analisis de datos obtenidos a través de la \emph{honeypot}}
+\section{Análisis de datos obtenidos a través de la \emph{honeypot}}
 
-Esta sección demuestra el tipo de visualizaciones que se pueden obtener a través de la \emph{API} de clientes para obtener
-patrones e inteligencia sobre atacantes. Todas las visualizaciones comprenden el periodo del 4 de Junio de 2017 al 2 de septiembre de
-2017 (90 dias).
+Esta sección demuestra el tipo de visualizaciones que se pueden obtener a través de la API de clientes para obtener
+patrones y datos sobre atacantes. Todas las visualizaciones comprenden el periodo del 4 de Junio de 2017 al 2 de Septiembre de
+2017 (90 días).
 
-En la figura \ref{fig:data-alerts-by-day} podemos observar una gráfica de las alertas generadas. Se puede observar que hay un pico de 
-alertas alrededor del 7 de julio que también se ve reflejado en la figura \ref{fig:data-attempts-per-provider} donde se muestran
+En la figura \ref{fig:data-alerts-by-day} podemos ver una gráfica de las alertas generadas. Se puede observar que hay un pico de 
+alertas alrededor del 7 de Julio que también se ve reflejado en la figura \ref{fig:data-attempts-per-provider} donde se muestran
 los intentos de inicio de sesión por día y proveedor.
-    Se puede apreciar en ambos que la actividad maliciosa es continua en el tiempo pero con intensidad variable. También podemos observar
-en la figura \ref{fig:data-attempts-per-provider} que un proveedor es más atacado que otro, esto puede guardar relación con las diferencias
+    Se puede apreciar en ambos que la actividad maliciosa es continua en el tiempo pero con intensidad variable. Si nos detenemos en la figura \ref{fig:data-attempts-per-provider} también podemos observar
+ que un proveedor es más atacado que otro, esto puede guardar relación con las diferencias
 perimetrales del proveedor.
 
-En la figura \ref{fig:data-table-by-country-unified} podemos ver una tabla con los paises que originan más ataques desde IPs diferentes (no se tiene en cuenta 
+En la figura \ref{fig:data-table-by-country-unified} hay una tabla con los países que originan más ataques desde IPs diferentes (no se tiene en cuenta 
 la repetición de ataques desde la misma IP) que puede observarse de una manera más visual en la figura \ref{fig:data-map-unified}. Como vemos los ataques son globales,
-pese a que hay paises como China, Argentina o Rusia que generan más ataques que el resto.
+pese a que hay países como China, Argentina o Rusia que generan más ataques que el resto.
 
-Si nuestro servicio esta localizado en varios paises y no incluye a los tres mencionados una posible respuesta sería bloquear todo el trafico proveniente
-de estos paises, lo que es una medida muy drastica pero efectiva. 
+Si nuestro servicio está localizado en varios países y no incluye a los tres mencionados una posible respuesta sería bloquear todo el tráfico proveniente
+de estos países, lo que es una medida muy drástica pero efectiva. 
 
-En la figura \ref{fig:data-pie-passwords} puede observarse los usuarios habitualmente utilizados (circulo interno) con Respecto
-a las contraseñas mas utilizadas. Vemos que el usuario \code{root}, seguido de \emph{admin} es el más utilizado y que en contraseñas
+En la figura \ref{fig:data-pie-passwords} pueden observarse los usuarios habitualmente utilizados (círculo interno) con respecto
+a las contraseñas más utilizadas. Vemos que el usuario \code{root}, seguido de \emph{admin} es el más utilizado y que en contraseñas
 \code{1234} y \code{password} son de las más utilizadas.
 
 Podemos observar tambien en la figura \ref{fig:data-pie-passwords-successful}, las contraseñas y usuarios que tuvieron exito en las que podemos ver
 como el usuario \code{root} predomina y las contraseñas \code{12345}, \code{123456} y \code{111111} son las más utilizadas.
 
-Dicha distribución tiene sentido ya que nuestras sondas tienen sólo dos usuarios \code{jeremy} y \code{root}, y se utiliza una contraseña aleatoria 
+Dicha distribución tiene sentido ya que nuestras sondas tienen solo dos usuarios \code{jeremy} y \code{root}, y se utiliza una contraseña aleatoria 
 de la siguiente lista:
 
 \begin{table}[h]
@@ -2311,70 +2328,70 @@ de la siguiente lista:
     \caption{\label{tab:sondas-passwords}Contraseñas de las sondas.}
     \end{table}
 
-Durante la fase inicial, se probo a crear sondas que permitian iniciar sesión SSH sin contraseña. 
-Pero al hacerlo se comprobo que:
+Durante la construcción del prototipo, se probó a crear sondas que permitían iniciar sesión SSH sin contraseña. 
+Pero al hacerlo se comprobó que:
 
 \begin{itemize}
-    \item La mayoria de atacantes son scrips automatizados, si no se les pregunta por contraseña asumen que es una \emph{honeypot} y no realizan ninguna actividad.
-    \item Perdemos la información del login, puesto que no vemos que combinaciones se han probado para iniciar sesión ni cuales son las más exitosas.
+    \item La mayoría de atacantes son scrips automatizados, si no se les pregunta por contraseña asumen que es una \emph{honeypot} y no realizan ninguna actividad.
+    \item Perdemos la información del login, puesto que no vemos que combinaciones se han probado para iniciar sesión ni cúales son las más exitosas.
 \end{itemize}
 
-Por estas razones se decide utilizar el listado expuesto en el cuadro \ref{tab:sondas-passwords}, extraido de un repositorio que incluye las contraseñas
-más utilizadas según analisis de volcado de contraseñas de sitios web conocidos (\href{https://github.com/danielmiessler/SecLists.git}{https://github.com/danielmiessler/SecLists.git}).
+Por estas razones se decide utilizar el listado expuesto en el cuadro \ref{tab:sondas-passwords}, extraído de un repositorio que incluye las contraseñas
+más utilizadas según análisis de volcado de contraseñas de sitios web conocidos (\href{https://github.com/danielmiessler/SecLists.git}{https://github.com/danielmiessler/SecLists.git}).
 
 De estos diagramas podemos extraer que si no permitimos que el usuario \emph{root} inicie sesión, eliminamos de un plumazo un porcentaje importante de ataques.
 
-Lamentablamente lo más interesante que sería analizar los ficheros utilizados dentro de la \emph{honeypot} no ha sido implementado por falta de tiempo. Es una tarea
-que es factible pero no facil y que pese a todo podemos implementar usando la \emph{API}, extrayendo las \emph{urls} de descarga y analizando el fichero descargado en plataformas como
+Lamentablamente lo más interesante sería analizar los ficheros utilizados dentro de la \emph{honeypot} pero no ha sido implementado por falta de tiempo. Es una tarea
+que es factible pero no fácil y que, pese a todo podemos implementar usando la API, extrayendo las \emph{urls} de descarga y analizando el fichero descargado en plataformas como
 \emph{VirusTotal}.
 
-Lo interesante de este enfoque seria poder ofertar datos estadisticos de los tipos de \emph{malware} que observamos en la \emph{honeypot} y ser capaz de determinar si encontramos un malware por
-su actividad que no sea reconocido en plataformas de analisis como \emph{VirusTotal}.
+Lo interesante de este enfoque sería poder ofertar datos estadísticos de los tipos de \emph{malware} que observamos en la \emph{honeypot} y ser capaces de determinar si se encuentra un malware por
+su actividad que no sea reconocido en plataformas de análisis de muestras.
 
 Durante el tiempo que el sistema lleva funcionando, se ha observado que la \emph{honeypot} ha sido infectada para formar parte de una \emph{botnet Mirai} (véase \cite{wiki-mirai})
-o ser parte de una \emph{botnet} que realiza ataques DDoS a la plataforma de Sony Playstation.
+o para ser parte de una \emph{botnet} que realiza ataques DDoS a la plataforma de Sony Playstation.
 
-Es ahi donde reside el potencial más interesante de la \emph{honeypot}, pese a que la información que ya se extra es valiosa por si misma.
+Es ahí donde reside el potencial más interesante de la \emph{honeypot}, pese a que la información que ya se extrae es valiosa por sí misma.
 
 \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticAlertsByDay}
-    \caption{Alertas generadas por las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017.}
+    \caption{Alertas generadas por las sondas en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017.}
     \label{fig:data-alerts-by-day}
   \end{sidewaysfigure}
 
   \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticAttemptsPerProvider}
-    \caption{Intentos de \emph{login} en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017 por proveedor.}
+    \caption{Intentos de \emph{login} en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017 por proveedor.}
     \label{fig:data-attempts-per-provider}
   \end{sidewaysfigure}
 
   \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticMapUnified}
-    \caption{Mapa que incluye los intentos de inicio desde la misma IP en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \caption{Mapa que incluye los intentos de inicio desde la misma IP en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017}
     \label{fig:data-map-unified}
   \end{sidewaysfigure}
 
   \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticTableByCountryUnified}
-    \caption{Tabla resumen de paises que atacan más a las sondas en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \caption{Tabla resumen de paises que atacan más a las sondas en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017}
     \label{fig:data-table-by-country-unified}
   \end{sidewaysfigure}
 
   \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticPiePasswors}
-    \caption{Contraseñas más utilizadas en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \caption{Contraseñas más utilizadas en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017}
     \label{fig:data-pie-passwords}
   \end{sidewaysfigure}
 
   \begin{sidewaysfigure}[h]
     \centering
       \includegraphics[scale=0.3]{images/ElasticPiePasswordSuccessful}
-    \caption{Contraseñas que tuvieron exito en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de septiembre de 2017}
+    \caption{Contraseñas que tuvieron éxito en los intentos de inicio de sesión en el periodo del 4 de Junio de 2017 al 2 de Septiembre de 2017}
     \label{fig:data-pie-passwords-successful}
   \end{sidewaysfigure}
   
@@ -2384,44 +2401,44 @@ Es ahi donde reside el potencial más interesante de la \emph{honeypot}, pese a 
 \section{Trabajo futuro}
 \label{sec:trabajo-futuro}
 
-De cara al trabajo futuro hay muchisimas líneas de actuación en diversas categorias, desde mejorar la estabilidad 
-y escalabilidad del sistema, aumentar el número de sondas, protocolos y sistemas operativos a exponer, o 
-mejorar la presentación de los datos mejorando la API para incluir otros formatos y una busqueda más precisa de incidentes.
+De cara al trabajo futuro hay muchísimas líneas de actuación en diversas categorías. Desde mejorar la estabilidad 
+y escalabilidad del sistema, aumentar el número de sondas, protocolos y sistemas operativos a exponer hasta 
+mejorar la presentación de los datos mejorando la API para incluir otros formatos y una búsqueda más precisa de incidentes.
 
 \subsubsection{Mejora de la escalabilidad de la plataforma.}
 
-Habría que realizar un desembolso economico importante en horas de trabajo y servidores para separar los servicios expuestos
-en \ref{fig:arquitectura-recolector} que son desplegados actualmente en un sólo servidor en varios servidores que creciesen
-de manera horizontal atendiendo a la carga. Esto posiblemente involucraria el despliegue de un sistema de colas, como se analizo
+Habría que realizar un desembolso económico importante en horas de trabajo y servidores para separar los servicios expuestos
+en \ref{fig:arquitectura-recolector} que son desplegados actualmente en un solo servidor. La mejora seía separar en varios servidores que creciesen
+de manera horizontal atendiendo a la carga. Esto, posiblemente, involucraría el despliegue de un sistema de colas, como se analizó
 en \ref{subsubsec:notificaciones-colas}.
 
 El proceso de provisión y configuración también debería mejorar para acomodarse a esta nueva situación y pasar de utilizar \emph{Ansible}
-en un enfoque de \emph{PhoenixServers} a imagenes inmutables con una \emph{pipeline} de \emph{CI/CD}.
+en un enfoque de \emph{PhoenixServers} a imágenes inmutables con una \emph{pipeline} de \emph{CI/CD}.
 
 \subsubsection{Extracción de ficheros en las sondas.}
 
-Además de extraer información de las trazas sobre actividad segun el protocolo seria interesante poder extraer el contenido de disco del \emph{container},
-en nuestro caso quizá la opción más simple para incorporar esta funcionalidad sería la de crear un registro privado de \emph{containers}, y al detectar 
-una intrusión a la vez que se notifica la alerta guardar esta versión del container como una nueva imágen en el registro.
+Además de extraer información de las trazas sobre actividad según el protocolo, sería interesante poder extraer el contenido de disco del \emph{container}.
+En nuestro caso, quizá la opción más simple para incorporar esta funcionalidad sería la de crear un registro privado de \emph{containers} y, al detectar 
+una intrusión a la vez que se notifica la alerta, guardar esta versión del \emph{container} como una nueva imágen en el registro.
 
-Luego en la API se podría añadir la dirección del registro privado y permitir al usuario descargar el \emph{container} para su analisis bajo su responsabilidad. 
-    Mantener este tipo de registros privados de \emph{containers} involucra cierta complejidad especialmente si la base de usuarios es elevada, elementos como
-una \emph{CDN} y almacenamiento que crece de manera dinamica serían necesarios para la supervivencia del proyecto. Desarrollar y mantener esta funcionalidad
+Luego, en la API, se podría añadir la dirección del registro privado y permitir al usuario descargar el \emph{container} para su análisis bajo su responsabilidad. 
+Mantener este tipo de registros privados de \emph{containers} involucra cierta complejidad, especialmente, si la base de usuarios es elevada. Elementos como
+una \emph{CDN} y almacenamiento que crece de manera dinámica serían necesarios para la supervivencia del proyecto. Desarrollar y mantener esta funcionalidad
 es costoso en tiempo de desarrollo y/o en pago a terceros que ofrecen estas soluciones.
 
 \subsubsection{Más protocolos.}
 
-Seria interesante tambien ofrecer otras sondas con otros protocolos y aplicaciones (servidores web, caches distribuidas, etc) de la que poder extraer información de otro
-tipo de ataques. Añadir nuevos protocolos y sondas solo elevaría el coste economico de la partida de servidores, ya que en el estado actual del proyecto no sería 
+Sería interesante también ofrecer otras sondas con otros protocolos y aplicaciones (servidores web, cachés distribuídas, etc) de la que poder extraer información de otro
+tipo de ataques. Añadir nuevos protocolos y sondas solo elevaría el coste económico de la partida de servidores, ya que en el estado actual del proyecto no sería 
 complejo añadir nuevas sondas y protocolos.
 
 \subsubsection{Sondas de Windows.}
 
-Seria interesante incorporar aplicaciones \emph{Windows} en nuestro parqué de sondas, para ello habría que analizar y construir un sistema de recolección de trazas
+Sería interesante incorporar aplicaciones \emph{Windows} en nuestro parqué de sondas. Para ello habría que analizar y construir un sistema de recolección de trazas
 para \emph{Windows} al igual que se ha realizado en \ref{sec:analisis-sonda}.
 
-Dicho análisis y desarrollo de la solución requeriria una inversión en tiempo de investigación y ejecución de varios meses y un incremento en la partida de servidores en el aspecto economico, 
-pero proporcionaria información muy relevante dado que muchos sistemas criticos (hospitales, bancos, \ldots) utilizan dichos sistemas.
+Dicho análisis y desarrollo de la solución requeriría una inversión en tiempo de investigación y ejecución de varios meses y un incremento en la partida de servidores en el aspecto económico, 
+pero proporcionaría información muy relevante dado que muchos sistemas criticos (hospitales, bancos, \ldots) utilizan dichos sistemas.
 
 
 \subsubsection{Monetización}
@@ -2432,12 +2449,14 @@ sería más fácil intentar integrar el proyecto en soluciones de inteligencia d
 
 \section{Conclusiones}
 
-El presente proyecto en su estado actual cumple los requisitos de diseño enumerados en la sección \ref{sec:requisitos-de-disenyo}, sin embargo,
-la potencia del modelo de \emph{honeypot} con \emph{containers} es solo explorada superficialmente en este proyecto, seria muy interesante continuar
+El presente proyecto en su estado actual cumple los requisitos de diseño enumerados en la sección \ref{sec:requisitos-de-disenyo}. pero, teniéndolo en cuenta, también es cierto que la potencia del modelo de \emph{honeypot} con \emph{containers} es solo explorada superficialmente en este proyecto, seria muy interesante continuar
 las lineas descritas en la sección \ref{sec:trabajo-futuro} para seguir explorandolo, si se contase con la financiación adecuada.
 
-Este proyecto ha sido un enorme proceso de aprendizaje personal al autor, que ha aplicado para su consecución ademas de conocimiento tecnico, todo lo aprendido
-en gestion de proyectos, gestion de expectativas y entrega continua que ha aprendido en el mundo laboral.
+Es además un proyecto de estas características que cubren el espectro completo (de captación a visualización) y se ha liberado su código fuente, permitiendo a terceros desarrollar sobre esta idea, algo
+poco común en el area de la seguridad informatica. 
+
+Este proyecto ha sido un enorme proceso de aprendizaje personal para este autor que ha aplicado para su consecución además de conocimiento técnico, todo lo aprendido
+en gestión de proyectos, gestión de expectativas y entrega continua asumidos en el mundo laboral.
 
 
 \chapter{Planificación y presupuesto.}
@@ -2484,7 +2503,7 @@ En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el pr
 
 \subsection{Cuarta iteración: construcción de la API.}
 
-Con nuestro proceso de extracción, procesado y almacenamiento de datos sólo queda trabajar en la explotacion y visualización de la misma. En ésta iteración
+Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotacion y visualización de la misma. En ésta iteración
 el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
 una descripción completa del sistema.
 
@@ -2496,7 +2515,7 @@ para dar por acabado el presente PFC.
 \section{Calendarización}
 
 En el cuadro \ref{tab:calendarizacion-pfc} puede verse el tiempo invertido en cada iteración. No se puede observar el desfase 
-entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, sólo se ha estimado la complejidad
+entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, solo se ha estimado la complejidad
 de las mismas.
 
 Atendiendo a ese criterio la calendarizacion cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
@@ -2555,7 +2574,7 @@ Los recursos de \emph{hardware} utilizados para la elaboración del presente pro
         \item Disco: 30GiB de disco.
     \end{itemize}
 
-    \item Registro DNS de dominio para la \emph{honeypot} y la \emph{API} de clientes en \emph{Amazon Web Services} y monitorización
+    \item Registro DNS de dominio para la \emph{honeypot} y la API de clientes en \emph{Amazon Web Services} y monitorización
     externa del servicio.
 
 \end{itemize}
