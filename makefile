@@ -3,7 +3,7 @@ VISOR=evince
 FICHAUX=*.bbl *.blg *.brf *.lof *.glo *.out *.snm *.nav 
 FICHAUX2=*.toc *.log *.aux *.idx *.dvi 
 FICHAUX3= *.pdf
-SHELL=/bin/zsh
+SHELL=/bin/bash
 
 all: pfc
 

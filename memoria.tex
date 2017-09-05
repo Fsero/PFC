@@ -1,4 +1,4 @@
-\chapter{Memoria}
+\chapter{Introducción}
 \minitoc{}
 \section{Objeto}
 El objeto de este proyecto es la implementación de un sistema de \emph{Honeypots} utilizando \emph{containers}. 
@@ -68,44 +68,199 @@ que se encarga de levantar o de parar el \emph{container}.
 
 Para el diseño de la \emph{honeypot} basada en \emph{containers}, los principios que han regido el proyecto son: la funcionalidad, la seguridad y la viabilidad económica. Y a estos principios, se les ha de sumar la búsqueda de cualidades como la flexibilidad, eficiencia, utilidad y seguridad. ``Flexibilidad'' porque la \emph{honeypot} debe ser capaz de exponer cualquier tipo de servicio requerido. ``Eficiencia'' ya que las sondas y el \emph{backend} deben minimizar el número de servidores necesarios para su explotación. ``Utilidad'' porque las \emph{honeypots} deben exportar información útil. Y, por último, ``seguridad''  en tanto que las \emph{honeypots} y el \emph{backend} deben proveer de medidas de contención frente a los atacantes.
 
+\chapter{Planificación y presupuesto.}
+\section{Metodología de desarrollo}
 
-\nocite{*}
-\nopagebreak
-\printbibheading[title={Normas y referencias},heading=subbibnumbered]
-\subsection{Disposiciones legales y normas aplicadas}
-\subsubsection{Licencia FDL aplicable a esta memoria}
-\input{./fdl.tex}
-\subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el código fuente listado en esta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
-Se puede consultar los términos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
+Para la realización del proyecto se ha utilizado un modelo iterativo incremental como enfoque general. Era importante definir
+muy bien el conjunto de funcionalidad a incluir y la calidad mínima en cada iteración sin atender a una estimación en fechas. 
+Cualquier estimación se realizaba en tallas de camiseta o puntos de historia que miden la complejidad y no la duración de una tarea.
 
-\subsection{Bibliografia}
-\printbibliography[title={Referencias},heading=none]
-\nopagebreak
-\section{Definiciones y abreviaturas}
+Cabe reseñar que el alumno y desarrollador del proyecto no tiene una dedicación completa al mismo, pudiendo dedicar unas 10 horas semanales
+de media al proyecto. Esto tiene impacto en la duración del mismo, puesto que al tiempo inherente a cada tarea hay un tiempo
+invertido en recuperar el contexto de la última sesión de trabajo lo cual incrementa la duración del desarrollo del proyecto.
+
+
+\subsection{Primera iteración: construcción del prototipo.}
+
+La primera iteración se basa en validar la idea del proyecto y evaluar las herramientas que utilizaremos. Para ello se construye
+un prototipo creando manualmente una sonda  y se evalua como se extraería información de la misma de manera automatizada.
+
+También se exploran tecnologías para realizar la recolección y construir la API. El resultado de esta iteración se describe en
+el capítulo \ref{chapter:analisis-de-soluciones}.
+
+\subsection{Segunda iteración: construcción de las sondas.}
+
+El objetivo de esta iteración es construir las sondas de manera repetible y automatizada asegurando que son estables,
+seguras y resistentes y que tenemos los mecanismos necesarios para extraer información de ellas.
+
+En esta etapa se decide:
 
 \begin{itemize}
-    \item[\textbf{API}] \emph{Application program interface}. interfaz desarrollada para ser utilizada por \emph{software} y no directamente para humanos.
-    \item[\textbf{LTS}] \emph{Long Term Support}. Una distribución de \emph{software} en la que se actualiza y mantiene aunque se hayan publicado nuevas versiones del \emph{software}.
-    \item[\textbf{CLI}] \emph{Command Line Interface}. Método que permite a los usuarios dar instrucciones a algún programa informático por medio de una línea de texto simple
-    \item[\textbf{XML}] \emph{eXtensible Markup Language}. Traducido como \emph{Lenguaje de Marcado Extensible} o \emph{Lenguaje de Marcas Extensible}, es un meta-lenguaje que permite definir lenguajes de marcas desarrollado por el World Wide Web Consortium (W3C) utilizado para almacenar datos en forma legible.
-    \item[\textbf{JSON}] \emph{Javascript Object Notation}. es un formato de representación de datos, alternativa a XML.
-    \item[\textbf{pipeline}] Es una cadena de elementos que procesan o generan algo de manera que el elemento siguiente utiliza el resultado del paso anterior.
-    \item[\textbf{CI}] \emph{Continuous Integration}. Es una \emph{pipeline} cuyo objetivo es la de crear un artefacto \emph{software} tras cada cambio en el sistema de control de versiones.
-    \item[\textbf{CD}] \emph{Continuous Delivery}. Es una \emph{pipeline} que además de realizar las funciones de CI, se encarga del despliegue a producción del artefacto generado. 
-    \item[\textbf{honeypot}] o sistema trampa o señuelo, es una herramienta de la seguridad informática dispuesto en una red o sistema informático para ser el objetivo de un posible ataque informático, y así poder detectarlo y obtener información del mismo y del atacante.
-    \item[\textbf{kernel}] Núcleo del sistema, cuando hablamos del \emph{kernel} en este proyecto nos referimos normalmente al \emph{kernel} de un sistema GNU/Linux. 
-    \item[\textbf{container}] Proceso del sistema que tiene asociado un \emph{namespace}, un \emph{cgroup} y cierto acceso a funciones del \emph{kernel} que permite virtualizar un sistema a nivel de sistema operativo. 
-    \item[\textbf{namespace}] Mecanismo mediante el kernel limita la visualización del sistema total o parcialmente a un proceso, así un proceso X en un \emph{namespace} N podrá visualizar o no
-    dispositivos de red, lista de procesos, discos duros \ldots (véase \cite{wiki-namespaces}).
-    \item[\textbf{cgroup}] Mecanismo mediante el kernel limita la cantidad de recursos de CPU, RAM y operaciones de entrada/salida que un proceso puede realizar. (véase \cite{wiki-cgroups})
-    
-    
-    
-    
-    
-    
+    \item Construir un sistema similar para las notificaciones de alertas hasta descubrir que \emph{Falco} es liberado, cuando se descarta.
+    \item Utilizar \emph{Ansible} para la creación y configuración de las sondas y el resto de servicios de manera automatizada.
+    \item Securizar la sonda de ataques y definir el modelo de riesgo de la sonda.
 \end{itemize}
+
+\subsection{Tercera iteración: construcción del recolector.}
+
+Con las sondas funcionando, el siguiente paso es la extracción, almacenamiento y procesado de la información que capturan. En esta iteración
+se decide utilizar \emph{Elasticsearch} como motor base de datos, se desarrollan \emph{metadata\_extractor} para recolectar y procesar las trazas, y 
+la API de registro de sondas (\emph{Sinker Registry API}). 
+También se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
+con \emph{Filebeat} y \emph{Logstash}.
+
+En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
+
+\subsection{Cuarta iteración: construcción de la API.}
+
+Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotación y visualización de la misma. En esta iteración
+el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
+una descripción completa del sistema.
+
+\subsection{Quinta iteración: redacción de la memoria del proyecto.}
+
+Como dirían los anglosajones \emph{last, but not least}. Con el sistema funcionando y en producción solo queda la redacción de esta memoria
+para dar por acabado el presente PFC.
+
+\section{Calendarización}
+
+En el cuadro \ref{tab:calendarizacion-pfc} puede verse el tiempo invertido en cada iteración. No se puede observar el desfase 
+entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, solo se ha estimado la complejidad
+de las mismas.
+
+Atendiendo a ese criterio, la calendarización cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
+de la sonda serían las más complejas puesto que se alejan más del dominio de conocimiento del desarrollador del proyecto.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|l|l|c|}
+    \hline
+    \thead{Iteración} & \thead{Inicio} & \thead{Fin} &  \thead{Horas invertidas aprox} \\
+    \hline
+    \textbf{1ª} & 15/2/2016 & 21/5/2016 & 140 horas \\
+    \hline
+    \textbf{2ª} & 21/5/2016 & 20/5/2017 & 520 horas \\
+    \hline
+    \textbf{3ª} & 21/5/2017 & 21/7/2017 & 90 horas  \\
+    \hline
+    \textbf{4ª} & 21/7/2017 & 08/8/2017 & 20 horas  \\
+    \hline
+    \textbf{5ª} & 08/8/2017 & 03/9/2017 & 40 horas \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:calendarizacion-pfc} Calendarización del proyecto }
+    \end{table}
+
+\section{Recursos inventariables}
+
+Los recursos de \emph{hardware} utilizados para la elaboración del presente proyecto y su puesta en marcha, se detallan a continuación:
+
+\begin{itemize}
+    \item Servidor con gran capacidad de almacenamiento y procesamiento.
+    \begin{itemize}
+        \item CPU: Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz
+        \item RAM: 4 x Kingston DDR3 8GiB (32 GiB)
+        \item Disco: RAID 1 por software de 2 discos TOSHIBA DT01ACA300 de 3TiB
+    \end{itemize}
+
+    \item Servidor para sonda en Alemania en el proveedor \emph{Vultr} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore
+        \item RAM: 1GiB RAM.
+        \item Disco: 20GiB de disco
+    \end{itemize}
+
+    \item Servidor para sonda en Holanda en el proveedor \emph{Digital Ocean} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
+        \item RAM: 1GiB RAM.
+        \item Disco: 30GiB de disco.
+    \end{itemize}
+
+    \item Servidor para \emph{PKI} y control en Londres en el proveedor \emph{Digital Ocean} virtualizado.
+    \begin{itemize}
+        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
+        \item RAM: 1GiB RAM.
+        \item Disco: 30GiB de disco.
+    \end{itemize}
+
+    \item Registro DNS de dominio para la \emph{honeypot} y la API de clientes en \emph{Amazon Web Services} y monitorización
+    externa del servicio.
+
+\end{itemize}
+
+
+\section{Presupuesto}
+
+Para el presupuesto debemos desglosar dos conceptos fundamentales:
+
+\begin{itemize}
+    \item El coste en \emph{hardware} y servicios.
+    \item El coste del personal durante el tiempo de desarrollo y mantenimiento.
+\end{itemize}
+
+Si consideramos el desarrollo \emph{acabado}, se necesitará un número de horas del personal para el mantenimiento del proyecto, 
+incluyendo actualizaciones de seguridad de los servidores, gestión de incidentes, arreglo de errores etc.
+
+En cuanto al personal. tanto para el desarrollo como para el mantenimiento del mismo necesitamos un perfil \emph{DevSecOps}. Dicho de otro modo
+alguien capaz de involucrarse indistintamente en tareas de codificación, administración de servidores y tareas de seguridad. 
+
+En el convenio colectivo de empresas de ingeniería (véase \cite{boe-convenio}) se detalla que un licenciado y/o analista cobrará un sueldo bruto de 
+23.618,28 € al año. El perfil previamente descrito entraría dentro de dicha categoría profesional cifrándose el precio/hora en
+14 € / hora. 
+
+El cuadro \ref{tab:costes-totales} incluye los costes totales del proyecto y sus conceptos hasta la fecha de redacción de la presente
+memoria, no se incluye el coste de mantenimiento por parte del personal. Es el alumno el que desarrolla las labores de personal, se incluyen
+los costes aproximados para valorar la dimensión económica de ampliar el equipo técnico.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}[!h]{|c|c|c|}
+    \hline
+    \thead{Concepto} & \thead{Unidades} & \thead{precio/mes}  \\
+    \hline
+    Servidor en \emph{Hetzner} para recolector & 1 & 41,69 € \\
+    \hline
+    Servidor en \emph{Vultr} para sonda & 1 & 12 € \\
+    \hline
+    Servidor en \emph{Digital Ocean} para sonda & 1 & 12 € \\
+    \hline
+    Servidor en \emph{Digital Ocean} para \emph{PKI} y control & 1 & 12 € \\
+    \hline
+    Registro DNS y monitorización externa en \emph{AWS} & 1 & 10 € \\
+    \hline
+    \textbf{Total / mes} & - & \textbf{87,69 €} \\
+    \hline
+    \end{tabular}
+    \caption{\label{tab:presupuesto-mensual} Tabla de costes mensual }
+    \end{table}
+
+
+    \begin{table}[h]
+        \centering
+        \begin{tabular}[!h]{|c|c|}
+        \hline
+        \thead{Concepto} & \thead{Precio}  \\
+        \hline
+        Coste del servidor para prototipo (3 meses) & 30 € \\
+        \hline
+        Coste de \emph{hardware} del proyecto (15 meses) & 87,69 x 15 = 1315,35 €  \\
+        \hline
+        Coste de desarrollo del proyecto & 810 horas x 14 €/hora =  11340 € \\
+        \hline
+        \textbf{Total} &  \textbf{12685,35 €} \\
+        \hline
+        \end{tabular}
+        \caption{\label{tab:costes-totales} Tabla de costes del proyecto hasta fecha actual }
+        \end{table}
+    
+
+    
+    
+    
+    
+    
+    
 
 \chapter{An\'alisis de soluciones}
 \label{chapter:analisis-de-soluciones}
@@ -2460,193 +2615,41 @@ poco común en el area de la seguridad informática.
 Este proyecto ha sido un enorme proceso de aprendizaje personal para este autor que ha aplicado para su consecución además de conocimiento técnico, todo lo aprendido
 en gestión de proyectos, gestión de expectativas y entrega continua asumidos en el mundo laboral.
 
+\chapter{Bibliografia, disposiciones legales y normas aplicadas}
+\minitoc
 
-\chapter{Planificación y presupuesto.}
-\section{Metodología de desarrollo}
+\nocite{*}
+\nopagebreak
+\printbibheading[title={Normas y referencias},heading=subbibnumbered]
+\subsection{Disposiciones legales y normas aplicadas}
+\subsubsection{Licencia FDL aplicable a esta memoria}
+\input{./fdl.tex}
+\subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
+Todo el código fuente listado en esta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
+Se puede consultar los términos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
 
-Para la realización del proyecto se ha utilizado un modelo iterativo incremental como enfoque general. Era importante definir
-muy bien el conjunto de funcionalidad a incluir y la calidad mínima en cada iteración sin atender a una estimación en fechas. 
-Cualquier estimación se realizaba en tallas de camiseta o puntos de historia que miden la complejidad y no la duración de una tarea.
-
-Cabe reseñar que el alumno y desarrollador del proyecto no tiene una dedicación completa al mismo, pudiendo dedicar unas 10 horas semanales
-de media al proyecto. Esto tiene impacto en la duración del mismo, puesto que al tiempo inherente a cada tarea hay un tiempo
-invertido en recuperar el contexto de la última sesión de trabajo lo cual incrementa la duración del desarrollo del proyecto.
-
-
-\subsection{Primera iteración: construcción del prototipo.}
-
-La primera iteración se basa en validar la idea del proyecto y evaluar las herramientas que utilizaremos. Para ello se construye
-un prototipo creando manualmente una sonda  y se evalua como se extraería información de la misma de manera automatizada.
-
-También se exploran tecnologías para realizar la recolección y construir la API. El resultado de esta iteración se describe en
-el capítulo \ref{chapter:analisis-de-soluciones}.
-
-\subsection{Segunda iteración: construcción de las sondas.}
-
-El objetivo de esta iteración es construir las sondas de manera repetible y automatizada asegurando que son estables,
-seguras y resistentes y que tenemos los mecanismos necesarios para extraer información de ellas.
-
-En esta etapa se decide:
+\subsection{Bibliografia}
+\printbibliography[title={Referencias},heading=none]
+\nopagebreak
+\section{Definiciones y abreviaturas}
 
 \begin{itemize}
-    \item Construir un sistema similar para las notificaciones de alertas hasta descubrir que \emph{Falco} es liberado, cuando se descarta.
-    \item Utilizar \emph{Ansible} para la creación y configuración de las sondas y el resto de servicios de manera automatizada.
-    \item Securizar la sonda de ataques y definir el modelo de riesgo de la sonda.
+    \item[\textbf{API}] \emph{Application program interface}. interfaz desarrollada para ser utilizada por \emph{software} y no directamente para humanos.
+    \item[\textbf{LTS}] \emph{Long Term Support}. Una distribución de \emph{software} en la que se actualiza y mantiene aunque se hayan publicado nuevas versiones del \emph{software}.
+    \item[\textbf{CLI}] \emph{Command Line Interface}. Método que permite a los usuarios dar instrucciones a algún programa informático por medio de una línea de texto simple
+    \item[\textbf{XML}] \emph{eXtensible Markup Language}. Traducido como \emph{Lenguaje de Marcado Extensible} o \emph{Lenguaje de Marcas Extensible}, es un meta-lenguaje que permite definir lenguajes de marcas desarrollado por el World Wide Web Consortium (W3C) utilizado para almacenar datos en forma legible.
+    \item[\textbf{JSON}] \emph{Javascript Object Notation}. es un formato de representación de datos, alternativa a XML.
+    \item[\textbf{pipeline}] Es una cadena de elementos que procesan o generan algo de manera que el elemento siguiente utiliza el resultado del paso anterior.
+    \item[\textbf{CI}] \emph{Continuous Integration}. Es una \emph{pipeline} cuyo objetivo es la de crear un artefacto \emph{software} tras cada cambio en el sistema de control de versiones.
+    \item[\textbf{CD}] \emph{Continuous Delivery}. Es una \emph{pipeline} que además de realizar las funciones de CI, se encarga del despliegue a producción del artefacto generado. 
+    \item[\textbf{honeypot}] o sistema trampa o señuelo, es una herramienta de la seguridad informática dispuesto en una red o sistema informático para ser el objetivo de un posible ataque informático, y así poder detectarlo y obtener información del mismo y del atacante.
+    \item[\textbf{kernel}] Núcleo del sistema, cuando hablamos del \emph{kernel} en este proyecto nos referimos normalmente al \emph{kernel} de un sistema GNU/Linux. 
+    \item[\textbf{container}] Proceso del sistema que tiene asociado un \emph{namespace}, un \emph{cgroup} y cierto acceso a funciones del \emph{kernel} que permite virtualizar un sistema a nivel de sistema operativo. 
+    \item[\textbf{namespace}] Mecanismo mediante el kernel limita la visualización del sistema total o parcialmente a un proceso, así un proceso X en un \emph{namespace} N podrá visualizar o no
+    dispositivos de red, lista de procesos, discos duros \ldots (véase \cite{wiki-namespaces}).
+    \item[\textbf{cgroup}] Mecanismo mediante el kernel limita la cantidad de recursos de CPU, RAM y operaciones de entrada/salida que un proceso puede realizar. (véase \cite{wiki-cgroups})
 \end{itemize}
 
-\subsection{Tercera iteración: construcción del recolector.}
-
-Con las sondas funcionando, el siguiente paso es la extracción, almacenamiento y procesado de la información que capturan. En esta iteración
-se decide utilizar \emph{Elasticsearch} como motor base de datos, se desarrollan \emph{metadata\_extractor} para recolectar y procesar las trazas, y 
-la API de registro de sondas (\emph{Sinker Registry API}). 
-También se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
-con \emph{Filebeat} y \emph{Logstash}.
-
-En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
-
-\subsection{Cuarta iteración: construcción de la API.}
-
-Con nuestro proceso de extracción, procesado y almacenamiento de datos solo queda trabajar en la explotación y visualización de la misma. En esta iteración
-el enfoque es en el de construir una API de clientes \emph{Beekeeper API}, en la sección \ref{sec:arquitectura-api-clientes} se realiza
-una descripción completa del sistema.
-
-\subsection{Quinta iteración: redacción de la memoria del proyecto.}
-
-Como dirían los anglosajones \emph{last, but not least}. Con el sistema funcionando y en producción solo queda la redacción de esta memoria
-para dar por acabado el presente PFC.
-
-\section{Calendarización}
-
-En el cuadro \ref{tab:calendarizacion-pfc} puede verse el tiempo invertido en cada iteración. No se puede observar el desfase 
-entre la estimación y el coste invertido porque nunca se ha estimado la duración de las tareas, solo se ha estimado la complejidad
-de las mismas.
-
-Atendiendo a ese criterio, la calendarización cuadra con la estimación de \emph{complejidad} del proyecto, las fases de prototipo y construcción
-de la sonda serían las más complejas puesto que se alejan más del dominio de conocimiento del desarrollador del proyecto.
-
-\begin{table}[h]
-    \centering
-    \begin{tabular}[!h]{|c|l|l|c|}
-    \hline
-    \thead{Iteración} & \thead{Inicio} & \thead{Fin} &  \thead{Horas invertidas aprox} \\
-    \hline
-    \textbf{1ª} & 15/2/2016 & 21/5/2016 & 140 horas \\
-    \hline
-    \textbf{2ª} & 21/5/2016 & 20/5/2017 & 520 horas \\
-    \hline
-    \textbf{3ª} & 21/5/2017 & 21/7/2017 & 90 horas  \\
-    \hline
-    \textbf{4ª} & 21/7/2017 & 08/8/2017 & 20 horas  \\
-    \hline
-    \textbf{5ª} & 08/8/2017 & 03/9/2017 & 40 horas \\
-    \hline
-    \end{tabular}
-    \caption{\label{tab:calendarizacion-pfc} Calendarización del proyecto }
-    \end{table}
-
-\section{Recursos inventariables}
-
-Los recursos de \emph{hardware} utilizados para la elaboración del presente proyecto y su puesta en marcha, se detallan a continuación:
-
-\begin{itemize}
-    \item Servidor con gran capacidad de almacenamiento y procesamiento.
-    \begin{itemize}
-        \item CPU: Intel(R) Core(TM) i7-3770 CPU @ 3.40GHz
-        \item RAM: 4 x Kingston DDR3 8GiB (32 GiB)
-        \item Disco: RAID 1 por software de 2 discos TOSHIBA DT01ACA300 de 3TiB
-    \end{itemize}
-
-    \item Servidor para sonda en Alemania en el proveedor \emph{Vultr} virtualizado.
-    \begin{itemize}
-        \item CPU: 1 vCore
-        \item RAM: 1GiB RAM.
-        \item Disco: 20GiB de disco
-    \end{itemize}
-
-    \item Servidor para sonda en Holanda en el proveedor \emph{Digital Ocean} virtualizado.
-    \begin{itemize}
-        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
-        \item RAM: 1GiB RAM.
-        \item Disco: 30GiB de disco.
-    \end{itemize}
-
-    \item Servidor para \emph{PKI} y control en Londres en el proveedor \emph{Digital Ocean} virtualizado.
-    \begin{itemize}
-        \item CPU: 1 vCore Intel(R) Xeon(R) CPU E5-2630L 0 @ 2.00GHz.
-        \item RAM: 1GiB RAM.
-        \item Disco: 30GiB de disco.
-    \end{itemize}
-
-    \item Registro DNS de dominio para la \emph{honeypot} y la API de clientes en \emph{Amazon Web Services} y monitorización
-    externa del servicio.
-
-\end{itemize}
-
-
-\section{Presupuesto}
-
-Para el presupuesto debemos desglosar dos conceptos fundamentales:
-
-\begin{itemize}
-    \item El coste en \emph{hardware} y servicios.
-    \item El coste del personal durante el tiempo de desarrollo y mantenimiento.
-\end{itemize}
-
-Si consideramos el desarrollo \emph{acabado}, se necesitará un número de horas del personal para el mantenimiento del proyecto, 
-incluyendo actualizaciones de seguridad de los servidores, gestión de incidentes, arreglo de errores etc.
-
-En cuanto al personal. tanto para el desarrollo como para el mantenimiento del mismo necesitamos un perfil \emph{DevSecOps}. Dicho de otro modo
-alguien capaz de involucrarse indistintamente en tareas de codificación, administración de servidores y tareas de seguridad. 
-
-En el convenio colectivo de empresas de ingeniería (véase \cite{boe-convenio}) se detalla que un licenciado y/o analista cobrará un sueldo bruto de 
-23.618,28 € al año. El perfil previamente descrito entraría dentro de dicha categoría profesional cifrándose el precio/hora en
-14 € / hora. 
-
-El cuadro \ref{tab:costes-totales} incluye los costes totales del proyecto y sus conceptos hasta la fecha de redacción de la presente
-memoria, no se incluye el coste de mantenimiento por parte del personal. Es el alumno el que desarrolla las labores de personal, se incluyen
-los costes aproximados para valorar la dimensión económica de ampliar el equipo técnico.
-
-\begin{table}[h]
-    \centering
-    \begin{tabular}[!h]{|c|c|c|}
-    \hline
-    \thead{Concepto} & \thead{Unidades} & \thead{precio/mes}  \\
-    \hline
-    Servidor en \emph{Hetzner} para recolector & 1 & 41,69 € \\
-    \hline
-    Servidor en \emph{Vultr} para sonda & 1 & 12 € \\
-    \hline
-    Servidor en \emph{Digital Ocean} para sonda & 1 & 12 € \\
-    \hline
-    Servidor en \emph{Digital Ocean} para \emph{PKI} y control & 1 & 12 € \\
-    \hline
-    Registro DNS y monitorización externa en \emph{AWS} & 1 & 10 € \\
-    \hline
-    \textbf{Total / mes} & - & \textbf{87,69 €} \\
-    \hline
-    \end{tabular}
-    \caption{\label{tab:presupuesto-mensual} Tabla de costes mensual }
-    \end{table}
-
-
-    \begin{table}[h]
-        \centering
-        \begin{tabular}[!h]{|c|c|}
-        \hline
-        \thead{Concepto} & \thead{Precio}  \\
-        \hline
-        Coste del servidor para prototipo (3 meses) & 30 € \\
-        \hline
-        Coste de \emph{hardware} del proyecto (15 meses) & 87,69 x 15 = 1315,35 €  \\
-        \hline
-        Coste de desarrollo del proyecto & 810 horas x 14 €/hora =  11340 € \\
-        \hline
-        \textbf{Total} &  \textbf{12685,35 €} \\
-        \hline
-        \end{tabular}
-        \caption{\label{tab:costes-totales} Tabla de costes del proyecto hasta fecha actual }
-        \end{table}
-    
     
 
 
