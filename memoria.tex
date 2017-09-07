@@ -109,7 +109,7 @@ la API de registro de sondas (\emph{Sinker Registry API}).
 También se recolectan las alertas utilizando \emph{rsyslog} y se escriben en \emph{Elasticsearch}
 con \emph{Filebeat} y \emph{Logstash}.
 
-En el apartado \ref{sec:arquitecura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
+En el apartado \ref{sec:arquitectura-del-colector} se detalla las razones y el procedimiento seguido para las implementaciones de estas funciones.
 
 \subsection{Cuarta iteración: construcción de la API.}
 
@@ -467,7 +467,6 @@ Si se utiliza \emph{eBPF}, se encuentran diferencias notables respecto a otras o
 \end{enumerate}
 
 Por estas razones se descarta el uso de \emph{eBPF} que, aun siendo prometedor, todavía no es suficientemente estable para acometer este proyecto.
-\clearpage
 
 \subsection{Obtención de la información del \emph{kernel}: crear un módulo}
 \label{subsec:kernel-modulo}
@@ -587,6 +586,8 @@ La sonda no requiere instalación adicional de \emph{software} ya que solo requi
 Si la conexión de red de la sonda no funciona al realizar la petición, el evento también se perderá.
 
 \subsubsection{Notificaciones usando un sistema de colas}
+\label{subsec:notificaciones-falco}
+
 
 Habrá que instalar, configurar y mantener un sistema de colas como \emph{RabbitMQ, ZeroMQ, Kafka} 
 o pagar por el uso de sistemas de colas en el \emph{cloud} como \emph{AWS SQS, AWS Kinesis o Google Cloud PubSub}.
@@ -779,6 +780,7 @@ demasiadas trazas para el análisis histórico y/o para poder reprocesar.
 A pesar de lo anterior, su simplicidad y bajo coste -junto a su compatibilidad con otras opciones- la convierten en la opción escogida.
 
 \subsection{Modelo de datos del sistema}
+\label{subsec:modelo-de-datos}
 
 No se entrará en el detalle de qué sistema de gestión de bases de datos será utilizado, pero sí  se ha de analizar cual es el modelo de datos
 adecuado para el proyecto en el contexto del dominio.
@@ -854,6 +856,7 @@ un método que permita la evolución o el cambio de la misma. Existen varios mé
 Aunque el versionado como cabecera HTTP se adhiera más a \emph{REST}, según algunas fuentes, el versionado por URL es más popular (\cite{3scale-versionado)} y, por ello, escogemos este método.
 
 \subsubsection{Definición de la API}
+\label{subsubsec:definicion-api}
 
 \begin{table}[h]
     \centering
@@ -900,7 +903,7 @@ este último más utilizado en la actualidad.
 
 Como esquema de datos, podremos utilizar o basarnos en \emph{STIX} (\cite{oasis-stix}), un lenguaje estructurado para compartir información de seguridad entre organismos
 desarrollado por el grupo OASIS.
-\clearpage
+
 \chapter{Resultados finales}
 \minitoc{}
 \section{Arquitectura}
@@ -1782,6 +1785,8 @@ el resto del tráfico se entregará con el ancho de banda disponible.
 
 
 \section{Arquitectura del colector}
+\label{sec:arquitectura-del-colector}
+
 
 El servidor que realiza las funciones de recolector, también realiza las funciones
 de \emph{backend} y \emph{frontend} de la API de clientes. La razón principal
@@ -1920,7 +1925,7 @@ de diversos objetos.
 \end{figure}
 
 \subsubsection{Implementación de la API}
-\label{sinkers-regeistry-api-implementacion}
+\label{subsubsec:sinkers-registry-api-implementacion}
 
 La API sigue el patrón MVC y se diseña como API REST, escogiendo \emph{Go} como lenguaje de programación para implementarla. Se escoge \emph{Go} 
 como lenguaje para mantener la homogeneidad con otras herramientas del proyecto, para facilitar la reutilización de código,
@@ -2145,7 +2150,7 @@ descrito en el código \ref{listing:metadata-extractor-docker-compose}.
 
 \subsection{Recolección de \emph{logs} y procesado de alertas}
 
-Tal y como se describe en \ref{subsec:notificaciones-falco}, se guardan las alertas en un fichero de log que se recupera a través de
+Tal y como se describe en \ref{subsubsec:usando-rsyslog}, se guardan las alertas en un fichero de log que se recupera a través de
 \emph{rsyslog}. 
 Se instala el servidor \emph{rsyslog} en el recolector y clientes \emph{rsyslog} en las sondas, y se configura \emph{rsyslog}
 para utilizar un canal cifrado para la comunicación mediante certificados SSL firmados por nuestra propia CA.
@@ -2567,7 +2572,7 @@ mejorar la presentación de los datos mejorando la API para incluir otros format
 Habría que realizar un desembolso económico importante en horas de trabajo y servidores para separar los servicios expuestos
 en \ref{fig:arquitectura-recolector} que son desplegados actualmente en un solo servidor. La mejora seía separar en varios servidores que creciesen
 de manera horizontal atendiendo a la carga. Esto, posiblemente, involucraría el despliegue de un sistema de colas, como se analizó
-en \ref{subsubsec:notificaciones-colas}.
+en \ref{subsec:notificaciones-falco}.
 
 El proceso de provisión y configuración también debería mejorar para acomodarse a esta nueva situación y pasar de utilizar \emph{Ansible}
 en un enfoque de \emph{PhoenixServers} a imágenes inmutables con una \emph{pipeline} de \emph{CI/CD}.
@@ -2615,23 +2620,15 @@ poco común en el area de la seguridad informática.
 Este proyecto ha sido un enorme proceso de aprendizaje personal para este autor que ha aplicado para su consecución además de conocimiento técnico, todo lo aprendido
 en gestión de proyectos, gestión de expectativas y entrega continua asumidos en el mundo laboral.
 
-\chapter{Bibliografia, disposiciones legales y normas aplicadas}
-\minitoc
+\chapter{Bibliografia}
 
 \nocite{*}
 \nopagebreak
-\printbibheading[title={Normas y referencias},heading=subbibnumbered]
-\subsection{Disposiciones legales y normas aplicadas}
-\subsubsection{Licencia FDL aplicable a esta memoria}
-\input{./fdl.tex}
-\subsubsection{Licencia Apache 2.0 aplicable a todo el código fuente}
-Todo el código fuente listado en esta memoria o en soporte digital anexo se licencia bajo Apache License 2.0, una licencia libre sin \emph{copyleft} compatible con la GPL.
-Se puede consultar los términos de la licencia en la página de Apache \url{http://www.apache.org/licenses/LICENSE-2.0}
-
-\subsection{Bibliografia}
+\printbibheading[title={Bibliografia},heading=none]
 \printbibliography[title={Referencias},heading=none]
 \nopagebreak
-\section{Definiciones y abreviaturas}
+
+\section*{Definiciones y abreviaturas}
 
 \begin{itemize}
     \item[\textbf{API}] \emph{Application program interface}. interfaz desarrollada para ser utilizada por \emph{software} y no directamente para humanos.
@@ -2649,6 +2646,9 @@ Se puede consultar los términos de la licencia en la página de Apache \url{htt
     dispositivos de red, lista de procesos, discos duros \ldots (véase \cite{wiki-namespaces}).
     \item[\textbf{cgroup}] Mecanismo mediante el kernel limita la cantidad de recursos de CPU, RAM y operaciones de entrada/salida que un proceso puede realizar. (véase \cite{wiki-cgroups})
 \end{itemize}
+
+
+
 
     
 
